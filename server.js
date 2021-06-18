@@ -46,7 +46,9 @@ client.on('message', message => {
     }
     if (message.content.match(/.nit rt/)) {
         let sai = message.member.voice;
-        sendMsg(message.channel.id, sai);
+        if(sai){
+            sendMsg(message.channel.id, sai);
+        }
         return;
     }
 });
