@@ -45,10 +45,7 @@ client.on('message', message => {
         return;
     }
     if (message.content.match(/.nit rt/)) {
-        if (member.voice.channel != null) {
-            let sai = Math.floor(Math.random() * 6);
-            sendMsg(message.channel.id, sai);
-        }
+        sendMsg(message.channel.id, message.member.voice.channel);
         return;
     }
 });
