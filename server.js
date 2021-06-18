@@ -45,7 +45,7 @@ client.on('message', message => {
         return;
     }
     if (message.content.match(/.nit rt/)) {
-        let sai = message.member.voice;
+        let sai = message.member.voiceChannel;
         if(sai){
             sendMsg(message.channel.id, sai);
         }
