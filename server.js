@@ -32,7 +32,7 @@ http.createServer(function(req, res){
 
 client.on('ready', message =>{
   console.log('Bot準備完了～');
-  client.user.setPresence({ game: { name: 'げーむ' } });
+  client.user.setPresence({ game: { name: '.nit help' } });
 });
 
 client.on('message', message =>{
@@ -43,8 +43,8 @@ client.on('message', message =>{
     sendReply(message, "呼びましたか？");
     return;
   }
-  if (message.content.match(/にゃ～ん|にゃーん/)){
-    let text = "にゃ～ん";
+  if (message.content.match(/.nit help/)){
+    let text = "ヘルプ";
     sendMsg(message.channel.id, text);
     return;
   }
