@@ -1,5 +1,5 @@
 /*
-    using discord.js v11.6.4
+    using discord.js v12.5.3
 */
 
 const http = require('http');
@@ -55,7 +55,7 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit help/)) 
     {
-        const embed = new discord.RichEmbed()
+        const embed = new discord.MessageEmbed()
             .setTitle("ヘルプ")
             .setColor('#00a2ff')
             .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
@@ -64,7 +64,7 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit rt/)) 
     {
-        let vc = message.member.voiceChannel;
+        const vc = message.member.voice.channel;
         if(vc)
         {
             let members = vc.members;
@@ -76,23 +76,27 @@ client.on('message', message =>
                 for(let i = 0; i < 3; i++)
                 {
                     let index = Math.floor(Math.random() * members.size);
-                    teamMember.push(members[index]);
                     members.splice(index, 1);
                 }
-                teams.push({name: "チーム" + teamCount, value: teamMember});
+                teams.push({name: "チーム" + teamCount, value: teamMember.map(m => m.user)});
                 teamCount++;
             }
             if(0 < members.size)
             {
-                teams.push({name: "余ったメンバー", value: members});
+                teams.push({name: "余ったメンバー", value: members.map(m => m.user)});
             }
-            const embed = new discord.RichEmbed()
+            const embed = new discord.MessageEmbed()
                 .setTitle("チーム分け結果")
             teams.forEach(team => 
                 {
                     embed.addField(team.name, team.value);
                 });
             message.channel.send(embed);
+        }
+        else
+        {
+            let text = "ボイスチャンネルの収得に失敗しました。\n";
+            message.channel.send(text);
         }
         return;
     }
