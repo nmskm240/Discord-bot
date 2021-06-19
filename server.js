@@ -44,8 +44,8 @@ client.on('message', message => {
         return;
     }
     if (message.content.startsWith(".nit")) {
-        const command = message.content.split(' ')[1];
-        if (command.match(/help/)) {
+        const commandAndParameter = message.content.split(' ');
+        if (commandAndParameter[1].match(/help/)) {
             const embed = new discord.MessageEmbed()
                 .setTitle("ヘルプ")
                 .setColor('#00a2ff')
@@ -53,15 +53,21 @@ client.on('message', message => {
             message.channel.send(embed);
             return;
         }
-        if (command.match(/rt/)) {
+        if (commandAndParameter[1].match(/rt/)) {
             const vc = message.member.voice.channel;
             if (vc) {
                 let members = vc.members;
                 let teams = [];
                 let teamCount = 1;
-                while (3 < members.size) {
+                let teamNumber = 3;
+                if(3 <= commandAndParameter.length)
+                {
+                    let parsed = parseInt(commandAndParameter[2], 10);
+                    teamNumber = (isNaN(parsed)) ? 3 : parsed;
+                }
+                while (teamNumber < members.size) {
                     let teamMember = [];
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 0; i < teamNumber; i++) {
                         let index = Math.floor(Math.random() * members.size);
                         members.splice(index, 1);
                     }
