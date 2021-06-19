@@ -55,7 +55,7 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit help/)) 
     {
-        const embed = new discord.MessageEmbed()
+        const embed = new discord.RichEmbed()
             .setTitle("ヘルプ")
             .setColor('#00a2ff')
             .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
@@ -82,19 +82,17 @@ client.on('message', message =>
                 teams.push({name: "チーム" + teamCount, value: teamMember});
                 teamCount++;
             }
-            if(0 < members)
+            if(0 < members.size)
             {
                 teams.push({name: "余ったメンバー", value: members});
             }
-            message.channel.send(
+            const embed = new discord.RichEmbed()
+                .setTitle("チーム分け結果")
+            teams.forEach(team => 
                 {
-                    embed:
-                    {
-                        description: "チーム分け結果",
-                        fields: teams,
-                    }
-                }
-            );
+                    embed.addField(team.name, team.value);
+                });
+            message.channel.send(embed);
         }
         return;
     }
