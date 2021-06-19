@@ -7,26 +7,20 @@ const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
 
-http.createServer(function (req, res) 
-{
-    if (req.method == 'POST') 
-    {
+http.createServer(function (req, res) {
+    if (req.method == 'POST') {
         var data = "";
-        req.on('data', function (chunk) 
-        {
+        req.on('data', function (chunk) {
             data += chunk;
         });
-        req.on('end', function () 
-        {
-            if (!data) 
-            {
+        req.on('end', function () {
+            if (!data) {
                 res.end("No post data");
                 return;
             }
             var dataObject = querystring.parse(data);
             console.log("post:" + dataObject.type);
-            if (dataObject.type == "wake") 
-            {
+            if (dataObject.type == "wake") {
                 console.log("Woke up in post");
                 res.end();
                 return;
@@ -34,84 +28,73 @@ http.createServer(function (req, res)
             res.end();
         });
     }
-    else if (req.method == 'GET') 
-    {
+    else if (req.method == 'GET') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Discord Bot is active now\n');
     }
 }).listen(3000);
 
-client.on('ready', message => 
-{
+client.on('ready', message => {
     console.log('Bot準備完了～');
     client.user.setPresence({ game: { name: '.nit help' } });
 });
 
-client.on('message', message => 
-{
-    if (message.author.id == client.user.id || message.author.bot) 
-    {
+client.on('message', message => {
+    if (message.author.id == client.user.id || message.author.bot) {
         return;
     }
-    if (message.content.match(/.nit help/)) 
-    {
-        const embed = new discord.MessageEmbed()
-            .setTitle("ヘルプ")
-            .setColor('#00a2ff')
-            .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
-        message.channel.send(embed);
-        return;
-    }
-    if (message.content.match(/.nit rt/)) 
-    {
-        const vc = message.member.voice.channel;
-        if(vc)
-        {
-            let members = vc.members;
-            let teams = [];
-            let teamCount = 1;
-            while(3 < members.size)
-            {
-                let teamMember = [];
-                for(let i = 0; i < 3; i++)
-                {
-                    let index = Math.floor(Math.random() * members.size);
-                    members.splice(index, 1);
-                }
-                teams.push({name: "チーム" + teamCount, value: teamMember.map(m => m.user)});
-                teamCount++;
-            }
-            if(0 < members.size)
-            {
-                teams.push({name: "余ったメンバー", value: members.map(m => m.user)});
-            }
+    if (message.content.startsWith(".nit")) {
+        const command = message.content.split(' ')[1];
+        if (command.match(/help/)) {
             const embed = new discord.MessageEmbed()
-                .setTitle("チーム分け結果")
-            teams.forEach(team => 
-                {
+                .setTitle("ヘルプ")
+                .setColor('#00a2ff')
+                .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
+            message.channel.send(embed);
+            return;
+        }
+        if (command.match(/rt/)) {
+            const vc = message.member.voice.channel;
+            if (vc) {
+                let members = vc.members;
+                let teams = [];
+                let teamCount = 1;
+                while (3 < members.size) {
+                    let teamMember = [];
+                    for (let i = 0; i < 3; i++) {
+                        let index = Math.floor(Math.random() * members.size);
+                        members.splice(index, 1);
+                    }
+                    teams.push({ name: "チーム" + teamCount, value: teamMember.map(m => m.user) });
+                    teamCount++;
+                }
+                if (0 < members.size) {
+                    teams.push({ name: "余ったメンバー", value: members.map(m => m.user) });
+                }
+                const embed = new discord.MessageEmbed()
+                    .setTitle("チーム分け結果")
+                teams.forEach(team => {
                     embed.addField(team.name, team.value);
                 });
-            message.channel.send(embed);
+                message.channel.send(embed);
+            }
+            else {
+                let text = "ボイスチャンネルの収得に失敗しました。\n";
+                message.channel.send(text);
+            }
+            return;
         }
-        else
-        {
-            let text = "ボイスチャンネルの収得に失敗しました。\n";
-            message.channel.send(text);
-        }
-        return;
     }
 });
 
-if (process.env.DISCORD_BOT_TOKEN == undefined) 
-{
+if (process.env.DISCORD_BOT_TOKEN == undefined) {
     console.log('DISCORD_BOT_TOKENが設定されていません。');
     process.exit(0);
 }
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-function sendMsg(channelId, text, option = {}) 
-{
+function sendMsg(channelId, text, option = {}) {
     client.channels.get(channelId).send(text, option)
         .then(console.log("メッセージ送信: " + text + JSON.stringify(option)))
         .catch(console.error);
