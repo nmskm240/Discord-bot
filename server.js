@@ -57,6 +57,13 @@ client.on('message', message =>
                 {
                     color: 7506394,
                     description: "ヘルプ",
+                    fields: [
+                        {
+                            name: ".nit rt [members]",
+                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n" + 
+                                    "members:1チームの人数を指定。省略時は3人。"
+                        }
+                    ]
                 }
             }
         );
