@@ -41,7 +41,15 @@ client.on('message', message => {
     }
     if (message.content.match(/.nit help/)) {
         let text = "ヘルプ";
-        sendMsg(message.channel.id, text);
+        message.channel.send(
+            {
+                embed:
+                {
+                    color: 7506394,
+                    description: text,
+                }
+            }
+        );
         return;
     }
     if (message.content.match(/.nit rt/)) {
