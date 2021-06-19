@@ -51,21 +51,11 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit help/)) 
     {
-        message.channel.send(
-            {
-                embed:
-                {
-                    color: 7506394,
-                    description: "ヘルプ",
-                    fields: [
-                        {
-                            name: ".nit rt",
-                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n"
-                        }
-                    ]
-                }
-            }
-        );
+        const embed = new Discord.MessageEmbed()
+            .setTitle("ヘルプ")
+            .setColor('#00a2ff')
+            .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
+        message.channel.send(embed);
         return;
     }
     if (message.content.match(/.nit rt/)) 
@@ -100,7 +90,7 @@ client.on('message', message =>
                         fields: teams,
                     }
                 }
-            )
+            );
         }
         return;
     }
