@@ -3,20 +3,26 @@ const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
 
-http.createServer(function (req, res) {
-    if (req.method == 'POST') {
+http.createServer(function (req, res) 
+{
+    if (req.method == 'POST') 
+    {
         var data = "";
-        req.on('data', function (chunk) {
+        req.on('data', function (chunk) 
+        {
             data += chunk;
         });
-        req.on('end', function () {
-            if (!data) {
+        req.on('end', function () 
+        {
+            if (!data) 
+            {
                 res.end("No post data");
                 return;
             }
             var dataObject = querystring.parse(data);
             console.log("post:" + dataObject.type);
-            if (dataObject.type == "wake") {
+            if (dataObject.type == "wake") 
+            {
                 console.log("Woke up in post");
                 res.end();
                 return;
@@ -24,37 +30,50 @@ http.createServer(function (req, res) {
             res.end();
         });
     }
-    else if (req.method == 'GET') {
+    else if (req.method == 'GET') 
+    {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('Discord Bot is active now\n');
     }
 }).listen(3000);
 
-client.on('ready', message => {
+client.on('ready', message => 
+{
     console.log('Bot準備完了～');
     client.user.setPresence({ game: { name: '.nit help' } });
 });
 
-client.on('message', message => {
-    if (message.author.id == client.user.id || message.author.bot) {
+client.on('message', message => 
+{
+    if (message.author.id == client.user.id || message.author.bot) 
+    {
         return;
     }
-    if (message.content.match(/.nit help/)) {
-        let text = "ヘルプ";
+    if (message.content.match(/.nit help/)) 
+    {
         message.channel.send(
             {
                 embed:
                 {
                     color: 7506394,
-                    description: text,
+                    description: "ヘルプ",
+                    fields: [
+                        {
+                            name: ".nit rt [members]",
+                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n" + 
+                                    "members:1チームの人数を指定。省略時は3人。"
+                        }
+                    ]
                 }
             }
         );
         return;
     }
-    if (message.content.match(/.nit rt/)) {
+    if (message.content.match(/.nit rt/)) 
+    {
         let vc = message.member.voiceChannel;
-        if(vc){
+        if(vc)
+        {
             let size = vc.members.size;
             sendMsg(message.channel.id, size);
         }
@@ -62,14 +81,16 @@ client.on('message', message => {
     }
 });
 
-if (process.env.DISCORD_BOT_TOKEN == undefined) {
+if (process.env.DISCORD_BOT_TOKEN == undefined) 
+{
     console.log('DISCORD_BOT_TOKENが設定されていません。');
     process.exit(0);
 }
 
 client.login(process.env.DISCORD_BOT_TOKEN);
 
-function sendMsg(channelId, text, option = {}) {
+function sendMsg(channelId, text, option = {}) 
+{
     client.channels.get(channelId).send(text, option)
         .then(console.log("メッセージ送信: " + text + JSON.stringify(option)))
         .catch(console.error);
