@@ -1,3 +1,7 @@
+/*
+    using discord.js v11.6.4
+*/
+
 const http = require('http');
 const querystring = require('querystring');
 const discord = require('discord.js');
