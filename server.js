@@ -59,9 +59,8 @@ client.on('message', message =>
                     description: "ヘルプ",
                     fields: [
                         {
-                            name: ".nit rt [members]",
-                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n" + 
-                                    "members:1チームの人数を指定。省略時は3人。"
+                            name: ".nit rt",
+                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n"
                         }
                     ]
                 }
@@ -74,8 +73,34 @@ client.on('message', message =>
         let vc = message.member.voiceChannel;
         if(vc)
         {
-            let size = vc.members.size;
-            sendMsg(message.channel.id, size);
+            let members = vc.members;
+            let teams = [];
+            let teamCount = 1;
+            while(3 < members.size)
+            {
+                let teamMember = [];
+                for(let i = 0; i < 3; i++)
+                {
+                    let index = Math.floor(Math.random() * members.size);
+                    teamMember.push(members[index]);
+                    members.splice(index, 1);
+                }
+                teams.push({name: "チーム" + teamCount, value: teamMember});
+                teamCount++;
+            }
+            if(0 < members)
+            {
+                teams.push({name: "余ったメンバー", value: members});
+            }
+            message.channel.send(
+                {
+                    embed:
+                    {
+                        description: "チーム分け結果",
+                        fields: teams,
+                    }
+                }
+            )
         }
         return;
     }
