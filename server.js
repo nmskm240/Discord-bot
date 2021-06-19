@@ -56,25 +56,26 @@ client.on('message', message => {
         if (commandAndParameter[1].match(/rt/)) {
             const vc = message.member.voice.channel;
             if (vc) {
-                let members = vc.members;
+                const exclusionMember = message.mentions.members;
+                let members = vc.members.filter(m => exclusionMember.some(em => em.user.id != m.user.id)).array();
                 let teams = [];
                 let teamCount = 1;
                 let teamNumber = 3;
-                if(3 <= commandAndParameter.length)
-                {
+                if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
                     teamNumber = (isNaN(parsed)) ? 3 : parsed;
                 }
-                while (teamNumber < members.size) {
+                while (teamNumber <= members.length) {
                     let teamMember = [];
                     for (let i = 0; i < teamNumber; i++) {
-                        let index = Math.floor(Math.random() * members.size);
+                        let index = Math.floor(Math.random() * members.length);
+                        teamMember.push(members[index]);
                         members.splice(index, 1);
                     }
                     teams.push({ name: "チーム" + teamCount, value: teamMember.map(m => m.user) });
                     teamCount++;
                 }
-                if (0 < members.size) {
+                if (0 < members.length) {
                     teams.push({ name: "余ったメンバー", value: members.map(m => m.user) });
                 }
                 const embed = new discord.MessageEmbed()
