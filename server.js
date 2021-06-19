@@ -1,3 +1,7 @@
+/*
+    using discord.js v11.6.4
+*/
+
 const http = require('http');
 const querystring = require('querystring');
 const discord = require('discord.js');
@@ -51,21 +55,11 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit help/)) 
     {
-        message.channel.send(
-            {
-                embed:
-                {
-                    color: 7506394,
-                    description: "ヘルプ",
-                    fields: [
-                        {
-                            name: ".nit rt",
-                            value: "コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n"
-                        }
-                    ]
-                }
-            }
-        );
+        const embed = new discord.RichEmbed()
+            .setTitle("ヘルプ")
+            .setColor('#00a2ff')
+            .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
+        message.channel.send(embed);
         return;
     }
     if (message.content.match(/.nit rt/)) 
@@ -88,19 +82,17 @@ client.on('message', message =>
                 teams.push({name: "チーム" + teamCount, value: teamMember});
                 teamCount++;
             }
-            if(0 < members)
+            if(0 < members.size)
             {
                 teams.push({name: "余ったメンバー", value: members});
             }
-            message.channel.send(
+            const embed = new discord.RichEmbed()
+                .setTitle("チーム分け結果")
+            teams.forEach(team => 
                 {
-                    embed:
-                    {
-                        description: "チーム分け結果",
-                        fields: teams,
-                    }
-                }
-            )
+                    embed.addField(team.name, team.value);
+                });
+            message.channel.send(embed);
         }
         return;
     }
