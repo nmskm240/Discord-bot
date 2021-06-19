@@ -51,7 +51,7 @@ client.on('message', message =>
     }
     if (message.content.match(/.nit help/)) 
     {
-        const embed = new Discord.MessageEmbed()
+        const embed = new discord.MessageEmbed()
             .setTitle("ヘルプ")
             .setColor('#00a2ff')
             .addField('.nit rt', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n')
