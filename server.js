@@ -2,18 +2,18 @@
     using discord.js v12.5.3
 */
 
-const http = require('http');
-const querystring = require('querystring');
-const discord = require('discord.js');
+const http = require("http");
+const querystring = require("querystring");
+const discord = require("discord.js");
 const client = new discord.Client();
 
 http.createServer(function (req, res) {
-    if (req.method == 'POST') {
+    if (req.method == "POST") {
         var data = "";
-        req.on('data', function (chunk) {
+        req.on("data", function (chunk) {
             data += chunk;
         });
-        req.on('end', function () {
+        req.on("end", function () {
             if (!data) {
                 res.end("No post data");
                 return;
@@ -28,30 +28,30 @@ http.createServer(function (req, res) {
             res.end();
         });
     }
-    else if (req.method == 'GET') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Discord Bot is active now\n');
+    else if (req.method == "GET") {
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("Discord Bot is active now\n");
     }
 }).listen(3000);
 
-client.on('ready', message => {
-    console.log('Bot準備完了～');
-    client.user.setPresence({ game: { name: '.nit help' } });
+client.on("ready", message => {
+    console.log("Bot準備完了～");
+    client.user.setPresence({ game: { name: ".nit help" } });
 });
 
-client.on('message', message => {
+client.on("message", message => {
     if (message.author.id == client.user.id || message.author.bot) {
         return;
     }
     if (message.content.startsWith(".nit")) {
-        const commandAndParameter = message.content.split(' ');
+        const commandAndParameter = message.content.split(" ");
         if (commandAndParameter[1].match(/help/)) {
             const embed = new discord.MessageEmbed()
                 .setTitle("ヘルプ")
-                .setColor('#00a2ff')
-                .addField('.nit　rt　1チームの人数　除外メンバー', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n' +
-                    '1チームの人数：[省略可]1チームの人数を指定。省略時は3人。\n' +
-                    '除外メンバー：[省略可][複数選択可]メンションで指定。\n')
+                .setColor("#00a2ff")
+                .addField(".nit　rt　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
+                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
+                    "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
             message.channel.send(embed);
             return;
         }
@@ -97,7 +97,7 @@ client.on('message', message => {
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
-    console.log('DISCORD_BOT_TOKENが設定されていません。');
+    console.log("DISCORD_BOT_TOKENが設定されていません。");
     process.exit(0);
 }
 
