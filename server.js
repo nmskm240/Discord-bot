@@ -103,7 +103,8 @@ client.on("message", message => {
             const embed = new discord.MessageEmbed()
                 .setAuthor(message.author.username)
                 .setTitle("募集中")
-                .setDescription(commandAndParameter[2])
+                .setDescription(commandAndParameter[2] + "\n" + 
+                    "✅：参加、❎：参加取消\n")
                 .setColor("#00a2ff")
                 .addField("参加者", "なし")
             message.channel.send(embed)
