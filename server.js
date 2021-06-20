@@ -102,9 +102,3 @@ if (process.env.DISCORD_BOT_TOKEN == undefined) {
 }
 
 client.login(process.env.DISCORD_BOT_TOKEN);
-
-function sendMsg(channelId, text, option = {}) {
-    client.channels.get(channelId).send(text, option)
-        .then(console.log("メッセージ送信: " + text + JSON.stringify(option)))
-        .catch(console.error);
-}
