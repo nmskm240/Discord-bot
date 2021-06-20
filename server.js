@@ -58,8 +58,8 @@ client.on('message', message => {
         if (commandAndParameter[1].match(/rt/)) {
             const vc = message.member.voice.channel;
             if (vc) {
-                const exclusionMember = message.mentions.members;
-                let members = vc.members.filter(m => exclusionMember.some(em => em.user.id != m.user.id)).array();
+                const exclusionMember = message.mentions.members.array();
+                let members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
                 let teams = [];
                 let teamCount = 1;
                 let teamNumber = 3;
