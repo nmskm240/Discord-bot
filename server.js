@@ -49,9 +49,9 @@ client.on('message', message => {
             const embed = new discord.MessageEmbed()
                 .setTitle("ヘルプ")
                 .setColor('#00a2ff')
-                .addField('.nit　rt　1チームの人数　除外メンバー', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n' + 
-                                                            　'1チームの人数：[省略可]1チームの人数を指定。省略時は3人。\n' +
-                                                              '除外メンバー：[省略可][複数選択可]メンションで指定。\n')
+                .addField('.nit　rt　1チームの人数　除外メンバー', 'コマンド入力者が参加しているVCの参加者からランダムなチームを作成する。\n' +
+                    '1チームの人数：[省略可]1チームの人数を指定。省略時は3人。\n' +
+                    '除外メンバー：[省略可][複数選択可]メンションで指定。\n')
             message.channel.send(embed);
             return;
         }
