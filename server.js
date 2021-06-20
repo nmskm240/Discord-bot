@@ -52,6 +52,8 @@ client.on("message", message => {
                 .addField(".nit　rt　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
                     "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
                     "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
+                .addField(".nit　recruit　募集内容", "リアクションを使用して募集メッセージを作成する。\n" +
+                    "・募集内容：募集する内容について自由に入力可能。\n")
             message.channel.send(embed);
             return;
         }
@@ -91,6 +93,58 @@ client.on("message", message => {
                 let text = "ボイスチャンネルの収得に失敗しました。\n";
                 message.channel.send(text);
             }
+            return;
+        }
+        if (commandAndParameter[1].match(/recruit/)) {
+            if (3 != commandAndParameter.length) {
+                return;
+            }
+            const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎";
+            const embed = new discord.MessageEmbed()
+                .setAuthor(message.author.username)
+                .setTitle("募集中")
+                .setDescription(commandAndParameter[2])
+                .setColor("#00a2ff")
+                .addField("参加者", "なし")
+            message.channel.send(embed)
+                .then(m => m.react("✅"))
+                .then(mReaction => mReaction.message.react("❎"))
+                .then(mReaction => {
+                    const collector = mReaction.message
+                        .createReactionCollector(reactionFilter, {
+                            time: 15000
+                        });
+                    let participant = [];
+                    collector.on("collect", (reaction, user) => {
+                        let embedField = Object.assign({}, embed.fields[0]);
+                        if (reaction.emoji.name === "✅") {
+                            participant.push(user);
+                        }
+                        else if (reaction.emoji.name === "❎") {
+                            let index = participant.indexOf(user);
+                            if (index != -1) {
+                                participant.splice(index, 1);
+                            }
+                            const userReactions = reaction.message.reactions.cache.filter(reaction => 
+                                reaction.users.cache.has(user.id) && (reaction.emoji.name === "✅" || reaction.emoji.name === "❎"));
+                            try {
+                                for (const reaction of userReactions.values()) {
+                                    reaction.users.remove(user.id);
+                                }
+                            } catch (error) {
+                                console.error('Failed to remove reactions.');
+                            }
+                        }
+                        embedField.value = participant.length == 0 ? "なし" : participant;
+                        reaction.message.embeds[0].fields[0] = embedField;
+                        reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
+                    });
+                    collector.on("end", collection => {
+                        mReaction.message.embeds[0].title = "募集終了";
+                        mReaction.message.embeds[0].color = "#000000";
+                        mReaction.message.edit(new discord.MessageEmbed(mReaction.message.embeds[0]));
+                    });
+                });
             return;
         }
     }
