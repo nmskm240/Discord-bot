@@ -72,7 +72,9 @@ client.on("message", message => {
                 let teamNumber = 3;
                 if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
-                    teamNumber = (isNaN(parsed)) ? teamNumber : parsed;
+                    if (!isNaN(parsed) && 0 < parsed) {
+                        teamNumber = parsed;
+                    }
                 }
                 while (teamNumber <= members.length) {
                     let teamMember = [];
@@ -151,7 +153,9 @@ client.on("message", message => {
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
-                            participant.push(user);
+                            if(participant.indexOf(user) == -1){
+                                participant.push(user);
+                            }
                         }
                         else if (reaction.emoji.name === "❎") {
                             let index = participant.indexOf(user);
