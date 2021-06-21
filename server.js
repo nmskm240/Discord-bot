@@ -53,9 +53,9 @@ client.on("message", message => {
                 .addField(".nit　rt　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
                     "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
                     "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
-                .addField(".nit　recruit　募集内容　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
+                .addField(".nit　recruit　募集タイトル　募集内容　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
                     "作成されたフォームは募集期間を過ぎるか、コマンド入力者が✖のリアクションを行うまで有効になる。\n" +
-                    "・募集タイトル：募集する内容について自由に入力可能。\n" + 
+                    "・募集タイトル：募集する内容について自由に入力可能。\n" +
                     "・募集内容：募集する内容について自由に入力可能。\n" +
                     "・募集期間：[省略可]募集を終了するまでの日数や時間を指定する。省略時は1日。\n" +
                     "　　2d12h と入力すると、募集開始から2日と12時間後に募集を終了する。")
@@ -101,9 +101,33 @@ client.on("message", message => {
             return;
         }
         if (commandAndParameter[1].match(/recruit/)) {
+            if (commandAndParameter.length < 4) {
+                message.channel.send("コマンド引数が足りません。\n");
+                return;
+            }
+            const term = new Date(0, 0, 0, 0);
+            if (5 <= commandAndParameter.length) {
+                const dIndex = commandAndParameter[4].indexOf("d");
+                const hIndex = commandAndParameter[4].indexOf("h");
+                if (dIndex != -1) {
+                    let parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
+                    term.setDate(isNaN(parsed) ? 1 : parsed);
+                }
+                else {
+                    term.setDate(1);
+                }
+                if (hIndex != -1) {
+                    let parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
+                    term.setHours(isNaN(parsed) ? 0 : parsed);
+                }
+            }
+            else {
+                term.setDate(1);
+            }
             const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
             const limit = new Date();
-            limit.setHours(limit.getHours() + timeDiff.getHours());
+            limit.setHours(limit.getHours() + timeDiff.getHours() + term.getHours());
+            limit.setDate(limit.getDate() + term.getDate());
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
             const embed = new discord.MessageEmbed()
@@ -121,7 +145,7 @@ client.on("message", message => {
                 .then(mReaction => {
                     const collector = mReaction.message
                         .createReactionCollector(reactionFilter, {
-                            time: 15000
+                            time: (term.getHours() * 60 * 60 * 1000) + (term.getMinutes() * 60 * 1000)
                         });
                     let participant = [];
                     collector.on("collect", (reaction, user) => {
