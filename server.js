@@ -6,6 +6,7 @@ const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
+const timeDiff = new Date(0, 0, 0, 9); //サーバとの間に9時間の時差がある為、日本時間への変換に使用
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -52,8 +53,12 @@ client.on("message", message => {
                 .addField(".nit　rt　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
                     "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
                     "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
-                .addField(".nit　recruit　募集内容", "リアクションを使用して募集メッセージを作成する。\n" +
-                    "・募集内容：募集する内容について自由に入力可能。\n")
+                .addField(".nit　recruit　募集内容　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
+                    "作成されたフォームは募集期間を過ぎるか、コマンド入力者が✖のリアクションを行うまで有効になる。\n" +
+                    "・募集タイトル：募集する内容について自由に入力可能。\n" + 
+                    "・募集内容：募集する内容について自由に入力可能。\n" +
+                    "・募集期間：[省略可]募集を終了するまでの日数や時間を指定する。省略時は1日。\n" +
+                    "　　2d12h と入力すると、募集開始から2日と12時間後に募集を終了する。")
             message.channel.send(embed);
             return;
         }
@@ -96,20 +101,23 @@ client.on("message", message => {
             return;
         }
         if (commandAndParameter[1].match(/recruit/)) {
-            if (3 != commandAndParameter.length) {
-                return;
-            }
-            const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎";
+            const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
+            const limit = new Date();
+            limit.setHours(limit.getHours() + timeDiff.getHours());
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const planner = message.author;
             const embed = new discord.MessageEmbed()
-                .setAuthor(message.author.username)
-                .setTitle("募集中")
-                .setDescription(commandAndParameter[2] + "\n" + 
-                    "✅：参加、❎：参加取消\n")
+                .setAuthor("募集中")
+                .setTitle(commandAndParameter[2])
+                .setDescription("**" + commandAndParameter[3] + "**\n\n" +
+                    "✅：参加、❎：参加取消\n" +
+                    "募集終了：" + limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" + limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
                 .setColor("#00a2ff")
                 .addField("参加者", "なし")
             message.channel.send(embed)
                 .then(m => m.react("✅"))
                 .then(mReaction => mReaction.message.react("❎"))
+                .then(mReaction => mReaction.message.react("✖"))
                 .then(mReaction => {
                     const collector = mReaction.message
                         .createReactionCollector(reactionFilter, {
@@ -126,7 +134,7 @@ client.on("message", message => {
                             if (index != -1) {
                                 participant.splice(index, 1);
                             }
-                            const userReactions = reaction.message.reactions.cache.filter(reaction => 
+                            const userReactions = reaction.message.reactions.cache.filter(reaction =>
                                 reaction.users.cache.has(user.id) && (reaction.emoji.name === "✅" || reaction.emoji.name === "❎"));
                             try {
                                 for (const reaction of userReactions.values()) {
@@ -136,12 +144,17 @@ client.on("message", message => {
                                 console.error('Failed to remove reactions.');
                             }
                         }
+                        else {
+                            if (user.id == planner.id) {
+                                collector.stop();
+                            }
+                        }
                         embedField.value = participant.length == 0 ? "なし" : participant;
                         reaction.message.embeds[0].fields[0] = embedField;
                         reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
                     });
                     collector.on("end", collection => {
-                        mReaction.message.embeds[0].title = "募集終了";
+                        mReaction.message.embeds[0].author = "募集終了";
                         mReaction.message.embeds[0].color = "#000000";
                         mReaction.message.edit(new discord.MessageEmbed(mReaction.message.embeds[0]));
                     });
