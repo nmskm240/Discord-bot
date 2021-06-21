@@ -72,7 +72,7 @@ client.on("message", message => {
                 let teamNumber = 3;
                 if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
-                    teamNumber = (isNaN(parsed)) ? 3 : parsed;
+                    teamNumber = (isNaN(parsed)) ? teamNumber : parsed;
                 }
                 while (teamNumber <= members.length) {
                     let teamMember = [];
