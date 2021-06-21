@@ -111,10 +111,10 @@ client.on("message", message => {
                 const hIndex = commandAndParameter[4].indexOf("h");
                 if (dIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
-                    term.setDate(isNaN(parsed) ? 1 : parsed);
+                    term.setDate(isNaN(parsed) ? 0 : parsed);
                 }
                 else {
-                    term.setDate(1);
+                    term.setDate(0);
                 }
                 if (hIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
