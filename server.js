@@ -8,6 +8,8 @@ const discord = require("discord.js");
 const client = new discord.Client();
 const timeDiff = new Date(0, 0, 0, 9); //サーバとの間に9時間の時差がある為、日本時間への変換に使用
 
+const Team = require("./Team");
+
 http.createServer(function (req, res) {
     if (req.method == "POST") {
         var data = "";
@@ -68,7 +70,7 @@ client.on("message", message => {
                 const exclusionMember = message.mentions.members.array();
                 let members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
                 let teams = [];
-                let teamCount = 1;
+                let count = 1;
                 let teamNumber = 3;
                 if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
@@ -77,22 +79,24 @@ client.on("message", message => {
                     }
                 }
                 while (teamNumber <= members.length) {
-                    let teamMember = [];
+                    let team = new Team("チーム" + count);
                     for (let i = 0; i < teamNumber; i++) {
                         let index = Math.floor(Math.random() * members.length);
-                        teamMember.push(members[index]);
+                        team.addMember(members[index]);
                         members.splice(index, 1);
                     }
-                    teams.push({ name: "チーム" + teamCount, value: teamMember.map(m => m.user) });
-                    teamCount++;
+                    teams.push(team);
+                    count++;
                 }
                 if (0 < members.length) {
-                    teams.push({ name: "余ったメンバー", value: members.map(m => m.user) });
+                    let team = new Team("余ったメンバー");
+                    team.addMembers(members);
+                    teams.push(team);
                 }
                 const embed = new discord.MessageEmbed()
                     .setTitle("チーム分け結果")
                 teams.forEach(team => {
-                    embed.addField(team.name, team.value);
+                    embed.addField(team.name, team.members);
                 });
                 message.channel.send(embed);
             }
