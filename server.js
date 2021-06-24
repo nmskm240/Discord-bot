@@ -8,6 +8,8 @@ const discord = require("discord.js");
 const client = new discord.Client();
 const timeDiff = new Date(0, 0, 0, 9); //サーバとの間に9時間の時差がある為、日本時間への変換に使用
 
+const Team = require("./Team");
+
 http.createServer(function (req, res) {
     if (req.method == "POST") {
         var data = "";
@@ -68,7 +70,7 @@ client.on("message", message => {
                 const exclusionMember = message.mentions.members.array();
                 let members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
                 let teams = [];
-                let teamCount = 1;
+                let count = 1;
                 let teamNumber = 3;
                 if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
@@ -77,22 +79,24 @@ client.on("message", message => {
                     }
                 }
                 while (teamNumber <= members.length) {
-                    let teamMember = [];
+                    let team = new Team("チーム" + count);
                     for (let i = 0; i < teamNumber; i++) {
                         let index = Math.floor(Math.random() * members.length);
-                        teamMember.push(members[index]);
+                        team.addMember(members[index]);
                         members.splice(index, 1);
                     }
-                    teams.push({ name: "チーム" + teamCount, value: teamMember.map(m => m.user) });
-                    teamCount++;
+                    teams.push(team);
+                    count++;
                 }
                 if (0 < members.length) {
-                    teams.push({ name: "余ったメンバー", value: members.map(m => m.user) });
+                    let team = new Team("余ったメンバー");
+                    team.addMembers(members);
+                    teams.push(team);
                 }
                 const embed = new discord.MessageEmbed()
                     .setTitle("チーム分け結果")
                 teams.forEach(team => {
-                    embed.addField(team.name, team.value);
+                    embed.addField(team.name, team.members);
                 });
                 message.channel.send(embed);
             }
@@ -107,29 +111,28 @@ client.on("message", message => {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
-            const term = new Date(0, 0, 0, 0);
+            const term = new Date(0, 0, 1, 0);
             if (5 <= commandAndParameter.length) {
                 const dIndex = commandAndParameter[4].indexOf("d");
                 const hIndex = commandAndParameter[4].indexOf("h");
                 if (dIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
-                    term.setDate(isNaN(parsed) ? 0 : parsed);
-                }
-                else {
-                    term.setDate(0);
+                    term.setDate(isNaN(parsed) ? 1 : parsed);
                 }
                 if (hIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                    term.setHours(isNaN(parsed) ? 0 : parsed);
+                    term.setHours(isNaN(parsed) ? 1 : parsed);
                 }
-            }
-            else {
-                term.setDate(1);
             }
             const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
             const limit = new Date();
-            limit.setHours(limit.getHours() + timeDiff.getHours() + term.getHours());
-            limit.setDate(limit.getDate() + term.getDate());
+            limit.setHours(limit.getHours() + timeDiff.getHours());
+            if (0 < term.getHours()) {
+                limit.setHours(limit.getHours() + term.getHours());
+            }
+            if (0 < term.getDate()) {
+                limit.setDate(limit.getDate() + term.getDate());
+            }
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
             const embed = new discord.MessageEmbed()
@@ -153,7 +156,7 @@ client.on("message", message => {
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
-                            if(participant.indexOf(user) == -1){
+                            if (participant.indexOf(user) == -1) {
                                 participant.push(user);
                             }
                         }
