@@ -111,29 +111,28 @@ client.on("message", message => {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
-            const term = new Date(0, 0, 0, 0);
+            const term = new Date(0, 0, 1, 0);
             if (5 <= commandAndParameter.length) {
                 const dIndex = commandAndParameter[4].indexOf("d");
                 const hIndex = commandAndParameter[4].indexOf("h");
                 if (dIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
-                    term.setDate(isNaN(parsed) ? 0 : parsed);
-                }
-                else {
-                    term.setDate(0);
+                    term.setDate(isNaN(parsed) ? 1 : parsed);
                 }
                 if (hIndex != -1) {
                     let parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                    term.setHours(isNaN(parsed) ? 0 : parsed);
+                    term.setHours(isNaN(parsed) ? 1 : parsed);
                 }
-            }
-            else {
-                term.setDate(1);
             }
             const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
             const limit = new Date();
-            limit.setHours(limit.getHours() + timeDiff.getHours() + term.getHours());
-            limit.setDate(limit.getDate() + term.getDate());
+            limit.setHours(limit.getHours() + timeDiff.getHours());
+            if (0 < term.getHours()) {
+                limit.setHours(limit.getHours() + term.getHours());
+            }
+            if (0 < term.getDate()) {
+                limit.setDate(limit.getDate() + term.getDate());
+            }
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
             const embed = new discord.MessageEmbed()
@@ -157,7 +156,7 @@ client.on("message", message => {
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
-                            if(participant.indexOf(user) == -1){
+                            if (participant.indexOf(user) == -1) {
                                 participant.push(user);
                             }
                         }
