@@ -4,23 +4,29 @@ module.exports = class Team {
         this.members = [];
     }
 
-    addMember(member){
-        if(this.hasMember(member)){
+    addMember(member) {
+        if (!this.hasMember(member)) {
             this.members.push(member);
         }
     }
 
-    addMembers(members){
-        for(let member of members){
+    addMembers(members) {
+        for (let member of members) {
             this.addMember(member);
         }
     }
 
-    hasMember(member){
-        return this.members.indexOf(member) == -1 ? true : false;
+    hasMember(member) {
+        return this.members.indexOf(member) == -1 ? false : true;
     }
 
-    static random(members, size){
+    removeMember(member) {
+        if (this.hasMember(member)) {
+            this.members.splice(this.members.indexOf(member), 1);
+        }
+    }
+
+    static random(members, size) {
         let teams = [];
         let count = 1;
         while (size <= members.length) {

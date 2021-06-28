@@ -124,6 +124,7 @@ client.on("message", message => {
             if (0 < term.getDate()) {
                 limit.setDate(limit.getDate() + term.getDate());
             }
+            let participant = new Team("参加者");
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
             const embed = new discord.MessageEmbed()
@@ -133,7 +134,7 @@ client.on("message", message => {
                     "✅：参加、❎：参加取消\n" +
                     "募集終了：" + limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" + limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
                 .setColor("#00a2ff")
-                .addField("参加者", "なし")
+                .addField(participant.name, "なし")
             message.channel.send(embed)
                 .then(m => m.react("✅"))
                 .then(mReaction => mReaction.message.react("❎"))
@@ -143,19 +144,13 @@ client.on("message", message => {
                         .createReactionCollector(reactionFilter, {
                             time: (term.getHours() * 60 * 60 * 1000) + (term.getMinutes() * 60 * 1000)
                         });
-                    let participant = [];
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
-                            if (participant.indexOf(user) == -1) {
-                                participant.push(user);
-                            }
+                            participant.addMember(user);
                         }
                         else if (reaction.emoji.name === "❎") {
-                            let index = participant.indexOf(user);
-                            if (index != -1) {
-                                participant.splice(index, 1);
-                            }
+                            participant.removeMember(user);
                             const userReactions = reaction.message.reactions.cache.filter(reaction =>
                                 reaction.users.cache.has(user.id) && (reaction.emoji.name === "✅" || reaction.emoji.name === "❎"));
                             try {
@@ -171,7 +166,7 @@ client.on("message", message => {
                                 collector.stop();
                             }
                         }
-                        embedField.value = participant.length == 0 ? "なし" : participant;
+                        embedField.value = participant.members.length == 0 ? "なし" : participant.members;
                         reaction.message.embeds[0].fields[0] = embedField;
                         reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
                     });
