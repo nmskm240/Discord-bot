@@ -39,7 +39,7 @@ http.createServer(function (req, res) {
 
 client.on("ready", message => {
     console.log("Bot準備完了～");
-    client.user.setPresence({ game: { name: ".nit help" } });
+    client.user.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
 client.on("message", message => {
