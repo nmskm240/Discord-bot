@@ -67,13 +67,26 @@ client.on("message", message => {
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].startsWith("rtc")) {
-            let members = message.mentions.members.array();
+        if (commandAndParameter[1].startsWith("rtc") || commandAndParameter[1].startsWith("rtv")) {
+            let members;
             let size = 3;
             if (3 <= commandAndParameter.length) {
                 let parsed = parseInt(commandAndParameter[2], 10);
                 if (!isNaN(parsed) && 0 < parsed) {
                     size = parsed;
+                }
+            }
+            if (commandAndParameter[1].startsWith("rtc")) {
+                members = message.mentions.members.array();
+            }
+            else {
+                const vc = message.member.voice.channel;
+                if (vc) {
+                    const exclusionMember = message.mentions.members.array();
+                    members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
+                }
+                else {
+                    message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
                 }
             }
             const embed = new discord.MessageEmbed()
@@ -82,31 +95,6 @@ client.on("message", message => {
                 embed.addField(team.name, team.members);
             });
             message.channel.send(embed);
-            return;
-        }
-        if (commandAndParameter[1].startsWith("rtv")) {
-            const vc = message.member.voice.channel;
-            if (vc) {
-                const exclusionMember = message.mentions.members.array();
-                let members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
-                let size = 3;
-                if (3 <= commandAndParameter.length) {
-                    let parsed = parseInt(commandAndParameter[2], 10);
-                    if (!isNaN(parsed) && 0 < parsed) {
-                        size = parsed;
-                    }
-                }
-                const embed = new discord.MessageEmbed()
-                    .setTitle("チーム分け結果")
-                Team.random(members, size).forEach(team => {
-                    embed.addField(team.name, team.members);
-                });
-                message.channel.send(embed);
-            }
-            else {
-                let text = "ボイスチャンネルの収得に失敗しました。\n";
-                message.channel.send(text);
-            }
             return;
         }
         if (commandAndParameter[1].startsWith("recruit")) {
