@@ -48,11 +48,14 @@ client.on("message", message => {
     }
     if (message.content.startsWith(".nit")) {
         const commandAndParameter = message.content.split(" ");
-        if (commandAndParameter[1].match(/help/)) {
+        if (commandAndParameter[1].startsWith("help")) {
             const embed = new discord.MessageEmbed()
                 .setTitle("ヘルプ")
                 .setColor("#00a2ff")
-                .addField(".nit　rt　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
+                .addField(".nit　rtc　1チームの人数　対象メンバー", "メンションで指定したメンバーでランダムなチームを作成する。\n" +
+                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
+                    "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n")
+                .addField(".nit　rtv　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
                     "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
                     "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
                 .addField(".nit　recruit　募集タイトル　募集内容　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
@@ -64,38 +67,38 @@ client.on("message", message => {
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].match(/rt/)) {
+        if (commandAndParameter[1].startsWith("rtc")) {
+            let members = message.mentions.members.array();
+            let size = 3;
+            if (3 <= commandAndParameter.length) {
+                let parsed = parseInt(commandAndParameter[2], 10);
+                if (!isNaN(parsed) && 0 < parsed) {
+                    size = parsed;
+                }
+            }
+            const embed = new discord.MessageEmbed()
+                .setTitle("チーム分け結果")
+            Team.random(members, size).forEach(team => {
+                embed.addField(team.name, team.members);
+            });
+            message.channel.send(embed);
+            return;
+        }
+        if (commandAndParameter[1].startsWith("rtv")) {
             const vc = message.member.voice.channel;
             if (vc) {
                 const exclusionMember = message.mentions.members.array();
                 let members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
-                let teams = [];
-                let count = 1;
-                let teamNumber = 3;
+                let size = 3;
                 if (3 <= commandAndParameter.length) {
                     let parsed = parseInt(commandAndParameter[2], 10);
                     if (!isNaN(parsed) && 0 < parsed) {
-                        teamNumber = parsed;
+                        size = parsed;
                     }
-                }
-                while (teamNumber <= members.length) {
-                    let team = new Team("チーム" + count);
-                    for (let i = 0; i < teamNumber; i++) {
-                        let index = Math.floor(Math.random() * members.length);
-                        team.addMember(members[index]);
-                        members.splice(index, 1);
-                    }
-                    teams.push(team);
-                    count++;
-                }
-                if (0 < members.length) {
-                    let team = new Team("余ったメンバー");
-                    team.addMembers(members);
-                    teams.push(team);
                 }
                 const embed = new discord.MessageEmbed()
                     .setTitle("チーム分け結果")
-                teams.forEach(team => {
+                Team.random(members, size).forEach(team => {
                     embed.addField(team.name, team.members);
                 });
                 message.channel.send(embed);
@@ -106,7 +109,7 @@ client.on("message", message => {
             }
             return;
         }
-        if (commandAndParameter[1].match(/recruit/)) {
+        if (commandAndParameter[1].startsWith("recruit")) {
             if (commandAndParameter.length < 4) {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
