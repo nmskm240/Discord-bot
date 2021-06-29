@@ -159,6 +159,7 @@ client.on("message", message => {
             if (0 < termDay) {
                 limit.setDate(limit.getDate() + termDay);
             }
+            recruitingCount = (0 < recruitingCount) ? recruitingCount + "人" : "制限なし";
             let participant = new Team("参加者");
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
@@ -166,7 +167,7 @@ client.on("message", message => {
                 .setTitle("募集中")
                 .setDescription("**" + commandAndParameter[2] + "**\n\n" +
                     "✅：参加、❎：参加取消\n" +
-                    "募集人数：" + recruitingCount + "人\n" +
+                    "募集人数：" + recruitingCount + "\n" +
                     "募集終了：" + limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" + limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
                 .setColor("#00a2ff")
                 .addField(participant.name, "なし")
@@ -183,7 +184,8 @@ client.on("message", message => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
                             participant.addMember(user);
-                            if (participant.members.length == recruitingCount) {
+                            let parsed = parseInt(recruitingCount);
+                            if (!isNaN(parsed) && 0 < parsed && participant.members.length == parsed) {
                                 collector.stop();
                             }
                         }
