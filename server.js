@@ -49,7 +49,9 @@ client.on("message", message => {
     }
     if (message.content.startsWith(".nit")) {
         const commandAndParameter = message.content.split(" ");
-        if (commandAndParameter[1].startsWith("help")) {
+        const command = commandAndParameter[1];
+        const parameters = commandAndParameter.slice(2);
+        if (command.startsWith("help")) {
             const embed = new discord.MessageEmbed()
                 .setTitle("ヘルプ")
                 .setColor("#00a2ff")
@@ -63,16 +65,16 @@ client.on("message", message => {
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].startsWith("rtc") || commandAndParameter[1].startsWith("rtv")) {
+        if (command.startsWith("rtc") || command.startsWith("rtv")) {
             let members;
             let size = 3;
-            if (3 <= commandAndParameter.length) {
-                let parsed = parseInt(commandAndParameter[2], 10);
+            if (1 <= parameters.length) {
+                let parsed = parseInt(parameters[0], 10);
                 if (!isNaN(parsed) && 0 < parsed) {
                     size = parsed;
                 }
             }
-            if (commandAndParameter[1].startsWith("rtc")) {
+            if (command.startsWith("rtc")) {
                 members = message.mentions.members.array();
             }
             else {
@@ -93,15 +95,15 @@ client.on("message", message => {
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].startsWith("recruit")) {
-            if (commandAndParameter.length < 3) {
+        if (command.startsWith("recruit")) {
+            if (parameters.length < 1) {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
             const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
             let participant = new Team("参加者");
             const planner = message.author;
-            const embed = recruit.execute(commandAndParameter.slice(2));
+            const embed = recruit.execute(parameters);
             embed.AddField(participant.name, "なし");
             message.channel.send(embed)
                 .then(m => m.react("✅"))
