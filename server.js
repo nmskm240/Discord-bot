@@ -6,9 +6,10 @@ const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
-const timeDiff = new Date(0, 0, 0, 9); //サーバとの間に9時間の時差がある為、日本時間への変換に使用
 
 const Team = require("./Team");
+const Recruit = require("./Commands/Recruit");
+const recruit = new Recruit();
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -58,12 +59,7 @@ client.on("message", message => {
                 .addField(".nit　rtv　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
                     "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
                     "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
-                .addField(".nit　recruit　募集内容　募集人数　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
-                    "作成されたフォームは募集期間を過ぎるか、コマンド入力者が✖のリアクションを行うまで有効になる。\n" +
-                    "・募集内容：募集する内容について自由に入力可能。\n" +
-                    "・募集人数：[省略可]募集する人数を指定する。省略時は人数指定なしとして扱う。参加者が募集人数に達すると募集を終了する。\n" +
-                    "・募集期間：[省略可]募集を終了するまでの日数や時間を指定する。省略時は1日。\n" +
-                    "　　2d12h と入力すると、募集開始から2日と12時間後に募集を終了する。")
+                .addField(recruit.grammar, recruit.detail + "\n" + recruit.parameterDetail)
             message.channel.send(embed);
             return;
         }
@@ -102,75 +98,11 @@ client.on("message", message => {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
-            let termDay = 1;
-            let termHour = 0;
-            let recruitingCount = -1;
-            if (4 <= commandAndParameter.length) {
-                let parsed = 0;
-                if (commandAndParameter.length == 4) {
-                    const dIndex = commandAndParameter[3].indexOf("d");
-                    const hIndex = commandAndParameter[3].indexOf("h");
-                    if (dIndex == -1 && hIndex == -1) {
-                        parsed = parseInt(commandAndParameter[3], 10);
-                        if (!isNaN(parsed) && 0 < parsed) {
-                            recruitingCount = parsed;
-                        }
-                    }
-                    else {
-                        if (dIndex != -1) {
-                            parsed = parseInt(commandAndParameter[3].substring(0, dIndex), 10);
-                            termDay = isNaN(parsed) ? 0 : parsed;
-                        }
-                        if (hIndex != -1) {
-                            parsed = parseInt(commandAndParameter[3].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                            termHour = isNaN(parsed) ? 1 : parsed;
-                            if (dIndex == -1) {
-                                termDay = 0;
-                            }
-                        }
-                    }
-                }
-                else {
-                    parsed = parseInt(commandAndParameter[3]);
-                    if (!isNaN(parsed) && 0 < parsed) {
-                        recruitingCount = parsed;
-                    }
-                    const dIndex = commandAndParameter[4].indexOf("d");
-                    const hIndex = commandAndParameter[4].indexOf("h");
-                    if (dIndex != -1) {
-                        parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
-                        termDay = isNaN(parsed) ? 1 : parsed;
-                    }
-                    if (hIndex != -1) {
-                        parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                        termHour = isNaN(parsed) ? 1 : parsed;
-                        if (dIndex == -1) {
-                            termDay = 0;
-                        }
-                    }
-                }
-            }
             const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
-            const limit = new Date();
-            limit.setHours(limit.getHours() + timeDiff.getHours());
-            if (0 < termHour) {
-                limit.setHours(limit.getHours() + termHour);
-            }
-            if (0 < termDay) {
-                limit.setDate(limit.getDate() + termDay);
-            }
-            recruitingCount = (0 < recruitingCount) ? recruitingCount + "人" : "制限なし";
             let participant = new Team("参加者");
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
-            const embed = new discord.MessageEmbed()
-                .setTitle("募集中")
-                .setDescription("**" + commandAndParameter[2] + "**\n\n" +
-                    "✅：参加、❎：参加取消\n" +
-                    "募集人数：" + recruitingCount + "\n" +
-                    "募集終了：" + limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" + limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
-                .setColor("#00a2ff")
-                .addField(participant.name, "なし")
+            const embed = recruit.execute(commandAndParameter.slice(2));
+            embed.AddField(participant.name, "なし");
             message.channel.send(embed)
                 .then(m => m.react("✅"))
                 .then(mReaction => mReaction.message.react("❎"))
@@ -178,14 +110,13 @@ client.on("message", message => {
                 .then(mReaction => {
                     const collector = mReaction.message
                         .createReactionCollector(reactionFilter, {
-                            time: (termDay * 24 * 60 * 60 * 1000) + (termHour * 60 * 60 * 1000)
+                            time: (recruit.termDate * 24 * 60 * 60 * 1000) + (recruit.termHour * 60 * 60 * 1000)
                         });
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
                         if (reaction.emoji.name === "✅") {
                             participant.addMember(user);
-                            let parsed = parseInt(recruitingCount);
-                            if (!isNaN(parsed) && 0 < parsed && participant.members.length == parsed) {
+                            if (participant.members.length == recruit.size) {
                                 collector.stop();
                             }
                         }
