@@ -6,10 +6,12 @@ const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
-
+const commands = require("./Commands");
 const Team = require("./Team");
-const Recruit = require("./Commands/Recruit");
-const recruit = new Recruit();
+const help = new commands.Help();
+const recruit = new commands.Recruit();
+const rtc = new commands.RTC();
+const rtv = new commands.RTV();
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -52,47 +54,30 @@ client.on("message", message => {
         const command = commandAndParameter[1];
         const parameters = commandAndParameter.slice(2);
         if (command.startsWith("help")) {
-            const embed = new discord.MessageEmbed()
-                .setTitle("ヘルプ")
-                .setColor("#00a2ff")
-                .addField(".nit　rtc　1チームの人数　対象メンバー", "メンションで指定したメンバーでランダムなチームを作成する。\n" +
-                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-                    "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n")
-                .addField(".nit　rtv　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
-                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-                    "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
-                .addField(recruit.grammar, recruit.detail + "\n" + recruit.parameterDetail)
+            const embed = help.execute([ rtc, rtv, recruit ]);
             message.channel.send(embed);
             return;
         }
-        if (command.startsWith("rtc") || command.startsWith("rtv")) {
-            let members;
-            let size = 3;
-            if (1 <= parameters.length) {
-                let parsed = parseInt(parameters[0], 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    size = parsed;
-                }
-            }
-            if (command.startsWith("rtc")) {
-                members = message.mentions.members.array();
-            }
-            else {
-                const vc = message.member.voice.channel;
-                if (vc) {
-                    const exclusionMember = message.mentions.members.array();
-                    members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
-                }
-                else {
-                    message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
-                }
-            }
-            const embed = new discord.MessageEmbed()
-                .setTitle("チーム分け結果")
-            Team.random(members, size).forEach(team => {
+        if (command.startsWith("rtc")) {
+            const embed = rtc.execute(parameters);
+            rtc.make(message.mentions.members.array()).forEach(team => {
                 embed.addField(team.name, team.members);
             });
             message.channel.send(embed);
+            return;
+        }
+        if (command.startsWith("rtv")) {
+            const vc = message.member.voice.channel;
+            if (vc) {
+                const embed = rtv.execute(parameters);
+                rtv.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
+                    embed.addField(team.name, team.members);
+                });
+                message.channel.send(embed);
+            }
+            else {
+                message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
+            }
             return;
         }
         if (command.startsWith("recruit")) {
@@ -100,15 +85,17 @@ client.on("message", message => {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
-            const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
+            const reactionFilter = (reaction, user) =>
+                reaction.emoji.name === recruit.participation ||
+                reaction.emoji.name === recruit.cancel ||
+                reaction.emoji.name === recruit.end;
             let participant = new Team("参加者");
             const planner = message.author;
             const embed = recruit.execute(parameters);
-            embed.AddField(participant.name, "なし");
             message.channel.send(embed)
-                .then(m => m.react("✅"))
-                .then(mReaction => mReaction.message.react("❎"))
-                .then(mReaction => mReaction.message.react("✖"))
+                .then(m => m.react(recruit.participation))
+                .then(mReaction => mReaction.message.react(recruit.cancel))
+                .then(mReaction => mReaction.message.react(recruit.end))
                 .then(mReaction => {
                     const collector = mReaction.message
                         .createReactionCollector(reactionFilter, {
@@ -116,16 +103,18 @@ client.on("message", message => {
                         });
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
-                        if (reaction.emoji.name === "✅") {
-                            participant.addMember(user);
-                            if (participant.members.length == recruit.size) {
+                        if (reaction.emoji.name === recruit.participation) {
+                            recruit.participant.addMember(user);
+                            if (recruit.participant.members.length == recruit.size) {
                                 collector.stop();
                             }
                         }
-                        else if (reaction.emoji.name === "❎") {
-                            participant.removeMember(user);
+                        else if (reaction.emoji.name === recruit.cancel) {
+                            recruit.participant.removeMember(user);
                             const userReactions = reaction.message.reactions.cache.filter(reaction =>
-                                reaction.users.cache.has(user.id) && (reaction.emoji.name === "✅" || reaction.emoji.name === "❎"));
+                                reaction.users.cache.has(user.id) &&
+                                (reaction.emoji.name === recruit.participation ||
+                                    reaction.emoji.name === recruit.cancel));
                             try {
                                 for (const reaction of userReactions.values()) {
                                     reaction.users.remove(user.id);
@@ -139,7 +128,7 @@ client.on("message", message => {
                                 collector.stop();
                             }
                         }
-                        embedField.value = participant.members.length == 0 ? "なし" : participant.members;
+                        embedField.value = recruit.participant.members.length == 0 ? "なし" : recruit.participant.members;
                         reaction.message.embeds[0].fields[0] = embedField;
                         reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
                     });
