@@ -165,10 +165,8 @@ module.exports.Who = class Who extends Command {
             .setTitle("エラー")
         utils.Roll.register.forEach(member => {
             if (target.tag.indexOf(member.discordTag) != -1) {
-                embed.setTitle(target.username)
-                    .setDescription("Number：**" + member.id + "**\n" +
-                        "Name：**" + member.name + "**\n" +
-                        "APEX ID：**" + member.apexId + "**\n" +
+                embed.setTitle(parameters.displayName)
+                    .setDescription("APEX ID：**" + member.apexId + "**\n" +
                         "LOL ID：**" + member.lolId + "**\n")
                     .setColor("#00a2ff")
                     .setImage(target.avatarURL())

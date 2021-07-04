@@ -143,7 +143,7 @@ client.on("message", message => {
         }
         if(command.startsWith("who")){
             const who = new commands.Who();
-            const embed = who.execute(message.mentions.members.array()[0]);
+            const embed = who.execute(message.mentions.members.first());
             message.channel.send(embed);
         }
     }
