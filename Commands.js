@@ -1,5 +1,5 @@
 const discord = require("discord.js");
-const Team = require("./Team");
+const utils = require("./Utils");
 
 class Command {
     constructor(grammar, detail, parameterDetail) {
@@ -65,7 +65,7 @@ module.exports.Recruit = class Recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let limit;
         let size = "制限なし";
-        this.participant = new Team("参加者");
+        this.participant = new utils.Team("参加者");
         if (3 <= parameters.length) {
             limit = this.calLimit(parameters[1]);
             let parsed = parseInt(parameters[2], 10);
@@ -135,7 +135,7 @@ module.exports.RTV = class RandomTeamVoice extends RandomTeam {
     }
 
     make(members, exclusion) {
-        return Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
+        return utils.Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
     }
 }
 
@@ -148,6 +148,31 @@ module.exports.RTC = class RandomTeamChat extends RandomTeam {
     }
 
     make(members) {
-        return Team.random(members, this.size);
+        return utils.Team.random(members, this.size);
+    }
+}
+
+module.exports.Who = class Who extends Command {
+    constructor() {
+        super(".nit　who　対象メンバー",
+            "メンションで指定したメンバーの学籍番号等のデータを表示する。\n",
+            "・対象メンバー：情報を表示するメンバーをメンションで指定する。\n");
+    }
+
+    execute(parameters) {
+        const target = parameters.user;
+        const embed = new discord.MessageEmbed()
+            .setTitle("エラー")
+        utils.Roll.register.forEach(member => {
+            if (target.tag.indexOf(member.discordTag) != -1) {
+                embed.setTitle(parameters.displayName)
+                    .setDescription("APEX ID：**" + member.apexId + "**\n" +
+                        "LOL ID：**" + member.lolId + "**\n")
+                    .setColor("#00a2ff")
+                    .setImage(target.avatarURL())
+                return embed;
+            }
+        })
+        return embed;
     }
 }
