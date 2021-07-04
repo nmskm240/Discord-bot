@@ -6,9 +6,12 @@ const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
-const timeDiff = new Date(0, 0, 0, 9); //サーバとの間に9時間の時差がある為、日本時間への変換に使用
-
+const commands = require("./Commands");
 const Team = require("./Team");
+const help = new commands.Help();
+const recruit = new commands.Recruit();
+const rtc = new commands.RTC();
+const rtv = new commands.RTV();
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -48,151 +51,70 @@ client.on("message", message => {
     }
     if (message.content.startsWith(".nit")) {
         const commandAndParameter = message.content.split(" ");
-        if (commandAndParameter[1].startsWith("help")) {
-            const embed = new discord.MessageEmbed()
-                .setTitle("ヘルプ")
-                .setColor("#00a2ff")
-                .addField(".nit　rtc　1チームの人数　対象メンバー", "メンションで指定したメンバーでランダムなチームを作成する。\n" +
-                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-                    "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n")
-                .addField(".nit　rtv　1チームの人数　除外メンバー", "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n" +
-                    "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-                    "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n")
-                .addField(".nit　recruit　募集内容　募集人数　募集期間", "リアクションを使用した募集フォームを作成する。\n" +
-                    "作成されたフォームは募集期間を過ぎるか、コマンド入力者が✖のリアクションを行うまで有効になる。\n" +
-                    "・募集内容：募集する内容について自由に入力可能。\n" +
-                    "・募集人数：[省略可]募集する人数を指定する。省略時は人数指定なしとして扱う。参加者が募集人数に達すると募集を終了する。\n" +
-                    "・募集期間：[省略可]募集を終了するまでの日数や時間を指定する。省略時は1日。\n" +
-                    "　　2d12h と入力すると、募集開始から2日と12時間後に募集を終了する。")
+        const command = commandAndParameter[1];
+        const parameters = commandAndParameter.slice(2);
+        if (command.startsWith("help")) {
+            const embed = help.execute([ rtc, rtv, recruit ]);
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].startsWith("rtc") || commandAndParameter[1].startsWith("rtv")) {
-            let members;
-            let size = 3;
-            if (3 <= commandAndParameter.length) {
-                let parsed = parseInt(commandAndParameter[2], 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    size = parsed;
-                }
-            }
-            if (commandAndParameter[1].startsWith("rtc")) {
-                members = message.mentions.members.array();
-            }
-            else {
-                const vc = message.member.voice.channel;
-                if (vc) {
-                    const exclusionMember = message.mentions.members.array();
-                    members = vc.members.filter(m => exclusionMember.indexOf(m) == -1).array();
-                }
-                else {
-                    message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
-                }
-            }
-            const embed = new discord.MessageEmbed()
-                .setTitle("チーム分け結果")
-            Team.random(members, size).forEach(team => {
+        if (command.startsWith("rtc")) {
+            const embed = rtc.execute(parameters);
+            rtc.make(message.mentions.members.array()).forEach(team => {
                 embed.addField(team.name, team.members);
             });
             message.channel.send(embed);
             return;
         }
-        if (commandAndParameter[1].startsWith("recruit")) {
-            if (commandAndParameter.length < 3) {
+        if (command.startsWith("rtv")) {
+            const vc = message.member.voice.channel;
+            if (vc) {
+                const embed = rtv.execute(parameters);
+                rtv.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
+                    embed.addField(team.name, team.members);
+                });
+                message.channel.send(embed);
+            }
+            else {
+                message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
+            }
+            return;
+        }
+        if (command.startsWith("recruit")) {
+            if (parameters.length < 1) {
                 message.channel.send("コマンド引数が足りません。\n");
                 return;
             }
-            let termDay = 1;
-            let termHour = 0;
-            let recruitingCount = -1;
-            if (4 <= commandAndParameter.length) {
-                let parsed = 0;
-                if (commandAndParameter.length == 4) {
-                    const dIndex = commandAndParameter[3].indexOf("d");
-                    const hIndex = commandAndParameter[3].indexOf("h");
-                    if (dIndex == -1 && hIndex == -1) {
-                        parsed = parseInt(commandAndParameter[3], 10);
-                        if (!isNaN(parsed) && 0 < parsed) {
-                            recruitingCount = parsed;
-                        }
-                    }
-                    else {
-                        if (dIndex != -1) {
-                            parsed = parseInt(commandAndParameter[3].substring(0, dIndex), 10);
-                            termDay = isNaN(parsed) ? 0 : parsed;
-                        }
-                        if (hIndex != -1) {
-                            parsed = parseInt(commandAndParameter[3].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                            termHour = isNaN(parsed) ? 1 : parsed;
-                            if (dIndex == -1) {
-                                termDay = 0;
-                            }
-                        }
-                    }
-                }
-                else {
-                    parsed = parseInt(commandAndParameter[3]);
-                    if (!isNaN(parsed) && 0 < parsed) {
-                        recruitingCount = parsed;
-                    }
-                    const dIndex = commandAndParameter[4].indexOf("d");
-                    const hIndex = commandAndParameter[4].indexOf("h");
-                    if (dIndex != -1) {
-                        parsed = parseInt(commandAndParameter[4].substring(0, dIndex), 10);
-                        termDay = isNaN(parsed) ? 1 : parsed;
-                    }
-                    if (hIndex != -1) {
-                        parsed = parseInt(commandAndParameter[4].substring(dIndex == -1 ? 0 : dIndex + 1, hIndex));
-                        termHour = isNaN(parsed) ? 1 : parsed;
-                        if (dIndex == -1) {
-                            termDay = 0;
-                        }
-                    }
-                }
-            }
-            const reactionFilter = (reaction, user) => reaction.emoji.name === "✅" || reaction.emoji.name === "❎" || reaction.emoji.name === "✖";
-            const limit = new Date();
-            limit.setHours(limit.getHours() + timeDiff.getHours());
-            if (0 < termHour) {
-                limit.setHours(limit.getHours() + termHour);
-            }
-            if (0 < termDay) {
-                limit.setDate(limit.getDate() + termDay);
-            }
-            recruitingCount = (0 < recruitingCount) ? recruitingCount + "人" : "制限なし";
+            const reactionFilter = (reaction, user) =>
+                reaction.emoji.name === recruit.participation ||
+                reaction.emoji.name === recruit.cancel ||
+                reaction.emoji.name === recruit.end;
             let participant = new Team("参加者");
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const planner = message.author;
-            const embed = new discord.MessageEmbed()
-                .setTitle("募集中")
-                .setDescription("**" + commandAndParameter[2] + "**\n\n" +
-                    "✅：参加、❎：参加取消\n" +
-                    "募集人数：" + recruitingCount + "\n" +
-                    "募集終了：" + limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" + limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
-                .setColor("#00a2ff")
-                .addField(participant.name, "なし")
+            const embed = recruit.execute(parameters);
             message.channel.send(embed)
-                .then(m => m.react("✅"))
-                .then(mReaction => mReaction.message.react("❎"))
-                .then(mReaction => mReaction.message.react("✖"))
+                .then(m => m.react(recruit.participation))
+                .then(mReaction => mReaction.message.react(recruit.cancel))
+                .then(mReaction => mReaction.message.react(recruit.end))
                 .then(mReaction => {
                     const collector = mReaction.message
                         .createReactionCollector(reactionFilter, {
-                            time: (termDay * 24 * 60 * 60 * 1000) + (termHour * 60 * 60 * 1000)
+                            time: (recruit.termDate * 24 * 60 * 60 * 1000) + (recruit.termHour * 60 * 60 * 1000)
                         });
                     collector.on("collect", (reaction, user) => {
                         let embedField = Object.assign({}, embed.fields[0]);
-                        if (reaction.emoji.name === "✅") {
-                            participant.addMember(user);
-                            let parsed = parseInt(recruitingCount);
-                            if (!isNaN(parsed) && 0 < parsed && participant.members.length == parsed) {
+                        if (reaction.emoji.name === recruit.participation) {
+                            recruit.participant.addMember(user);
+                            if (recruit.participant.members.length == recruit.size) {
                                 collector.stop();
                             }
                         }
-                        else if (reaction.emoji.name === "❎") {
-                            participant.removeMember(user);
+                        else if (reaction.emoji.name === recruit.cancel) {
+                            recruit.participant.removeMember(user);
                             const userReactions = reaction.message.reactions.cache.filter(reaction =>
-                                reaction.users.cache.has(user.id) && (reaction.emoji.name === "✅" || reaction.emoji.name === "❎"));
+                                reaction.users.cache.has(user.id) &&
+                                (reaction.emoji.name === recruit.participation ||
+                                    reaction.emoji.name === recruit.cancel));
                             try {
                                 for (const reaction of userReactions.values()) {
                                     reaction.users.remove(user.id);
@@ -206,7 +128,7 @@ client.on("message", message => {
                                 collector.stop();
                             }
                         }
-                        embedField.value = participant.members.length == 0 ? "なし" : participant.members;
+                        embedField.value = recruit.participant.members.length == 0 ? "なし" : recruit.participant.members;
                         reaction.message.embeds[0].fields[0] = embedField;
                         reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
                     });
