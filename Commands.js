@@ -155,7 +155,7 @@ module.exports.RTC = class RandomTeamChat extends RandomTeam {
 module.exports.Who = class Who extends Command {
     constructor() {
         super(".nit　who　対象メンバー",
-            "メンションで指定したメンバーの学籍番号等のデータを表示する。\n",
+            "メンションで指定したメンバーの登録されているデータを表示する。\n",
             "・対象メンバー：情報を表示するメンバーをメンションで指定する。\n");
     }
 
