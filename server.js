@@ -7,8 +7,10 @@ const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require("./Commands");
+const utils = require("./Utils");
 
 http.createServer(function (req, res) {
+    utils.Roll.update();
     if (req.method == "POST") {
         var data = "";
         req.on("data", function (chunk) {
@@ -37,6 +39,7 @@ http.createServer(function (req, res) {
 
 client.on("ready", message => {
     console.log("Bot準備完了～");
+    utils.Roll.update();
     client.user.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
@@ -50,7 +53,7 @@ client.on("message", message => {
         const parameters = commandAndParameter.slice(2);
         if (command.startsWith("help")) {
             const help = new commands.Help();
-            const embed = help.execute([ new commands.RTC(), new commands.RTV(), new commands.Recruit() ]);
+            const embed = help.execute([ new commands.RTC(), new commands.RTV(), new commands.Recruit(), new commands.Who() ]);
             message.channel.send(embed);
             return;
         }
@@ -137,6 +140,11 @@ client.on("message", message => {
                     });
                 });
             return;
+        }
+        if(command.startsWith("who")){
+            const who = new commands.Who();
+            const embed = who.execute(message.mentions.members.array()[0]);
+            message.channel.send(embed);
         }
     }
 });
