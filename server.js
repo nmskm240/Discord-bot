@@ -7,11 +7,6 @@ const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require("./Commands");
-const Team = require("./Team");
-const help = new commands.Help();
-const recruit = new commands.Recruit();
-const rtc = new commands.RTC();
-const rtv = new commands.RTV();
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -54,11 +49,13 @@ client.on("message", message => {
         const command = commandAndParameter[1];
         const parameters = commandAndParameter.slice(2);
         if (command.startsWith("help")) {
-            const embed = help.execute([ rtc, rtv, recruit ]);
+            const help = new commands.Help();
+            const embed = help.execute([ new commands.RTC(), new commands.RTV(), new commands.Recruit() ]);
             message.channel.send(embed);
             return;
         }
         if (command.startsWith("rtc")) {
+            const rtc = new commands.RTC();
             const embed = rtc.execute(parameters);
             rtc.make(message.mentions.members.array()).forEach(team => {
                 embed.addField(team.name, team.members);
@@ -69,6 +66,7 @@ client.on("message", message => {
         if (command.startsWith("rtv")) {
             const vc = message.member.voice.channel;
             if (vc) {
+                const rtv = new commands.RTV();
                 const embed = rtv.execute(parameters);
                 rtv.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
                     embed.addField(team.name, team.members);
@@ -89,7 +87,7 @@ client.on("message", message => {
                 reaction.emoji.name === recruit.participation ||
                 reaction.emoji.name === recruit.cancel ||
                 reaction.emoji.name === recruit.end;
-            let participant = new Team("参加者");
+            const recruit = new commands.Recruit();
             const planner = message.author;
             const embed = recruit.execute(parameters);
             message.channel.send(embed)
