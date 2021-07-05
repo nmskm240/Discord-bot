@@ -1,6 +1,6 @@
 const fs = require("fs");
 const fetch = require("node-fetch");
-const path = "./Links.txt";
+const path = "./Data/Links.json";
 
 module.exports = class Roll {
     static update() {
@@ -8,7 +8,8 @@ module.exports = class Roll {
             if (err) {
                 console.error(err);
             } else {
-                Roll.read(file);
+                const data = JSON.parse(file).APIs[0];
+                Roll.read(data.url);
             }
         });
     }
@@ -23,7 +24,6 @@ module.exports = class Roll {
             })
             .then((json) => {
                 Roll.register = json;
-                console.log(json)
             })
             .catch((reason) => {
                 console.log(reason);
