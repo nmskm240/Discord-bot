@@ -1,14 +1,16 @@
-const fetch = require("node-fetch");
-
-module.exports.Team = class Team {
-    constructor(name) {
+module.exports = class Team {
+    constructor(name, max = -1) {
         this.name = name;
+        this.max = max <= 0 ? -1 : max;
+        this.isMax = false;
+        this.isEmpty = true;
         this.members = [];
     }
 
     addMember(member) {
-        if (!this.hasMember(member)) {
+        if (!this.isMax && !this.hasMember(member)) {
             this.members.push(member);
+            this.refresh();
         }
     }
 
@@ -19,21 +21,27 @@ module.exports.Team = class Team {
     }
 
     hasMember(member) {
-        return this.members.indexOf(member) == -1 ? false : true;
+        return this.members.indexOf(member) != -1;
     }
 
     removeMember(member) {
         if (this.hasMember(member)) {
             this.members.splice(this.members.indexOf(member), 1);
+            this.refresh();
         }
+    }
+
+    refresh() {
+        this.isMax = this.max != -1 && this.members.length >= this.max;
+        this.isEmpty = this.members.length == 0;
     }
 
     static random(members, size) {
         let teams = [];
         let count = 1;
         while (size <= members.length) {
-            let team = new Team("チーム" + count);
-            for (let i = 0; i < size; i++) {
+            let team = new Team("チーム" + count, size);
+            while (!team.isMax) {
                 let index = Math.floor(Math.random() * members.length);
                 team.addMember(members[index]);
                 members.splice(index, 1);
@@ -49,22 +57,3 @@ module.exports.Team = class Team {
         return teams;
     }
 }
-
-module.exports.Roll = class Roll {
-    static async update() {
-        await fetch("https://script.google.com/macros/s/AKfycbxb37qfooGrVvqqzL5HEAHx-0WCb4MpLNdnYYltBEs3sxN5PSRPVEUZ3XLduxIjauaaRA/exec")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error();
-                }
-                return response.json();
-            })
-            .then((json) => {
-                Roll.register = json;
-            })
-            .catch((reason) => {
-                console.log(reason);
-            })
-    }
-}
-module.exports.Roll.register = [];
