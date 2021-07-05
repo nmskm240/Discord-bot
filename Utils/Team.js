@@ -3,13 +3,14 @@ module.exports = class Team {
         this.name = name;
         this.max = max <= 0 ? -1 : max;
         this.isMax = false;
+        this.isEmpty = true;
         this.members = [];
     }
 
     addMember(member) {
         if (!this.isMax && !this.hasMember(member)) {
             this.members.push(member);
-            this.isMax = this.isMax != -1 && this.members.length >= this.max;
+            this.refresh();
         }
     }
 
@@ -26,8 +27,13 @@ module.exports = class Team {
     removeMember(member) {
         if (this.hasMember(member)) {
             this.members.splice(this.members.indexOf(member), 1);
-            this.isMax = this.isMax != -1 && this.members.length >= this.max;
+            this.refresh();
         }
+    }
+
+    refresh() {
+        this.isMax = this.max != -1 && this.members.length >= this.max;
+        this.isEmpty = this.members.length == 0;
     }
 
     static random(members, size) {
