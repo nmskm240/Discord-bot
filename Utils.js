@@ -1,14 +1,17 @@
 const fetch = require("node-fetch");
 
 module.exports.Team = class Team {
-    constructor(name) {
+    constructor(name, max = -1) {
         this.name = name;
+        this.max = max <= 0 ? -1 : max;
+        this.isMax = false;
         this.members = [];
     }
 
     addMember(member) {
-        if (!this.hasMember(member)) {
+        if (!this.isMax && !this.hasMember(member)) {
             this.members.push(member);
+            this.isMax = this.isMax != -1 && this.members.length >= this.max;
         }
     }
 
@@ -25,6 +28,7 @@ module.exports.Team = class Team {
     removeMember(member) {
         if (this.hasMember(member)) {
             this.members.splice(this.members.indexOf(member), 1);
+            this.isMax = this.isMax != -1 && this.members.length >= this.max;
         }
     }
 
@@ -32,8 +36,8 @@ module.exports.Team = class Team {
         let teams = [];
         let count = 1;
         while (size <= members.length) {
-            let team = new Team("チーム" + count);
-            for (let i = 0; i < size; i++) {
+            let team = new Team("チーム" + count, size);
+            while (!team.isMax) {
                 let index = Math.floor(Math.random() * members.length);
                 team.addMember(members[index]);
                 members.splice(index, 1);
