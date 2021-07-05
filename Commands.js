@@ -8,17 +8,17 @@ class Command {
         this.parameterDetail = parameterDetail;
     }
 
-    execute(parameters) {
+    execute(message, parameters) {
 
     }
 }
 
 class RandomTeam extends Command {
-    execute(parameters) {
+    execute(message, parameters) {
         const embed = new discord.MessageEmbed()
             .setTitle("チーム分け結果");
         this.size = 3;
-        if (1 <= parameters.length) {
+        if (Array.isArray(parameters) && 1 <= parameters.length) {
             let parsed = parseInt(parameters[0], 10);
             if (!isNaN(parsed) && 0 < parsed) {
                 this.size = parsed;
@@ -35,12 +35,12 @@ module.exports.Help = class Help extends Command {
             "引数なし");
     }
 
-    execute(parameters) {
+    execute(message, parameters) {
         const embed = new discord.MessageEmbed()
             .setTitle("ヘルプ")
             .setColor("#00a2ff")
         parameters.forEach(c => embed.addField(c.grammar, c.detail + c.parameterDetail));
-        return embed;
+        message.channel.send(embed);
     }
 }
 
@@ -59,13 +59,22 @@ module.exports.Recruit = class Recruit extends Command {
         this.participation = "✅";
         this.cancel = "❎";
         this.end = "✖";
+        this.reactionFilter = (reaction, user) =>
+                reaction.emoji.name === this.participation ||
+                reaction.emoji.name === this.cancel ||
+                reaction.emoji.name === this.end;
     }
 
-    execute(parameters) {
+    execute(message, parameters) {
+        if (parameters.length < 1) {
+            message.channel.send("コマンド引数が足りません。\n");
+            return;
+        }
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let limit;
         let size = "制限なし";
         this.participant = new utils.Team("参加者");
+        this.planner = message.author;
         if (3 <= parameters.length) {
             limit = this.calLimit(parameters[1]);
             let parsed = parseInt(parameters[2], 10);
@@ -100,7 +109,52 @@ module.exports.Recruit = class Recruit extends Command {
                 limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' }))
             .setColor("#00a2ff")
             .addField(this.participant.name, "なし")
-        return embed;
+        message.channel.send(embed)
+            .then(m => m.react(this.participation))
+            .then(mReaction => mReaction.message.react(this.cancel))
+            .then(mReaction => mReaction.message.react(this.end))
+            .then(mReaction => {
+                const collector = mReaction.message
+                    .createReactionCollector(this.reactionFilter, {
+                        time: (this.termDate * 24 * 60 * 60 * 1000) + (this.termHour * 60 * 60 * 1000)
+                    });
+                collector.on("collect", (reaction, user) => {
+                    let embedField = Object.assign({}, embed.fields[0]);
+                    if (reaction.emoji.name === this.participation) {
+                        this.participant.addMember(user);
+                        if (this.participant.members.length == this.size) {
+                            collector.stop();
+                        }
+                    }
+                    else if (reaction.emoji.name === this.cancel) {
+                        this.participant.removeMember(user);
+                        const userReactions = reaction.message.reactions.cache.filter(reaction =>
+                            reaction.users.cache.has(user.id) &&
+                            (reaction.emoji.name === this.participation ||
+                                reaction.emoji.name === this.cancel));
+                        try {
+                            for (const reaction of userReactions.values()) {
+                                reaction.users.remove(user.id);
+                            }
+                        } catch (error) {
+                            console.error('Failed to remove reactions.');
+                        }
+                    }
+                    else {
+                        if (user.id == this.planner.id) {
+                            collector.stop();
+                        }
+                    }
+                    embedField.value = this.participant.members.length == 0 ? "なし" : this.participant.members;
+                    reaction.message.embeds[0].fields[0] = embedField;
+                    reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
+                });
+                collector.on("end", collection => {
+                    mReaction.message.embeds[0].title = "募集終了";
+                    mReaction.message.embeds[0].color = "#000000";
+                    mReaction.message.edit(new discord.MessageEmbed(mReaction.message.embeds[0]));
+                });
+            });
     }
 
     calLimit(input = "1d") {
@@ -134,6 +188,20 @@ module.exports.RTV = class RandomTeamVoice extends RandomTeam {
             "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n");
     }
 
+    execute(message, parameters) {
+        const vc = message.member.voice.channel;
+        if (vc) {
+            const embed = super.execute(message, parameters);
+            this.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
+                embed.addField(team.name, team.members);
+            });
+            message.channel.send(embed);
+        }
+        else {
+            message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
+        }
+    }
+
     make(members, exclusion) {
         return utils.Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
     }
@@ -145,6 +213,14 @@ module.exports.RTC = class RandomTeamChat extends RandomTeam {
             "メンションで指定したメンバーでランダムなチームを作成する。\n",
             "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
             "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n");
+    }
+
+    execute(message, parameters) {
+        const embed = super.execute(message, parameters);
+        this.make(message.mentions.members.array()).forEach(team => {
+            embed.addField(team.name, team.members);
+        });
+        message.channel.send(embed);
     }
 
     make(members) {
@@ -159,7 +235,7 @@ module.exports.Who = class Who extends Command {
             "・対象メンバー：情報を表示するメンバーをメンションで指定する。\n");
     }
 
-    execute(parameters) {
+    execute(message, parameters) {
         const target = parameters.user;
         const embed = new discord.MessageEmbed()
             .setTitle("エラー")
@@ -171,9 +247,9 @@ module.exports.Who = class Who extends Command {
                         "LOL ID：**" + member.LOLID + "**\n")
                     .setColor("#00a2ff")
                     .setImage(target.avatarURL())
-                return embed;
+                return;
             }
         })
-        return embed;
+        message.channel.send(embed);
     }
 }
