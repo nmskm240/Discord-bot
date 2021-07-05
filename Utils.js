@@ -22,7 +22,7 @@ module.exports.Team = class Team {
     }
 
     hasMember(member) {
-        return this.members.indexOf(member) == -1 ? false : true;
+        return this.members.indexOf(member) != -1;
     }
 
     removeMember(member) {
