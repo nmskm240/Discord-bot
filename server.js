@@ -1,16 +1,20 @@
 /*
-    using discord.js v12.5.3
+    ------using packages------ 
+        discord.js v12.5.3
+        require-all v3.0.0
+        node-fetch v2.6.1
+    --------------------------    
 */
 
 const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
-const commands = require("./Commands");
-const utils = require("./Utils");
+const commands = require('require-all')(__dirname + '/Commands');
+const Roll = require("./Utils/Roll");
 
 http.createServer(function (req, res) {
-    utils.Roll.update();
+    Roll.update();
     if (req.method == "POST") {
         var data = "";
         req.on("data", function (chunk) {
@@ -39,7 +43,7 @@ http.createServer(function (req, res) {
 
 client.on("ready", message => {
     console.log("Bot準備完了～");
-    utils.Roll.update();
+    Roll.update();
     client.user.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
@@ -52,27 +56,27 @@ client.on("message", message => {
         const command = commandAndParameter[1];
         const parameters = commandAndParameter.slice(2);
         if (command.startsWith("help")) {
-            const help = new commands.Help();
-            help.execute(message, [new commands.RTC(), new commands.RTV(), new commands.Recruit(), new commands.Who()]);
+            const help = new commands.Help.modules();
+            help.execute(message, [new commands.RandomTeamChat.modules(), new commands.RandomTeamVoice.modules(), new commands.Recruit.modules(), new commands.Who.modules()]);
             return;
         }
         if (command.startsWith("rtc")) {
-            const rtc = new commands.RTC();
+            const rtc = new commands.RandomTeamChat.modules();
             rtc.execute(message, parameters);
             return;
         }
         if (command.startsWith("rtv")) {
-            const rtv = new commands.RTV();
+            const rtv = new commands.RandomTeamVoice.modules();
             rtv.execute(message, parameters);
             return;
         }
         if (command.startsWith("recruit")) {
-            const recruit = new commands.Recruit();
+            const recruit = new commands.Recruit.modules();
             recruit.execute(message, parameters);
             return;
         }
         if (command.startsWith("who")) {
-            const who = new commands.Who();
+            const who = new commands.Who.modules();
             who.execute(message, message.mentions.members.first());
             return;
         }

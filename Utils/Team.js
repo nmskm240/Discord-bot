@@ -1,6 +1,4 @@
-const fetch = require("node-fetch");
-
-module.exports.Team = class Team {
+module.exports = class Team {
     constructor(name, max = -1) {
         this.name = name;
         this.max = max <= 0 ? -1 : max;
@@ -53,22 +51,3 @@ module.exports.Team = class Team {
         return teams;
     }
 }
-
-module.exports.Roll = class Roll {
-    static async update() {
-        await fetch("https://script.google.com/macros/s/AKfycbxb37qfooGrVvqqzL5HEAHx-0WCb4MpLNdnYYltBEs3sxN5PSRPVEUZ3XLduxIjauaaRA/exec")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error();
-                }
-                return response.json();
-            })
-            .then((json) => {
-                Roll.register = json;
-            })
-            .catch((reason) => {
-                console.log(reason);
-            })
-    }
-}
-module.exports.Roll.register = [];

@@ -1,50 +1,8 @@
 const discord = require("discord.js");
-const utils = require("./Utils");
+const Command = require("./Command");
+const Team = require("../Utils/Team");
 
-class Command {
-    constructor(grammar, detail, parameterDetail) {
-        this.grammar = grammar;
-        this.detail = detail;
-        this.parameterDetail = parameterDetail;
-    }
-
-    execute(message, parameters) {
-
-    }
-}
-
-class RandomTeam extends Command {
-    execute(message, parameters) {
-        const embed = new discord.MessageEmbed()
-            .setTitle("チーム分け結果");
-        this.size = 3;
-        if (Array.isArray(parameters) && 1 <= parameters.length) {
-            let parsed = parseInt(parameters[0], 10);
-            if (!isNaN(parsed) && 0 < parsed) {
-                this.size = parsed;
-            }
-        }
-        return embed;
-    }
-}
-
-module.exports.Help = class Help extends Command {
-    constructor() {
-        super(".nit　help",
-            "実装されているコマンドの説明を表示する。\n",
-            "引数なし");
-    }
-
-    execute(message, parameters) {
-        const embed = new discord.MessageEmbed()
-            .setTitle("ヘルプ")
-            .setColor("#00a2ff")
-        parameters.forEach(c => embed.addField(c.grammar, c.detail + c.parameterDetail));
-        message.channel.send(embed);
-    }
-}
-
-module.exports.Recruit = class Recruit extends Command {
+exports.modules = class Recruit extends Command {
     constructor() {
         super(".nit　recruit　募集内容　募集人数　募集期間",
             "リアクションを使用した募集フォームを作成する。\n" +
@@ -73,7 +31,7 @@ module.exports.Recruit = class Recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let limit;
         let size = "制限なし";
-        this.participant = new utils.Team("参加者");
+        this.participant = new Team("参加者");
         this.planner = message.author;
         if (3 <= parameters.length) {
             limit = this.calLimit(parameters[1]);
@@ -93,7 +51,6 @@ module.exports.Recruit = class Recruit extends Command {
                 }
             }
             else {
-                console.log(parameters[1]);
                 limit = this.calLimit(parameters[1]);
             }
         }
@@ -119,7 +76,6 @@ module.exports.Recruit = class Recruit extends Command {
                         time: (this.termDate * 24 * 60 * 60 * 1000) + (this.termHour * 60 * 60 * 1000)
                     });
                 collector.on("collect", (reaction, user) => {
-                    let embedField = Object.assign({}, embed.fields[0]);
                     if (reaction.emoji.name === this.participation) {
                         this.participant.addMember(user);
                         if (this.participant.members.length == this.size) {
@@ -145,6 +101,7 @@ module.exports.Recruit = class Recruit extends Command {
                             collector.stop();
                         }
                     }
+                    let embedField = Object.assign({}, embed.fields[0]);
                     embedField.value = this.participant.members.length == 0 ? "なし" : this.participant.members;
                     reaction.message.embeds[0].fields[0] = embedField;
                     reaction.message.edit(new discord.MessageEmbed(reaction.message.embeds[0]));
@@ -177,79 +134,5 @@ module.exports.Recruit = class Recruit extends Command {
         this.termDate = limit.getDate();
         this.termHour = limit.getHours();
         return limit;
-    }
-}
-
-module.exports.RTV = class RandomTeamVoice extends RandomTeam {
-    constructor() {
-        super(".nit　rtv　1チームの人数　除外メンバー",
-            "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n",
-            "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-            "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n");
-    }
-
-    execute(message, parameters) {
-        const vc = message.member.voice.channel;
-        if (vc) {
-            const embed = super.execute(message, parameters);
-            this.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
-                embed.addField(team.name, team.members);
-            });
-            message.channel.send(embed);
-        }
-        else {
-            message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
-        }
-    }
-
-    make(members, exclusion) {
-        return utils.Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
-    }
-}
-
-module.exports.RTC = class RandomTeamChat extends RandomTeam {
-    constructor() {
-        super(".nit　rtc　1チームの人数　対象メンバー",
-            "メンションで指定したメンバーでランダムなチームを作成する。\n",
-            "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-            "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n");
-    }
-
-    execute(message, parameters) {
-        const embed = super.execute(message, parameters);
-        this.make(message.mentions.members.array()).forEach(team => {
-            embed.addField(team.name, team.members);
-        });
-        message.channel.send(embed);
-    }
-
-    make(members) {
-        return utils.Team.random(members, this.size);
-    }
-}
-
-module.exports.Who = class Who extends Command {
-    constructor() {
-        super(".nit　who　対象メンバー",
-            "メンションで指定したメンバーの登録されているデータを表示する。\n",
-            "・対象メンバー：情報を表示するメンバーをメンションで指定する。\n");
-    }
-
-    execute(message, parameters) {
-        const target = parameters.user;
-        const embed = new discord.MessageEmbed()
-            .setTitle("エラー")
-        utils.Roll.register.forEach(member => {
-            if (target.tag.indexOf(member.DiscordTag) != -1) {
-                embed.setTitle(parameters.displayName)
-                    .setDescription(member.Medals + "\n\n" +
-                        "APEX ID：**" + member.APEXID + "**\n" +
-                        "LOL ID：**" + member.LOLID + "**\n")
-                    .setColor("#00a2ff")
-                    .setImage(target.avatarURL())
-                return;
-            }
-        })
-        message.channel.send(embed);
     }
 }
