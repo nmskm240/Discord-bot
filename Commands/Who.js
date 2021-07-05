@@ -6,15 +6,11 @@ exports.modules = class Who extends Command {
     constructor() {
         super(".nit　who　対象メンバー",
             "メンションで指定したメンバーの登録されているデータを表示する。\n",
-            "・対象メンバー：情報を表示するメンバーをメンションで指定する。\n");
+            "・対象メンバー：[省略可]情報を表示するメンバーをメンションで指定する。省略時は自分の情報を表示する。\n");
     }
 
     execute(message, parameters) {
-        if (parameters.size <= 0) {
-            message.channel.send("情報を表示するメンバーをメンションで指定してください。")
-            return;
-        }
-        const target = parameters.first();
+        const target = (parameters.size <= 0) ? message.member : parameters.first();
         const embed = new discord.MessageEmbed()
             .setTitle("エラー")
         Roll.register.forEach(member => {
