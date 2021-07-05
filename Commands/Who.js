@@ -10,17 +10,21 @@ exports.modules = class Who extends Command {
     }
 
     execute(message, parameters) {
-        const target = parameters.user;
+        if (parameters.size <= 0) {
+            message.channel.send("情報を表示するメンバーをメンションで指定してください。")
+            return;
+        }
+        const target = parameters.first();
         const embed = new discord.MessageEmbed()
             .setTitle("エラー")
         Roll.register.forEach(member => {
-            if (target.tag.indexOf(member.DiscordTag) != -1) {
-                embed.setTitle(parameters.displayName)
+            if (target.user.tag.indexOf(member.DiscordTag) != -1) {
+                embed.setTitle(target.displayName)
                     .setDescription(member.Medals + "\n\n" +
                         "APEX ID：**" + member.APEXID + "**\n" +
                         "LOL ID：**" + member.LOLID + "**\n")
                     .setColor("#00a2ff")
-                    .setImage(target.avatarURL())
+                    .setImage(target.user.avatarURL())
                 return;
             }
         })

@@ -77,7 +77,7 @@ client.on("message", message => {
         }
         if (command.startsWith("who")) {
             const who = new commands.Who.modules();
-            who.execute(message, message.mentions.members.first());
+            who.execute(message, message.mentions.members);
             return;
         }
     }
