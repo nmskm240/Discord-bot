@@ -164,10 +164,11 @@ module.exports.Who = class Who extends Command {
         const embed = new discord.MessageEmbed()
             .setTitle("エラー")
         utils.Roll.register.forEach(member => {
-            if (target.tag.indexOf(member.discordTag) != -1) {
+            if (target.tag.indexOf(member.DiscordTag) != -1) {
                 embed.setTitle(parameters.displayName)
-                    .setDescription("APEX ID：**" + member.apexId + "**\n" +
-                        "LOL ID：**" + member.lolId + "**\n")
+                    .setDescription(member.Medals + "\n\n" +
+                        "APEX ID：**" + member.APEXID + "**\n" +
+                        "LOL ID：**" + member.LOLID + "**\n")
                     .setColor("#00a2ff")
                     .setImage(target.avatarURL())
                 return embed;
