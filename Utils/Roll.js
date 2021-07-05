@@ -1,8 +1,20 @@
+const fs = require("fs");
 const fetch = require("node-fetch");
+const path = "./Links.txt";
 
 module.exports = class Roll {
-    static async update() {
-        await fetch("https://script.google.com/macros/s/AKfycbxb37qfooGrVvqqzL5HEAHx-0WCb4MpLNdnYYltBEs3sxN5PSRPVEUZ3XLduxIjauaaRA/exec")
+    static update() {
+        fs.readFile(path, { encoding: "utf8" }, (err, file) => {
+            if (err) {
+                console.error(err);
+            } else {
+                Roll.read(file);
+            }
+        });
+    }
+
+    static async read(url) {
+        await fetch(url)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error();
@@ -11,6 +23,7 @@ module.exports = class Roll {
             })
             .then((json) => {
                 Roll.register = json;
+                console.log(json)
             })
             .catch((reason) => {
                 console.log(reason);
