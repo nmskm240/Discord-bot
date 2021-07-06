@@ -47,8 +47,8 @@ exports.modules = class Recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let size = "制限なし";
         if (3 <= parameters.length) {
-            parameter.time = this.calLimit(parameters[1]);
-            let parsed = parseInt(parameters[2], 10);
+            parameter.time = this.calLimit(parameters[2]);
+            let parsed = parseInt(parameters[1], 10);
             if (!isNaN(parsed) && 0 < parsed) {
                 size = parsed + "人";
                 parameter.size = parsed;
