@@ -6,7 +6,7 @@ module.exports = class Network {
         const axios = axiosBase.create({
             baseURL: baseURL,
         });
-        const res = await axios.get("/macros/s/AKfycbzIR3Pyzlpc8sfBQ1B6a8v5SOA1Y2GjEijwzZttIZTyQSJYnD5P8V9DHcLFPU_0YBAF/exec", {
+        const res = await axios.get(Network.URL, {
             params: query,
         })
             .catch(error => {
@@ -28,7 +28,7 @@ module.exports = class Network {
             },
             responseType: "json",
         });
-        const res = await axios.post("/macros/s/AKfycbzIR3Pyzlpc8sfBQ1B6a8v5SOA1Y2GjEijwzZttIZTyQSJYnD5P8V9DHcLFPU_0YBAF/exec", sendData)
+        const res = await axios.post(Network.URL, sendData)
             .catch(error => {
                 console.log("GASへのPOSTに失敗");
                 return error.response;
@@ -39,3 +39,4 @@ module.exports = class Network {
 
     }
 }
+module.exports.URL = "";

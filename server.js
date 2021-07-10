@@ -6,12 +6,14 @@
     --------------------------    
 */
 
+const fs = require("fs");
 const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require('require-all')(__dirname + '/Commands');
 const Roll = require("./Utils/Roll");
+const Network = require("./Utils/Network")
 
 http.createServer(function (req, res) {
     Roll.update();
@@ -42,8 +44,14 @@ http.createServer(function (req, res) {
 }).listen(3000);
 
 client.on("ready", message => {
-    console.log("Bot準備完了～");
-    Roll.update();
+    fs.readFile("./Data/Links.json", "utf8", (err, data) => {
+        if (data) {
+            const json = JSON.parse(data);
+            Network.URL = json.GAS;
+            Roll.update();
+        }
+    });
+    console.log("Bot準備完了");
     client.user.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
