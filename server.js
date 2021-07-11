@@ -13,7 +13,8 @@ const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require('require-all')(__dirname + '/Commands');
 const Roll = require("./Utils/Roll");
-const Network = require("./Utils/Network")
+const Network = require("./Utils/Network");
+const Form = require("./Utils/Form");
 
 http.createServer(function (req, res) {
     Roll.update();
@@ -49,6 +50,7 @@ client.on("ready", message => {
             const json = JSON.parse(data);
             Network.URL = json.GAS;
             Roll.update();
+            Form.reboot(client);
         }
     });
     console.log("Bot準備完了");

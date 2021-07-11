@@ -15,7 +15,7 @@ exports.modules = class Recruit extends Command {
         this.reactions = {
             allow: "✅",
             cancel: "❎",
-            end: "✖",
+            close: "✖",
         };
     }
 
@@ -30,7 +30,7 @@ exports.modules = class Recruit extends Command {
         message.channel.send(embed)
             .then(m => m.react(this.reactions.allow))
             .then(mReaction => mReaction.message.react(this.reactions.cancel))
-            .then(mReaction => mReaction.message.react(this.reactions.end))
+            .then(mReaction => mReaction.message.react(this.reactions.close))
             .then(mReaction => form.open(mReaction.message, this.reactions, parameter.time.term));
     }
 
