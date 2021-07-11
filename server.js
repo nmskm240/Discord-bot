@@ -2,19 +2,20 @@
     ------using packages------ 
         discord.js v12.5.3
         require-all v3.0.0
-        node-fetch v2.6.1
+        axios v0.21.1
     --------------------------    
 */
 
+const fs = require("fs");
 const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require('require-all')(__dirname + '/Commands');
-const Roll = require("./Utils/Roll");
+const Network = require("./Utils/Network");
+const Form = require("./Utils/Form");
 
 http.createServer(function (req, res) {
-    Roll.update();
     if (req.method == "POST") {
         var data = "";
         req.on("data", function (chunk) {
@@ -26,9 +27,7 @@ http.createServer(function (req, res) {
                 return;
             }
             var dataObject = querystring.parse(data);
-            console.log("post:" + dataObject.type);
             if (dataObject.type == "wake") {
-                console.log("Woke up in post");
                 res.end();
                 return;
             }
@@ -42,8 +41,14 @@ http.createServer(function (req, res) {
 }).listen(3000);
 
 client.on("ready", message => {
-    console.log("Bot準備完了～");
-    Roll.update();
+    fs.readFile("./Data/Links.json", "utf8", (err, data) => {
+        if (data) {
+            const json = JSON.parse(data);
+            Network.URL = json.GAS;
+            Form.reboot(client);
+        }
+    });
+    console.log("Bot準備完了");
     client.user.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
