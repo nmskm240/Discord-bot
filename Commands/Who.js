@@ -22,9 +22,9 @@ exports.modules = class Who extends Command {
                     if (target.user.tag.indexOf(member.DiscordTag) != -1) {
                         const keys = Object.keys(member.game);
                         const values = Object.values(member.game);
-                        const description = member.Medals + "\n\n";
+                        let description = member.Medals + "\n\n";
                         for(let i = 0; i < keys.length; i++){
-                            description += keys[i] + ":**" + values[i] + "**\n";
+                            description += keys[i] + ": ** " + values[i] + " ** \n";
                         }
                         const embed = new discord.MessageEmbed()
                             .setTitle(target.displayName)
