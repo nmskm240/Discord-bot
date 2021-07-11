@@ -2,7 +2,7 @@
     ------using packages------ 
         discord.js v12.5.3
         require-all v3.0.0
-        node-fetch v2.6.1
+        axios v0.21.1
     --------------------------    
 */
 
@@ -12,12 +12,10 @@ const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
 const commands = require('require-all')(__dirname + '/Commands');
-const Roll = require("./Utils/Roll");
 const Network = require("./Utils/Network");
 const Form = require("./Utils/Form");
 
 http.createServer(function (req, res) {
-    Roll.update();
     if (req.method == "POST") {
         var data = "";
         req.on("data", function (chunk) {
@@ -47,7 +45,6 @@ client.on("ready", message => {
         if (data) {
             const json = JSON.parse(data);
             Network.URL = json.GAS;
-            Roll.update();
             Form.reboot(client);
         }
     });

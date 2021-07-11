@@ -14,23 +14,19 @@ module.exports = class Form {
                 res.data.forEach(task => {
                     const now = new Date();
                     const end = new Date(task.endTime);
-                    const reactions = {
-                        allow: task.allow,
-                        cancel: task.cancel,
-                        close: task.close,
-                    };
+                    const reactions = task.reactions;
                     const term = {
                         date: end.getDate() - now.getDate(),
                         hour: end.getHours() - now.getHours(),
                     }
-                    const guild = client.guilds.cache.get(task.guild);
-                    const channel = guild.channels.cache.get(task.channel);
-                    channel.messages.fetch(task.message)
+                    const guild = client.guilds.cache.get(task.id.guild);
+                    const channel = guild.channels.cache.get(task.id.channel);
+                    channel.messages.fetch(task.id.message)
                         .then(message => {
-                            channel.messages.fetch(task.creatorMessage)
+                            channel.messages.fetch(task.id.creatorMessage)
                                 .then(cmessage => {
                                     const creator = cmessage.author;
-                                    const form = new Form(task.answerable);
+                                    const form = new Form(task.id.answerable);
                                     form.creator = creator;
                                     form.open(message, reactions, term, true);
                                 })
