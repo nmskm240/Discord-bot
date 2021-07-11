@@ -10,6 +10,10 @@ exports.modules = class Who extends Command {
     }
 
     execute(message, parameters) {
+        if(message.channel.type == "dm"){
+            message.channel.send(message.channel.type + "ではwhoコマンドを使用できません");
+            return;
+        }
         const target = (parameters.size <= 0) ? message.member : parameters.first();
         const embed = new discord.MessageEmbed()
             .setTitle("エラー")

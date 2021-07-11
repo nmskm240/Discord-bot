@@ -10,6 +10,7 @@ module.exports = class Form {
     static reboot(client) {
         Network.get({ command: "recruit" })
             .then(res => {
+                console.log("[Form]" + res.data.length + "個のFormを再起動");
                 res.data.forEach(task => {
                     const now = new Date();
                     const end = new Date(task.endTime);
@@ -50,6 +51,7 @@ module.exports = class Form {
 
     open(message, reactions, term, isOpened = false) {
         if (!isOpened) {
+            console.log("[Form]" + this.creator.tag + "によって新しいForm(" + message.id + ")が開かれました");
             const limit = new Date();
             limit.setDate(limit.getDate() + term.date);
             limit.setHours(limit.getHours() + term.hour);
@@ -96,13 +98,15 @@ module.exports = class Form {
             });
         collector.on("collect", (reaction, user) => {
             if (reaction.emoji.name === reactions.allow) {
+                console.log("[Form]" + user.tag + "が" + message.id + "に参加しました");
                 this.respondents.addMember(user);
-                console.log(this.respondents.isMax);
                 if (this.respondents.isMax) {
                     collector.stop();
+                    console.log("[Form]" + message.id + "は人数上限により閉じられました");
                 }
             }
             else if (reaction.emoji.name === reactions.cancel) {
+                console.log("[Form]" + user.tag + "が" + message.id + "への参加を取消しました");
                 this.respondents.removeMember(user);
                 const userReactions = reaction.message.reactions.cache.filter(reaction =>
                     reaction.users.cache.has(user.id) &&
@@ -118,6 +122,7 @@ module.exports = class Form {
             }
             else {
                 if (user.id == this.creator.id) {
+                    console.log("[Form]" + message.id + "は" + user.tag + "によって閉じられました");
                     collector.stop();
                     return;
                 }
