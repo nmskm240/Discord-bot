@@ -51,7 +51,6 @@ module.exports = class Form {
     open(message, reactions, term, isOpened = false) {
         if (!isOpened) {
             const limit = new Date();
-            limit.setHours(limit.getHours() + 9);
             limit.setDate(limit.getDate() + term.date);
             limit.setHours(limit.getHours() + term.hour);
             const postData = {
@@ -72,11 +71,19 @@ module.exports = class Form {
             Network.post(postData);
         }
         else {
-            console.log(message.reactions.cache.get(reactions.allow).users.fetch()
+            message.reactions.cache.get(reactions.allow).users.fetch()
                 .then(users => {
                     this.respondents.addMembers(users.filter(user => !user.bot).array());
                     this.update(message);
-                }));
+                });
+            if (term.hour <= 0) {
+                if (term.date <= 0) {
+                    this.close(message);
+                    return;
+                }
+                term.date--;
+                term.hour += 24;
+            }
         }
         const reactionFilter = (reaction, user) =>
             reaction.emoji.name === reactions.allow ||
