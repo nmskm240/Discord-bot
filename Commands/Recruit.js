@@ -83,18 +83,23 @@ exports.modules = class Recruit extends Command {
         }
         const dIndex = input.indexOf("d");
         const hIndex = input.indexOf("h");
-        if (dIndex != -1) {
-            let parsed = parseInt(input.substring(0, dIndex), 10);
-            if (!isNaN(parsed) && 0 < parsed) {
-                data.limit.setDate(data.limit.getDate() + parsed);
-                data.term.date = parsed;
-            }
+        if (dIndex == -1 && hIndex == -1) {
+            data.limit.setDate(data.limit.getDate() + 1);
         }
-        if (hIndex != -1) {
-            let parsed = parseInt(input.substring(dIndex, hIndex), 10);
-            if (!isNaN(parsed) && 0 < parsed) {
-                data.limit.setHours(data.limit.getHours() + parsed);
-                data.term.hour = parsed;
+        else {
+            if (dIndex != -1) {
+                let parsed = parseInt(input.substring(0, dIndex), 10);
+                if (!isNaN(parsed) && 0 < parsed) {
+                    data.limit.setDate(data.limit.getDate() + parsed);
+                    data.term.date = parsed;
+                }
+            }
+            if (hIndex != -1) {
+                let parsed = parseInt(input.substring(dIndex, hIndex), 10);
+                if (!isNaN(parsed) && 0 < parsed) {
+                    data.limit.setHours(data.limit.getHours() + parsed);
+                    data.term.hour = parsed;
+                }
             }
         }
         data.limit.setHours(data.limit.getHours() + 9);

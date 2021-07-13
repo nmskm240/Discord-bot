@@ -97,8 +97,10 @@ module.exports = class Form {
                 console.log("[Form]" + user.tag + "が" + message.id + "に参加しました");
                 this.respondents.addMember(user);
                 if (this.respondents.isMax) {
+                    this.update(message);
                     collector.stop();
                     console.log("[Form]" + message.id + "は人数上限により閉じられました");
+                    return;
                 }
             }
             else if (reaction.emoji.name === reactions.cancel) {
