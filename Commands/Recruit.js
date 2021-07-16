@@ -1,7 +1,7 @@
 const discord = require("discord.js");
 const Command = require("./Command");
-const Team = require("../Utils/Team");
 const Form = require("../Utils/Form");
+const Converter = require("../Utils/Converter")
 
 exports.modules = class Recruit extends Command {
     constructor() {
@@ -37,7 +37,7 @@ exports.modules = class Recruit extends Command {
     parseParameter(parameters) {
         const parameter = {
             formBody: "**" + parameters[0] + "**\n\n",
-            time: this.calLimit(),
+            time: Converter.text2Time("1d"),
             size: -1,
             term: {
                 date: 0,
@@ -47,7 +47,7 @@ exports.modules = class Recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let size = "制限なし";
         if (3 <= parameters.length) {
-            parameter.time = this.calLimit(parameters[2]);
+            parameter.time = Converter.text2Time(parameters[2]);
             let parsed = parseInt(parameters[1], 10);
             if (!isNaN(parsed) && 0 < parsed) {
                 size = parsed + "人";
@@ -55,7 +55,7 @@ exports.modules = class Recruit extends Command {
             }
         }
         else if (2 == parameters.length) {
-            if (parameters[1].indexOf("d") == -1 && parameters[1].indexOf("h") == -1) {
+            if (parameters[2].indexOf("d") == -1 && parameters[2].indexOf("h") == -1) {
                 let parsed = parseInt(parameters[1], 10);
                 if (!isNaN(parsed) && 0 < parsed) {
                     size = parsed + "人";
@@ -63,7 +63,7 @@ exports.modules = class Recruit extends Command {
                 }
             }
             else {
-                parameter.time = this.calLimit(parameters[1]);
+                parameter.time = Converter.text2Time(parameters[2]);
             }
         }
         parameter.formBody += this.reactions.allow + "：参加、" + this.reactions.cancel + "：参加取消\n" +
@@ -71,38 +71,5 @@ exports.modules = class Recruit extends Command {
             "募集終了：" + parameter.time.limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" +
             parameter.time.limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' })
         return parameter;
-    }
-
-    calLimit(input = "1d") {
-        const data = {
-            limit: new Date(),
-            term: {
-                date: 1,
-                hour: 0,
-            }
-        }
-        const dIndex = input.indexOf("d");
-        const hIndex = input.indexOf("h");
-        if (dIndex == -1 && hIndex == -1) {
-            data.limit.setDate(data.limit.getDate() + 1);
-        }
-        else {
-            if (dIndex != -1) {
-                let parsed = parseInt(input.substring(0, dIndex), 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    data.limit.setDate(data.limit.getDate() + parsed);
-                    data.term.date = parsed;
-                }
-            }
-            if (hIndex != -1) {
-                let parsed = parseInt(input.substring(dIndex, hIndex), 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    data.limit.setHours(data.limit.getHours() + parsed);
-                    data.term.hour = parsed;
-                }
-            }
-        }
-        data.limit.setHours(data.limit.getHours() + 9);
-        return data;
     }
 }
