@@ -1,8 +1,8 @@
 module.exports = class Command {
-    constructor(grammar, detail, parameterDetail) {
-        this.grammar = grammar;
+    constructor(name, detail,　...parameters) {
+        this.name = name;
         this.detail = detail;
-        this.parameterDetail = parameterDetail;
+        this.parameters = parameters;
     }
 
     execute(message, parameters) {

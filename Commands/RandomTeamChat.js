@@ -1,12 +1,13 @@
-const RandomTeam = require("./RandomTeam");
-const Team = require("../Utils/Team")
+const requireDir = require("require-dir");
+const commands = requireDir("../Commands");
+const utils = requireDir("../Utils");
 
-module.exports = class RandomTeamChat extends RandomTeam {
+module.exports = class RandomTeamChat extends commands.RandomTeam {
     constructor() {
-        super(".nit　rtc　1チームの人数　対象メンバー",
-            "メンションで指定したメンバーでランダムなチームを作成する。\n",
-            "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-            "・対象メンバー：[複数指定可]チーム作成に含めるメンバーをメンションで指定する。\n");
+        super("rtc",
+            "メンションで指定したメンバーでランダムなチームを作成します。\n",
+            new commands.Parameter("1チームの人数", "1チームの人数を指定します。", "0以上の整数", false, true, "3"),
+            new commands.Parameter("対象メンバー", "チーム分けに含めるメンバーを指定します。", "メンション", true));
     }
 
     execute(message, parameters) {
@@ -18,6 +19,6 @@ module.exports = class RandomTeamChat extends RandomTeam {
     }
 
     make(members) {
-        return Team.random(members, this.size);
+        return utils.Team.random(members, this.size);
     }
 }

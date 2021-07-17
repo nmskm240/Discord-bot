@@ -1,24 +1,25 @@
 const discord = require("discord.js");
-const Command = require("./Command");
+const requireDir = require("require-dir");
+const commands = requireDir("../Commands")
 
-module.exports = class Help extends Command {
+module.exports = class Help extends commands.Command {
     constructor() {
-        super(".nit　help　コマンド名",
+        super("help",
             "実装されているコマンドの説明を表示します。\n",
-            "・コマンド名：ヘルプを表示するコマンド名");
+            new commands.Parameter("コマンド名", "ヘルプを表示するコマンドを指定します。", "実装されているコマンド"));
     }
 
     execute(message, parameters) {
         const embed = new discord.MessageEmbed()
             .setTitle("ヘルプ")
             .setColor("#00a2ff")
-        if(parameters.length <= 0){
+        if (parameters.length <= 0) {
             embed.setDescription("「.nit help」の後にヘルプを表示するコマンド名を入力し、再度投稿してください。")
-            .addField("実装コマンド", 
-            "・rtc\n" + 
-            "・rtv\n" +
-            "・recruit\n" + 
-            "・who\n")
+                .addField("実装コマンド",
+                    "・rtc\n" +
+                    "・rtv\n" +
+                    "・recruit\n" +
+                    "・who\n")
         }
         message.channel.send(embed);
     }

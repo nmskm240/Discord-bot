@@ -1,12 +1,13 @@
-const Team = require("../Utils/Team");
-const RandomTeam = require("./RandomTeam");
+const requireDir = require("require-dir");
+const commands = requireDir("../Commands");
+const utils = requireDir("../Utils");
 
-module.exports = class RandomTeamVoice extends RandomTeam {
+module.exports = class RandomTeamVoice extends commands.RandomTeam {
     constructor() {
-        super(".nit　rtv　1チームの人数　除外メンバー",
-            "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n",
-            "・1チームの人数：[省略可]1チームの人数を指定する。省略時は3人。\n" +
-            "・除外メンバー：[省略可][複数指定可]メンションで指定したメンバーをチーム作成に含めない。\n");
+        super("rtv",
+            "コマンド入力者が参加しているVCの参加者でランダムなチームを作成します。\n",
+            new utils.Parameter("1チームの人数", "1チームの人数を指定します。", "0以上の整数", false, true, "3"),
+            new utils.Parameter("除外メンバー", "チーム分けに含めないメンバーを指定します。", "メンション", true));
     }
 
     execute(message, parameters) {
@@ -24,6 +25,6 @@ module.exports = class RandomTeamVoice extends RandomTeam {
     }
 
     make(members, exclusion) {
-        return Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
+        return utils.Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
     }
 }

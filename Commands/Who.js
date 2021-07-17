@@ -1,12 +1,13 @@
 const discord = require("discord.js");
-const Command = require("./Command");
-const Network = require("../Utils/Network");
+const requireDir = require("require-dir");
+const commands = requireDir("../Commands");
+const utils = requireDir("../Utils");
 
-module.exports = class Who extends Command {
+module.exports = class Who extends commands.Command {
     constructor() {
-        super(".nit　who　対象メンバー",
-            "メンションで指定したメンバーの登録されているデータを表示する。\n",
-            "・対象メンバー：[省略可]情報を表示するメンバーをメンションで指定する。省略時は自分の情報を表示する。\n");
+        super("who",
+            "メンションで指定したメンバーのデータを表示します。\n",
+            new commands.Parameter("対象メンバー", "情報を表示するメンバーを指定します。", "メンション", false, true, "自分"));
     }
 
     execute(message, parameters) {
@@ -16,14 +17,14 @@ module.exports = class Who extends Command {
         }
         let isEnd = false;
         const target = (parameters.size <= 0) ? message.member : parameters.first();
-        Network.get({ command: "who" })
+        utils.Network.get({ command: "who" })
             .then(res => {
                 res.data.forEach(member => {
                     if (target.user.tag.indexOf(member.DiscordTag) != -1) {
                         const keys = Object.keys(member.game);
                         const values = Object.values(member.game);
                         let description = member.Medals + "\n\n";
-                        for(let i = 0; i < keys.length; i++){
+                        for (let i = 0; i < keys.length; i++) {
                             description += keys[i] + ": ** " + values[i] + " ** \n";
                         }
                         const embed = new discord.MessageEmbed()
