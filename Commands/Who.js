@@ -2,7 +2,7 @@ const discord = require("discord.js");
 const Command = require("./Command");
 const Network = require("../Utils/Network");
 
-exports.modules = class Who extends Command {
+module.exports = class Who extends Command {
     constructor() {
         super(".nit　who　対象メンバー",
             "メンションで指定したメンバーの登録されているデータを表示する。\n",

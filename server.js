@@ -1,7 +1,7 @@
 /*
     ------using packages------ 
         discord.js v12.5.3
-        require-all v3.0.0
+        require-dir v1.2.0
         axios v0.21.1
     --------------------------    
 */
@@ -11,9 +11,9 @@ const http = require("http");
 const querystring = require("querystring");
 const discord = require("discord.js");
 const client = new discord.Client();
-const commands = require('require-all')(__dirname + '/Commands');
-const Network = require("./Utils/Network");
-const Form = require("./Utils/Form");
+const requireDir = require("require-dir");
+const commands = requireDir("./Commands");
+const utils = requireDir("./Utils");
 
 http.createServer(function (req, res) {
     if (req.method == "POST") {
@@ -44,8 +44,8 @@ client.on("ready", message => {
     fs.readFile("./Data/Links.json", "utf8", (err, data) => {
         if (data) {
             const json = JSON.parse(data);
-            Network.URL = json.GAS;
-            Form.reboot(client);
+            utils.Network.URL = json.GAS;
+            utils.Form.reboot(client);
         }
     });
     console.log("Bot準備完了");
@@ -61,27 +61,27 @@ client.on("message", message => {
         const command = commandAndParameter[1];
         const parameters = commandAndParameter.slice(2);
         if (command.startsWith("help")) {
-            const help = new commands.Help.modules();
-            help.execute(message, [new commands.RandomTeamChat.modules(), new commands.RandomTeamVoice.modules(), new commands.Recruit.modules(), new commands.Who.modules()]);
+            const help = new commands.Help();
+            help.execute(message, parameters);
             return;
         }
         if (command.startsWith("rtc")) {
-            const rtc = new commands.RandomTeamChat.modules();
+            const rtc = new commands.RandomTeamChat();
             rtc.execute(message, parameters);
             return;
         }
         if (command.startsWith("rtv")) {
-            const rtv = new commands.RandomTeamVoice.modules();
+            const rtv = new commands.RandomTeamVoice();
             rtv.execute(message, parameters);
             return;
         }
         if (command.startsWith("recruit")) {
-            const recruit = new commands.Recruit.modules();
+            const recruit = new commands.Recruit();
             recruit.execute(message, parameters);
             return;
         }
         if (command.startsWith("who")) {
-            const who = new commands.Who.modules();
+            const who = new commands.Who();
             who.execute(message, message.mentions.members);
             return;
         }

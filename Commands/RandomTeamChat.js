@@ -1,7 +1,7 @@
 const RandomTeam = require("./RandomTeam");
 const Team = require("../Utils/Team")
 
-exports.modules = class RandomTeamChat extends RandomTeam {
+module.exports = class RandomTeamChat extends RandomTeam {
     constructor() {
         super(".nit　rtc　1チームの人数　対象メンバー",
             "メンションで指定したメンバーでランダムなチームを作成する。\n",

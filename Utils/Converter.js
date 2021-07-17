@@ -13,7 +13,6 @@ module.exports = class Converter {
             data.limit.setDate(data.limit.getDate() + 1);
         }
         else {
-            console.log(dIndex + "," + hIndex);
             if (dIndex != -1) {
                 let parsed = parseInt(text.substring(0, dIndex), 10);
                 if (!isNaN(parsed) && 0 < parsed) {

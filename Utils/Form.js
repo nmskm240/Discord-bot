@@ -1,14 +1,14 @@
 const discord = require("discord.js");
-const Team = require("./Team")
-const Network = require("./Network");
+const requireDir = require("require-dir");
+const utils = requireDir("../Utils");
 
 module.exports = class Form {
     constructor(answerableSize = -1) {
-        this.respondents = new Team("回答者", answerableSize);
+        this.respondents = new utils.Team("回答者", answerableSize);
     }
 
     static reboot(client) {
-        Network.get({ command: "recruit" })
+        utils.Network.get({ command: "recruit" })
             .then(res => {
                 if (res.data[0].id) {
                     console.log("[Form]" + res.data.length + "個のFormを再起動");
@@ -68,7 +68,7 @@ module.exports = class Form {
                     answerable: this.respondents.max,
                 }
             }
-            Network.post(postData);
+            utils.Network.post(postData);
         }
         else {
             message.reactions.cache.get(reactions.allow).users.fetch()
@@ -155,6 +155,6 @@ module.exports = class Form {
                 messageID: message.id,
             }
         };
-        Network.post(postData);
+        utils.Network.post(postData);
     }
 }

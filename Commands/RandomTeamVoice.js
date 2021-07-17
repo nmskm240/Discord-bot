@@ -1,7 +1,7 @@
 const Team = require("../Utils/Team");
 const RandomTeam = require("./RandomTeam");
 
-exports.modules = class RandomTeamVoice extends RandomTeam {
+module.exports = class RandomTeamVoice extends RandomTeam {
     constructor() {
         super(".nit　rtv　1チームの人数　除外メンバー",
             "コマンド入力者が参加しているVCの参加者でランダムなチームを作成する。\n",

@@ -3,7 +3,7 @@ const Command = require("./Command");
 const Form = require("../Utils/Form");
 const Converter = require("../Utils/Converter")
 
-exports.modules = class Recruit extends Command {
+module.exports = class Recruit extends Command {
     constructor() {
         super(".nit　recruit　募集内容　募集人数　募集期間",
             "リアクションを使用した募集フォームを作成する。\n" +
