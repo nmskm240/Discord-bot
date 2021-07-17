@@ -2,12 +2,12 @@ const requireDir = require("require-dir");
 const commands = requireDir("../Commands");
 const utils = requireDir("../Utils");
 
-module.exports = class RandomTeamVoice extends commands.RandomTeam {
+module.exports = class rtv extends commands.RandomTeam {
     constructor() {
         super("rtv",
             "コマンド入力者が参加しているVCの参加者でランダムなチームを作成します。\n",
-            new utils.Parameter("1チームの人数", "1チームの人数を指定します。", "0以上の整数", false, true, "3"),
-            new utils.Parameter("除外メンバー", "チーム分けに含めないメンバーを指定します。", "メンション", true));
+            new commands.Parameter("1チームの人数", "1チームの人数を指定します。", "0以上の整数", false, true, "3"),
+            new commands.Parameter("除外メンバー", "チーム分けに含めないメンバーを指定します。", "メンション", true));
     }
 
     execute(message, parameters) {

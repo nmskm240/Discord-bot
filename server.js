@@ -57,32 +57,17 @@ client.on("message", message => {
         return;
     }
     if (message.content.startsWith(".nit")) {
+        let command;
         const commandAndParameter = message.content.split(" ");
-        const command = commandAndParameter[1];
         const parameters = commandAndParameter.slice(2);
-        if (command.startsWith("help")) {
-            const help = new commands.Help();
-            help.execute(message, parameters);
-            return;
+        try {
+            command = new commands[commandAndParameter[1]]();
+        } 
+        catch (error) {
+            message.channel.send("コマンドではない文字列が入力されました。");
         }
-        if (command.startsWith("rtc")) {
-            const rtc = new commands.RandomTeamChat();
-            rtc.execute(message, parameters);
-            return;
-        }
-        if (command.startsWith("rtv")) {
-            const rtv = new commands.RandomTeamVoice();
-            rtv.execute(message, parameters);
-            return;
-        }
-        if (command.startsWith("recruit")) {
-            const recruit = new commands.Recruit();
-            recruit.execute(message, parameters);
-            return;
-        }
-        if (command.startsWith("who")) {
-            const who = new commands.Who();
-            who.execute(message, message.mentions.members);
+        if (command) {
+            command.execute(message, parameters);
             return;
         }
     }

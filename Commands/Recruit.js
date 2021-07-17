@@ -2,13 +2,13 @@ const requireDir = require("require-dir");
 const commands = requireDir("../Commands");
 const utils = requireDir("../Utils");
 
-module.exports = class Recruit extends commands.Command {
+module.exports = class recruit extends commands.Command {
     constructor() {
         super("recruit",
             "リアクションを使用した募集フォームを作成します。\n",
-            new commands.Parameter("募集内容", "募集する内容について自由に入力できます。", "なし"),
+            new commands.Parameter("募集内容", "募集する内容について自由に入力できます。"),
             new commands.Parameter("募集人数", "募集する人数を指定します。", "0以上の整数", false, true, "制限なし"),
-            new commands.Parameter("募集期間", "募集を終了するまでの日時を指定します。", "〇d△h", false, true, "1d"));
+            new commands.Parameter("募集期間", "募集を終了するまでの日時を指定します。", "XdYh(X,Yは0以上の整数)", false, true, "1d"));
         this.reactions = {
             allow: "✅",
             cancel: "❎",

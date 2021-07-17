@@ -2,7 +2,7 @@ const requireDir = require("require-dir");
 const commands = requireDir("../Commands");
 const utils = requireDir("../Utils");
 
-module.exports = class RandomTeamChat extends commands.RandomTeam {
+module.exports = class rtc extends commands.RandomTeam {
     constructor() {
         super("rtc",
             "メンションで指定したメンバーでランダムなチームを作成します。\n",

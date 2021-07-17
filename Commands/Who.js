@@ -3,7 +3,7 @@ const requireDir = require("require-dir");
 const commands = requireDir("../Commands");
 const utils = requireDir("../Utils");
 
-module.exports = class Who extends commands.Command {
+module.exports = class who extends commands.Command {
     constructor() {
         super("who",
             "メンションで指定したメンバーのデータを表示します。\n",
@@ -16,7 +16,7 @@ module.exports = class Who extends commands.Command {
             return;
         }
         let isEnd = false;
-        const target = (parameters.size <= 0) ? message.member : parameters.first();
+        const target = (parameters.length <= 0) ? message.member : message.mentions.members.first();
         utils.Network.get({ command: "who" })
             .then(res => {
                 res.data.forEach(member => {
