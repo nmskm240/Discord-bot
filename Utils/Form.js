@@ -1,37 +1,39 @@
 const discord = require("discord.js");
-const Team = require("./Team")
-const Network = require("./Network");
+const requireDir = require("require-dir");
+const utils = requireDir("../Utils");
 
 module.exports = class Form {
     constructor(answerableSize = -1) {
-        this.respondents = new Team("回答者", answerableSize);
+        this.respondents = new utils.Team("回答者", answerableSize);
     }
 
     static reboot(client) {
-        Network.get({ command: "recruit" })
+        utils.Network.get({ command: "recruit" })
             .then(res => {
-                console.log("[Form]" + res.data.length + "個のFormを再起動");
-                res.data.forEach(task => {
-                    const now = new Date();
-                    const end = new Date(task.endTime);
-                    const reactions = task.reactions;
-                    const term = {
-                        date: end.getDate() - now.getDate(),
-                        hour: end.getHours() - now.getHours(),
-                    }
-                    const guild = client.guilds.cache.get(task.id.guild);
-                    const channel = guild.channels.cache.get(task.id.channel);
-                    channel.messages.fetch(task.id.message)
-                        .then(message => {
-                            channel.messages.fetch(task.id.creatorMessage)
-                                .then(cmessage => {
-                                    const creator = cmessage.author;
-                                    const form = new Form(task.id.answerable);
-                                    form.creator = creator;
-                                    form.open(message, reactions, term, true);
-                                })
-                        });
-                });
+                if (res.data[0].id) {
+                    console.log("[Form]" + res.data.length + "個のFormを再起動");
+                    res.data.forEach(task => {
+                        const now = new Date();
+                        const end = new Date(task.endTime);
+                        const reactions = task.reactions;
+                        const term = {
+                            date: end.getDate() - now.getDate(),
+                            hour: end.getHours() - now.getHours(),
+                        }
+                        const guild = client.guilds.cache.get(task.id.guild);
+                        const channel = guild.channels.cache.get(task.id.channel);
+                        channel.messages.fetch(task.id.message)
+                            .then(message => {
+                                channel.messages.fetch(task.id.creatorMessage)
+                                    .then(cmessage => {
+                                        const creator = cmessage.author;
+                                        const form = new Form(task.id.answerable);
+                                        form.creator = creator;
+                                        form.open(message, reactions, term, true);
+                                    })
+                            });
+                    });
+                }
             })
     }
 
@@ -66,13 +68,14 @@ module.exports = class Form {
                     answerable: this.respondents.max,
                 }
             }
-            Network.post(postData);
+            utils.Network.post(postData);
         }
         else {
             message.reactions.cache.get(reactions.allow).users.fetch()
                 .then(users => {
                     this.respondents.addMembers(users.filter(user => !user.bot).array());
                     this.update(message);
+                    console.log("[Form]" + message.id + "の再起動が完了しました");
                 });
             if (term.hour <= 0) {
                 if (term.date <= 0) {
@@ -152,6 +155,6 @@ module.exports = class Form {
                 messageID: message.id,
             }
         };
-        Network.post(postData);
+        utils.Network.post(postData);
     }
 }

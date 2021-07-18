@@ -1,17 +1,14 @@
-const discord = require("discord.js");
-const Command = require("./Command");
-const Team = require("../Utils/Team");
-const Form = require("../Utils/Form");
+const requireDir = require("require-dir");
+const commands = requireDir("../Commands");
+const utils = requireDir("../Utils");
 
-exports.modules = class Recruit extends Command {
+module.exports = class recruit extends commands.Command {
     constructor() {
-        super(".nit　recruit　募集内容　募集人数　募集期間",
-            "リアクションを使用した募集フォームを作成する。\n" +
-            "作成されたフォームは募集期間を過ぎるか、コマンド入力者が✖のリアクションを行うまで有効になる。\n",
-            "・募集内容：募集する内容について自由に入力可能。\n" +
-            "・募集人数：[省略可]募集する人数を指定する。省略時は人数指定なしとして扱う。参加者が募集人数に達すると募集を終了する。\n" +
-            "・募集期間：[省略可]募集を終了するまでの日数や時間を指定する。省略時は1日。\n" +
-            "　　2d12h と入力すると、募集開始から2日と12時間後に募集を終了する。");
+        super("recruit",
+            "リアクションを使用した募集フォームを作成します。\n",
+            new commands.Parameter("募集内容", "募集する内容について自由に入力できます。"),
+            new commands.Parameter("募集人数", "募集する人数を指定します。", "0以上の整数", false, true, "制限なし"),
+            new commands.Parameter("募集期間", "募集を終了するまでの日時を指定します。", "XdYh(X,Yは0以上の整数)", false, true, "1d"));
         this.reactions = {
             allow: "✅",
             cancel: "❎",
@@ -25,7 +22,7 @@ exports.modules = class Recruit extends Command {
             return;
         }
         const parameter = this.parseParameter(parameters);
-        const form = new Form(parameter.size);
+        const form = new utils.Form(parameter.size);
         const embed = form.create("募集中", parameter.formBody, "参加者", message.author);
         message.channel.send(embed)
             .then(m => m.react(this.reactions.allow))
@@ -37,7 +34,7 @@ exports.modules = class Recruit extends Command {
     parseParameter(parameters) {
         const parameter = {
             formBody: "**" + parameters[0] + "**\n\n",
-            time: this.calLimit(),
+            time: utils.Converter.text2Time("1d"),
             size: -1,
             term: {
                 date: 0,
@@ -47,7 +44,7 @@ exports.modules = class Recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let size = "制限なし";
         if (3 <= parameters.length) {
-            parameter.time = this.calLimit(parameters[2]);
+            parameter.time = utils.Converter.text2Time(parameters[2]);
             let parsed = parseInt(parameters[1], 10);
             if (!isNaN(parsed) && 0 < parsed) {
                 size = parsed + "人";
@@ -55,7 +52,7 @@ exports.modules = class Recruit extends Command {
             }
         }
         else if (2 == parameters.length) {
-            if (parameters[1].indexOf("d") == -1 && parameters[1].indexOf("h") == -1) {
+            if (parameters[2].indexOf("d") == -1 && parameters[2].indexOf("h") == -1) {
                 let parsed = parseInt(parameters[1], 10);
                 if (!isNaN(parsed) && 0 < parsed) {
                     size = parsed + "人";
@@ -63,7 +60,7 @@ exports.modules = class Recruit extends Command {
                 }
             }
             else {
-                parameter.time = this.calLimit(parameters[1]);
+                parameter.time = utils.Converter.text2Time(parameters[2]);
             }
         }
         parameter.formBody += this.reactions.allow + "：参加、" + this.reactions.cancel + "：参加取消\n" +
@@ -71,38 +68,5 @@ exports.modules = class Recruit extends Command {
             "募集終了：" + parameter.time.limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" +
             parameter.time.limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' })
         return parameter;
-    }
-
-    calLimit(input = "1d") {
-        const data = {
-            limit: new Date(),
-            term: {
-                date: 1,
-                hour: 0,
-            }
-        }
-        const dIndex = input.indexOf("d");
-        const hIndex = input.indexOf("h");
-        if (dIndex == -1 && hIndex == -1) {
-            data.limit.setDate(data.limit.getDate() + 1);
-        }
-        else {
-            if (dIndex != -1) {
-                let parsed = parseInt(input.substring(0, dIndex), 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    data.limit.setDate(data.limit.getDate() + parsed);
-                    data.term.date = parsed;
-                }
-            }
-            if (hIndex != -1) {
-                let parsed = parseInt(input.substring(dIndex, hIndex), 10);
-                if (!isNaN(parsed) && 0 < parsed) {
-                    data.limit.setHours(data.limit.getHours() + parsed);
-                    data.term.hour = parsed;
-                }
-            }
-        }
-        data.limit.setHours(data.limit.getHours() + 9);
-        return data;
     }
 }
