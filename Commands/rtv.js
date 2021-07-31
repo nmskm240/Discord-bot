@@ -10,21 +10,16 @@ module.exports = class rtv extends commands.RandomTeam {
             new commands.Parameter("除外メンバー", "チーム分けに含めないメンバーを指定します。", "メンション", true));
     }
 
-    execute(message, parameters) {
+    parseParameter(message, parameters) {
+        const parameter = super.parseParameter(message, parameters);
         const vc = message.member.voice.channel;
         if (vc) {
-            const embed = super.execute(message, parameters);
-            this.make(vc.members.array(), message.mentions.members.array()).forEach(team => {
-                embed.addField(team.name, team.members);
-            });
-            message.channel.send(embed);
+            const members = vc.members.array();
+            parameter.members = members.filter(m => parameter.members.indexOf(m) == -1);
         }
         else {
             message.channel.send("ボイスチャンネルの収得に失敗しました。\n");
         }
-    }
-
-    make(members, exclusion) {
-        return utils.Team.random(members.filter(m => exclusion.indexOf(m) == -1), this.size)
+        return parameter;
     }
 }

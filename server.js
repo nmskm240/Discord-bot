@@ -65,6 +65,7 @@ client.on("message", message => {
         } 
         catch (error) {
             message.channel.send("コマンドではない文字列が入力されました。");
+            return;
         }
         if (command) {
             command.execute(message, parameters);
