@@ -1,23 +1,24 @@
-const discord = require("discord.js");
-const requireDir = require("require-dir");
-const utils = requireDir("../Utils");
-const Command = require("./Command");
+import discord from "discord.js";
+import { Command } from "./Command";
 
-module.exports = class RandomTeam extends Command {
-    execute(message, parameters) {
-        const parameter = this.parseParameter(message, parameters.filter(parameter => !parameter.match(/^<@!/)));
+export class RandomTeam extends Command {
+    data: any;
+    game: any;
+    key: any;
+    execute(message: any, parameters: any) {
+        const parameter = this.parseParameter(message, parameters.filter((parameter: any) => !parameter.match(/^<@!/)));
         const embed = new discord.MessageEmbed()
             .setTitle("チーム分け結果");
         this.make(parameter.members, parameter.size)
             .then(teams => {
-                teams.forEach(team => {
+                teams.forEach((team: any) => {
                     embed.addField(team.name, team.members);
                 });
                 message.channel.send(embed);
             });
     }
 
-    async make(members, size) {
+    async make(members: any, size: any) {
         let teams;
         if (!this.game) {
             teams = utils.Team.random(members, size);
@@ -26,12 +27,12 @@ module.exports = class RandomTeam extends Command {
             const count = Math.floor(members.length / size);
             try {
                 await utils.Network.get({ command: "rank" })
-                    .then(res => {
-                        const sortedData = res.data.sort((a, b) => b[this.game][this.key] - a[this.game][this.key]);
+                    .then((res: any) => {
+                        const sortedData = res.data.sort((a: any, b: any) => b[this.game][this.key] - a[this.game][this.key]);
                         console.log(sortedData);
-                        let sorted = [];
-                        sortedData.forEach(data => {
-                            members.forEach(member => {
+                        let sorted: any = [];
+                        sortedData.forEach((data: any) => {
+                            members.forEach((member: any) => {
                                 if (member.user.tag.indexOf(data.DiscordTag) != -1) {
                                     sorted.push(member);
                                     return;
@@ -55,7 +56,7 @@ module.exports = class RandomTeam extends Command {
         return teams;
     }
 
-    parseParameter(message, parameters) {
+    parseParameter(message: any, parameters: any) {
         const parameter = {
             size: 3,
             members: message.mentions.members.array(),

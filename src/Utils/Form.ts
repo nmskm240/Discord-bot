@@ -1,18 +1,24 @@
+// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'discord'.
 const discord = require("discord.js");
+// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'requireDir... Remove this comment to see the full error message
 const requireDir = require("require-dir");
+// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'utils'.
 const utils = requireDir("../Utils");
 
+// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = class Form {
+    creator: any;
+    respondents: any;
     constructor(answerableSize = -1) {
         this.respondents = new utils.Team("回答者", answerableSize);
     }
 
-    static reboot(client) {
+    static reboot(client: any) {
         utils.Network.get({ command: "recruit" })
-            .then(res => {
+            .then((res: any) => {
                 if (res.data[0].id) {
                     console.log("[Form]" + res.data.length + "個のFormを再起動");
-                    res.data.forEach(task => {
+                    res.data.forEach((task: any) => {
                         const now = new Date();
                         const end = new Date(task.endTime);
                         const reactions = task.reactions;
@@ -23,9 +29,9 @@ module.exports = class Form {
                         const guild = client.guilds.cache.get(task.id.guild);
                         const channel = guild.channels.cache.get(task.id.channel);
                         channel.messages.fetch(task.id.message)
-                            .then(message => {
+                            .then((message: any) => {
                                 channel.messages.fetch(task.id.creatorMessage)
-                                    .then(cmessage => {
+                                    .then((cmessage: any) => {
                                         const creator = cmessage.author;
                                         const form = new Form(task.id.answerable);
                                         form.creator = creator;
@@ -37,7 +43,7 @@ module.exports = class Form {
             })
     }
 
-    create(title, body, fieldName, creator) {
+    create(title: any, body: any, fieldName: any, creator: any) {
         this.creator = creator;
         const embed = new discord.MessageEmbed()
             .setTitle(title)
@@ -47,7 +53,7 @@ module.exports = class Form {
         return embed;
     }
 
-    open(message, reactions, term, isOpened = false) {
+    open(message: any, reactions: any, term: any, isOpened = false) {
         if (!isOpened) {
             console.log("[Form]" + this.creator.tag + "によって新しいForm(" + message.id + ")が開かれました");
             const limit = new Date();
@@ -72,8 +78,8 @@ module.exports = class Form {
         }
         else {
             message.reactions.cache.get(reactions.allow).users.fetch()
-                .then(users => {
-                    this.respondents.addMembers(users.filter(user => !user.bot).array());
+                .then((users: any) => {
+                    this.respondents.addMembers(users.filter((user: any) => !user.bot).array());
                     this.update(message);
                     console.log("[Form]" + message.id + "の再起動が完了しました");
                 });
@@ -86,7 +92,7 @@ module.exports = class Form {
                 term.hour += 24;
             }
         }
-        const reactionFilter = (reaction, user) =>
+        const reactionFilter = (reaction: any, user: any) =>
             reaction.emoji.name === reactions.allow ||
             reaction.emoji.name === reactions.cancel ||
             reaction.emoji.name === reactions.close;
@@ -95,7 +101,7 @@ module.exports = class Form {
                 time: (term.date * 24 * 60 * 60 * 1000) +
                     (term.hour * 60 * 60 * 1000)
             });
-        collector.on("collect", (reaction, user) => {
+        collector.on("collect", (reaction: any, user: any) => {
             if (reaction.emoji.name === reactions.allow) {
                 console.log("[Form]" + user.tag + "が" + message.id + "に参加しました");
                 this.respondents.addMember(user);
@@ -109,10 +115,9 @@ module.exports = class Form {
             else if (reaction.emoji.name === reactions.cancel) {
                 console.log("[Form]" + user.tag + "が" + message.id + "への参加を取消しました");
                 this.respondents.removeMember(user);
-                const userReactions = reaction.message.reactions.cache.filter(reaction =>
-                    reaction.users.cache.has(user.id) &&
-                    (reaction.emoji.name === reactions.allow ||
-                        reaction.emoji.name === reactions.cancel));
+                const userReactions = reaction.message.reactions.cache.filter((reaction: any) => reaction.users.cache.has(user.id) &&
+                (reaction.emoji.name === reactions.allow ||
+                    reaction.emoji.name === reactions.cancel));
                 try {
                     for (const reaction of userReactions.values()) {
                         reaction.users.remove(user.id);
@@ -130,12 +135,13 @@ module.exports = class Form {
             }
             this.update(message);
         });
-        collector.on("end", collection => {
+        collector.on("end", (collection: any) => {
             this.close(message);
         });
     }
 
-    update(message) {
+    update(message: any) {
+        // @ts-expect-error ts-migrate(2550) FIXME: Property 'assign' does not exist on type 'ObjectCo... Remove this comment to see the full error message
         const embed = Object.assign({}, message.embeds[0]);
         const field = embed.fields[0];
         field.value = this.respondents.isEmpty ? "なし" : this.respondents.members;
@@ -143,7 +149,8 @@ module.exports = class Form {
         message.edit(new discord.MessageEmbed(embed));
     }
 
-    close(message) {
+    close(message: any) {
+        // @ts-expect-error ts-migrate(2550) FIXME: Property 'assign' does not exist on type 'ObjectCo... Remove this comment to see the full error message
         const embed = Object.assign({}, message.embeds[0]);
         embed.title = "募集終了";
         embed.color = "#000000";
