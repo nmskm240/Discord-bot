@@ -1,5 +1,11 @@
-module.exports = class Parameter{
-    constructor(name, detail, inputRule = "", canMultiSelect = false, canAbbreviation = false, abbreviationValue = ""){
+export class Parameter{
+    abbreviationValue: any;
+    canAbbreviation: any;
+    canMultiSelect: any;
+    detail: any;
+    inputRule: any;
+    name: any;
+    constructor(name: any, detail: any, inputRule = "", canMultiSelect = false, canAbbreviation = false, abbreviationValue = ""){
         this.name = name;
         this.detail = detail + "\n";
         this.inputRule = inputRule;

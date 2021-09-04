@@ -6,14 +6,17 @@
   "version": "0.0.1",
   "description": "A simple Node app built on Express, instantly up and running.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.ts"
   },
   "dependencies": {
     "discord.js": "^12.5.3",
     "express": "^4.17.1",
+    "nedb": "^1.8.0",
     "querystring": "^0.2.0",
-    "require-dir": "^1.2.0"
+    "require-dir": "^1.2.0",
+    "ts-node": "^10.2.1"
   },
   "engines": {
     "node": "12.x"
@@ -26,5 +29,10 @@
     "node",
     "glitch",
     "express"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^16.7.10",
+    "@types/require-dir": "^1.0.2",
+    "ts-migrate": "^0.1.22"
+  }
 }

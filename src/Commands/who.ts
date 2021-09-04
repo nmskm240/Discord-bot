@@ -1,16 +1,14 @@
-const discord = require("discord.js");
-const requireDir = require("require-dir");
-const commands = requireDir("../Commands");
-const utils = requireDir("../Utils");
+import { Command } from "./Command";
+import { Parameter } from "./Parameter";
 
-module.exports = class who extends commands.Command {
+export class who extends Command {
     constructor() {
         super("who",
             "メンションで指定したメンバーのデータを表示します。\n",
-            new commands.Parameter("対象メンバー", "情報を表示するメンバーを指定します。", "メンション", false, true, "自分"));
+            new Parameter("対象メンバー", "情報を表示するメンバーを指定します。", "メンション", false, true, "自分"));
     }
 
-    execute(message, parameters) {
+    execute(message: any, parameters: any) {
         if (message.channel.type == "dm") {
             message.channel.send(message.channel.type + "ではwhoコマンドを使用できません");
             return;
@@ -18,8 +16,8 @@ module.exports = class who extends commands.Command {
         let isEnd = false;
         const target = (parameters.length <= 0) ? message.member : message.mentions.members.first();
         utils.Network.get({ command: "who" })
-            .then(res => {
-                res.data.forEach(member => {
+            .then((res: any) => {
+                res.data.forEach((member: any) => {
                     if (target.user.tag.indexOf(member.DiscordTag) != -1) {
                         const keys = Object.keys(member.game);
                         const values = Object.values(member.game);
@@ -42,7 +40,7 @@ module.exports = class who extends commands.Command {
 
                 }
             })
-            .catch(e => {
+            .catch((e: any) => {
                 console.error(e);
                 message.channel.send("エラー");
             })

@@ -1,5 +1,11 @@
+// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = class Team {
-    constructor(name, max = -1) {
+    isEmpty: any;
+    isMax: any;
+    max: any;
+    members: any;
+    name: any;
+    constructor(name: any, max = -1) {
         this.name = name;
         this.max = max <= 0 ? -1 : max;
         this.isMax = false;
@@ -7,24 +13,24 @@ module.exports = class Team {
         this.members = [];
     }
 
-    addMember(member) {
+    addMember(member: any) {
         if (!this.isMax && !this.hasMember(member)) {
             this.members.push(member);
             this.refresh();
         }
     }
 
-    addMembers(members) {
+    addMembers(members: any) {
         for (let member of members) {
             this.addMember(member);
         }
     }
 
-    hasMember(member) {
+    hasMember(member: any) {
         return this.members.indexOf(member) != -1;
     }
 
-    removeMember(member) {
+    removeMember(member: any) {
         if (this.hasMember(member)) {
             this.members.splice(this.members.indexOf(member), 1);
             this.refresh();
@@ -36,7 +42,7 @@ module.exports = class Team {
         this.isEmpty = this.members.length == 0;
     }
 
-    static random(members, size) {
+    static random(members: any, size: any) {
         let teams = [];
         let count = 1;
         while (size <= members.length) {
