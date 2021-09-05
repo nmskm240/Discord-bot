@@ -1,18 +1,10 @@
-/*
-    ------using packages------
-        discord.js v12.5.3
-        require-dir v1.2.0
-        axios v0.21.1
-    --------------------------
-*/
-
 import * as fs from 'fs';
-import http from "http";
+import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
-import discord from "discord.js";
-const client = new discord.Client();
+import { Client, Message } from "discord.js";
+const client = new Client();
 
-http.createServer(function (req: any, res: any) {
+http.createServer(function (req: IncomingMessage, res: ServerResponse) {
     if (req.method == "POST") {
         var data = "";
         req.on("data", function (chunk: any) {
@@ -49,7 +41,7 @@ client.on("ready", () => {
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
-client.on("message", (message: any) => {
+client.on("message", (message: Message) => {
     if (message.author.id == client.user?.id || message.author.bot) {
         return;
     }
