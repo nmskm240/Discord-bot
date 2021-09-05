@@ -1,5 +1,4 @@
-// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = class Converter {
+export class Converter {
     static text2Time(text: any) {
         const data = {
             limit: new Date(),

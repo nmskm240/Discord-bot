@@ -1,20 +1,16 @@
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'discord'.
-const discord = require("discord.js");
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'requireDir... Remove this comment to see the full error message
-const requireDir = require("require-dir");
-// @ts-expect-error ts-migrate(2451) FIXME: Cannot redeclare block-scoped variable 'utils'.
-const utils = requireDir("../Utils");
+import discord from "discord.js";
+import { Network } from "./Network";
+import { Team } from "./Team";
 
-// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = class Form {
+export class Form {
     creator: any;
     respondents: any;
     constructor(answerableSize = -1) {
-        this.respondents = new utils.Team("回答者", answerableSize);
+        this.respondents = new Team("回答者", answerableSize);
     }
 
     static reboot(client: any) {
-        utils.Network.get({ command: "recruit" })
+        Network.get({ command: "recruit" })
             .then((res: any) => {
                 if (res.data[0].id) {
                     console.log("[Form]" + res.data.length + "個のFormを再起動");
@@ -74,7 +70,7 @@ module.exports = class Form {
                     answerable: this.respondents.max,
                 }
             }
-            utils.Network.post(postData);
+            Network.post(postData);
         }
         else {
             message.reactions.cache.get(reactions.allow).users.fetch()
@@ -141,7 +137,6 @@ module.exports = class Form {
     }
 
     update(message: any) {
-        // @ts-expect-error ts-migrate(2550) FIXME: Property 'assign' does not exist on type 'ObjectCo... Remove this comment to see the full error message
         const embed = Object.assign({}, message.embeds[0]);
         const field = embed.fields[0];
         field.value = this.respondents.isEmpty ? "なし" : this.respondents.members;
@@ -150,7 +145,6 @@ module.exports = class Form {
     }
 
     close(message: any) {
-        // @ts-expect-error ts-migrate(2550) FIXME: Property 'assign' does not exist on type 'ObjectCo... Remove this comment to see the full error message
         const embed = Object.assign({}, message.embeds[0]);
         embed.title = "募集終了";
         embed.color = "#000000";
@@ -162,6 +156,6 @@ module.exports = class Form {
                 messageID: message.id,
             }
         };
-        utils.Network.post(postData);
+        Network.post(postData);
     }
 }

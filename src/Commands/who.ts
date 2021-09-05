@@ -1,3 +1,5 @@
+import { MessageEmbed } from "discord.js";
+import { Network } from "../Utils/Network";
 import { Command } from "./Command";
 import { Parameter } from "./Parameter";
 
@@ -15,7 +17,7 @@ export class who extends Command {
         }
         let isEnd = false;
         const target = (parameters.length <= 0) ? message.member : message.mentions.members.first();
-        utils.Network.get({ command: "who" })
+        Network.get({ command: "who" })
             .then((res: any) => {
                 res.data.forEach((member: any) => {
                     if (target.user.tag.indexOf(member.DiscordTag) != -1) {
@@ -25,7 +27,7 @@ export class who extends Command {
                         for (let i = 0; i < keys.length; i++) {
                             description += keys[i] + ": ** " + values[i] + " ** \n";
                         }
-                        const embed = new discord.MessageEmbed()
+                        const embed = new MessageEmbed()
                             .setTitle(target.displayName)
                             .setDescription(description)
                             .setColor("#00a2ff")

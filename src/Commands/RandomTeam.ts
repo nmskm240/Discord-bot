@@ -1,4 +1,6 @@
 import discord from "discord.js";
+import { Network } from "../Utils/Network";
+import { Team } from "../Utils/Team";
 import { Command } from "./Command";
 
 export class RandomTeam extends Command {
@@ -21,12 +23,12 @@ export class RandomTeam extends Command {
     async make(members: any, size: any) {
         let teams;
         if (!this.game) {
-            teams = utils.Team.random(members, size);
+            teams = Team.random(members, size);
         }
         else {
             const count = Math.floor(members.length / size);
             try {
-                await utils.Network.get({ command: "rank" })
+                await Network.get({ command: "rank" })
                     .then((res: any) => {
                         const sortedData = res.data.sort((a: any, b: any) => b[this.game][this.key] - a[this.game][this.key]);
                         console.log(sortedData);
@@ -41,7 +43,7 @@ export class RandomTeam extends Command {
                         });
                         console.log(sorted);
                         const top = sorted.splice(0, count);
-                        teams = utils.Team.random(sorted, size - 1);
+                        teams = Team.random(sorted, size - 1);
                         for (let i = 0; i < top.length; i++) {
                             teams[i].max++;
                             teams[i].refresh();
@@ -50,7 +52,7 @@ export class RandomTeam extends Command {
                     })
             }
             catch (e) {
-                teams = utils.Team.random(members, size);
+                teams = Team.random(members, size);
             }
         }
         return teams;
