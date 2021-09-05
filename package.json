@@ -11,6 +11,7 @@
     "start": "node src/server.ts"
   },
   "dependencies": {
+    "@types/axios": "^0.14.0",
     "discord.js": "^12.5.3",
     "express": "^4.17.1",
     "nedb": "^1.8.0",

@@ -1,3 +1,5 @@
+import { Converter } from "../Utils/Converter";
+import { Form } from "../Utils/Form";
 import { Command } from "./Command";
 import { Parameter } from "./Parameter";
 
@@ -22,7 +24,7 @@ export class recruit extends Command {
             return;
         }
         const parameter = this.parseParameter(parameters);
-        const form = new utils.Form(parameter.size);
+        const form = new Form(parameter.size);
         const embed = form.create("募集中", parameter.formBody, "参加者", message.author);
         message.channel.send(embed)
             .then((m: any) => m.react(this.reactions.allow))
@@ -34,7 +36,7 @@ export class recruit extends Command {
     parseParameter(parameters: any) {
         const parameter = {
             formBody: "**" + parameters[0] + "**\n\n",
-            time: utils.Converter.text2Time("1d"),
+            time: Converter.text2Time("1d"),
             size: -1,
             term: {
                 date: 0,
@@ -44,7 +46,7 @@ export class recruit extends Command {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         let size = "制限なし";
         if (3 <= parameters.length) {
-            parameter.time = utils.Converter.text2Time(parameters[2]);
+            parameter.time = Converter.text2Time(parameters[2]);
             let parsed = parseInt(parameters[1], 10);
             if (!isNaN(parsed) && 0 < parsed) {
                 size = parsed + "人";
@@ -60,12 +62,12 @@ export class recruit extends Command {
                 }
             }
             else {
-                parameter.time = utils.Converter.text2Time(parameters[2]);
+                parameter.time = Converter.text2Time(parameters[2]);
             }
         }
         parameter.formBody += this.reactions.allow + "：参加、" + this.reactions.cancel + "：参加取消\n" +
             "募集人数：" + size + "\n" +
-            "募集終了：" + parameter.time.limit.toLocaleDateString('ja-JP-u-ca-japanese', options) + "　" +
+            "募集終了：" + parameter.time.limit.toLocaleDateString('ja-JP-u-ca-japanese') + "　" +
             parameter.time.limit.toLocaleTimeString("jp-JP", { hour: '2-digit', minute: '2-digit' })
         return parameter;
     }

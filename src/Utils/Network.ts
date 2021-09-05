@@ -1,9 +1,7 @@
-// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const axiosBase = require("axios");
+import axiosBase from "axios";
 const baseURL = "https://script.google.com";
 
-// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = class Network {
+export class Network {
     static async get(query: any) {
         const axios = axiosBase.create({
             baseURL: baseURL,
@@ -41,5 +39,3 @@ module.exports = class Network {
 
     }
 }
-// @ts-expect-error ts-migrate(2580) FIXME: Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports.URL = "";
