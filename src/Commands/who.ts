@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { Network } from "../Utils/Network";
-import { MemberParameter } from "./Parameters";
+import { OmittableMemberParameter } from "./Parameters";
 
 export class Who extends Command {
     constructor() {
@@ -9,7 +9,7 @@ export class Who extends Command {
             "who",
             "メンションで指定したメンバーのデータを表示します。\n",
             [
-                new MemberParameter("対象メンバー", "情報を表示するメンバーを指定します。")
+                new OmittableMemberParameter("対象メンバー", "情報を表示するメンバーを指定します。", null)
             ]
         );
     }
