@@ -17,17 +17,14 @@ export class RandomTeamVoice extends Command {
 
     public async execute(): Promise<MessageEmbed> {
         try {
-            if (!this.info.performer) {
-                throw new Error("");
-            }
-            const vc: VoiceChannel | null = this.info.performer.voice.channel;
+            const vc: VoiceChannel | null | undefined = this.info.performer?.voice.channel;
             if (!vc) {
-                throw new Error("");
+                throw new Error("Failed to acquire voice channel");
             }
             const size: number = this.parameters[0].valueOrDefault;
             const exclusion: GuildMember[] = this.parameters[1].valueOrDefault;
             const members: GuildMember[] = vc.members.array().filter((member: GuildMember) => {
-                return exclusion.indexOf(member) != -1;
+                return exclusion.indexOf(member) == -1;
             });
             const teams: Team[] = Team.random(members, size);
             const fields: EmbedFieldData[] = teams.map((team: Team) => {
