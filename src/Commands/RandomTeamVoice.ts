@@ -24,7 +24,7 @@ export class RandomTeamVoice extends Command {
             const size: number = this.parameters[0].valueOrDefault;
             const exclusion: GuildMember[] = this.parameters[1].valueOrDefault;
             const members: GuildMember[] = vc.members.array().filter((member: GuildMember) => {
-                return exclusion.indexOf(member) == -1;
+                return exclusion.includes(member);
             });
             const teams: Team[] = Team.random(members, size);
             const fields: EmbedFieldData[] = teams.map((team: Team) => {
