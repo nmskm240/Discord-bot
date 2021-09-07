@@ -1,7 +1,9 @@
 import * as fs from 'fs';
 import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
-import { Client, Message } from "discord.js";
+import { Client, Message, MessageEmbed } from "discord.js";
+import { Command, CommandList } from './Commands';
+
 const client = new Client();
 
 http.createServer(function (req: IncomingMessage, res: ServerResponse) {
@@ -37,22 +39,26 @@ client.on("ready", () => {
             // utils.Form.reboot(client);
         }
     });
+    CommandList.init();
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
-client.on("message", (message: Message) => {
+client.on("message", async (message: Message) => {
     if (message.author.id == client.user?.id || message.author.bot) {
         return;
     }
-    if (message.content.startsWith(".nit")) {
-
+    const command: Command | null = Command.parse(message);
+    if(command) {
+        const embed: MessageEmbed = await command.execute();
+        message.channel.send(embed);
     }
 });
 
-if (process.env.DISCORD_BOT_TOKEN == undefined) {
-    console.log("DISCORD_BOT_TOKENが設定されていません。");
-    process.exit(0);
-}
+// if (process.env.DISCORD_BOT_TOKEN == undefined) {
+//     console.log("DISCORD_BOT_TOKENが設定されていません。");
+//     process.exit(0);
+// }
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+// client.login(process.env.DISCORD_BOT_TOKEN);
+client.login("ODgyMDg1MjAwNjMxMzMyODY0.YS2P3A.3LqIsBR9PPB9IkKJ42sbhQnA1S4");

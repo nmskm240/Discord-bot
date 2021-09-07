@@ -8,16 +8,17 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.ts"
+    "start": "node --experimental-loader=ts-node/esm --es-module-specifier-resolution=node src/server.ts"
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
+    "@types/lodash": "^4.14.172",
     "discord.js": "^12.5.3",
     "express": "^4.17.1",
+    "lodash": "^4.17.21",
     "nedb": "^1.8.0",
     "querystring": "^0.2.0",
-    "require-dir": "^1.2.0",
-    "ts-node": "^10.2.1"
+    "require-dir": "^1.2.0"
   },
   "engines": {
     "node": "12.x"
@@ -34,6 +35,8 @@
   "devDependencies": {
     "@types/node": "^16.7.10",
     "@types/require-dir": "^1.0.2",
-    "ts-migrate": "^0.1.22"
+    "ts-migrate": "^0.1.22",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.2"
   }
 }

@@ -1,50 +1,39 @@
-import { MessageEmbed } from "discord.js";
-import { Network } from "../Utils/Network";
+import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Parameter } from "./Parameter";
+import { Network } from "../Utils/Network";
+import { MemberParameter } from "./Parameters";
 
-export class who extends Command {
+export class Who extends Command {
     constructor() {
-        super("who",
+        super(
+            "who",
             "メンションで指定したメンバーのデータを表示します。\n",
-            new Parameter("対象メンバー", "情報を表示するメンバーを指定します。", "メンション", false, true, "自分"));
+            [
+                new MemberParameter("対象メンバー", "情報を表示するメンバーを指定します。")
+            ]
+        );
     }
 
-    execute(message: any, parameters: any) {
-        if (message.channel.type == "dm") {
-            message.channel.send(message.channel.type + "ではwhoコマンドを使用できません");
-            return;
-        }
-        let isEnd = false;
-        const target = (parameters.length <= 0) ? message.member : message.mentions.members.first();
-        Network.get({ command: "who" })
-            .then((res: any) => {
-                res.data.forEach((member: any) => {
-                    if (target.user.tag.indexOf(member.DiscordTag) != -1) {
-                        const keys = Object.keys(member.game);
-                        const values = Object.values(member.game);
-                        let description = member.Medals + "\n\n";
-                        for (let i = 0; i < keys.length; i++) {
-                            description += keys[i] + ": ** " + values[i] + " ** \n";
-                        }
-                        const embed = new MessageEmbed()
-                            .setTitle(target.displayName)
-                            .setDescription(description)
-                            .setColor("#00a2ff")
-                            .setImage(target.user.avatarURL())
-                        message.channel.send(embed);
-                        isEnd = true;
-                        return;
-                    }
-                })
-                if (!isEnd) {
-                    message.channel.send(target + "は名簿に載っていないか、名簿のデータと異なります");
-
+    public async execute(): Promise<MessageEmbed> {
+        const target: GuildMember = this.parameters[0].valueOrDefault;
+        const res = await Network.get({ command: "who" });
+        for (const member of res.data) {
+            if (target.user.tag.indexOf(member.DiscordTag) != -1) {
+                const keys = Object.keys(member.game);
+                const values = Object.values(member.game);
+                let description = member.Medals + "\n\n";
+                for (const i in keys) {
+                    description += keys[i] + ": ** " + values[i] + " ** \n";
                 }
-            })
-            .catch((e: any) => {
-                console.error(e);
-                message.channel.send("エラー");
-            })
+                return new MessageEmbed()
+                    .setTitle(target.displayName)
+                    .setDescription(description)
+                    .setColor("#00a2ff")
+                    .setImage(target.user.avatarURL()!);
+            }
+        }
+        return new MessageEmbed()
+            .setTitle("エラー")
+            .setDescription(target + "はデータベースに登録されていません")
     }
 }
