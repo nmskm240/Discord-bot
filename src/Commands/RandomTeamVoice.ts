@@ -1,6 +1,6 @@
 import { EmbedFieldData, GuildMember, MessageEmbed, VoiceChannel } from "discord.js";
 import { Command } from "./Command";
-import { Team } from "../Utils/Team";
+import { Team } from "../Utils";
 import { OmittableMembersParameter, OmittableNumberParameter } from "./Parameters";
 
 export class RandomTeamVoice extends Command {

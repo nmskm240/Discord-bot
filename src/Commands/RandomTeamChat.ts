@@ -1,6 +1,6 @@
 import { EmbedFieldData, GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Team } from "../Utils/Team";
+import { Team } from "../Utils";
 import { MembersParameter, OmittableNumberParameter } from "./Parameters";
 
 export class RandomTeamChat extends Command {

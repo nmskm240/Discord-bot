@@ -3,8 +3,7 @@ import querystring from "querystring";
 import { Client, Message, MessageEmbed } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
-import { Form } from './Utils/Form';
-import { Network } from './Utils/Network';
+import { Network, Form } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -49,7 +48,8 @@ client.on("message", async (message: Message) => {
     const command: Command | null = Command.parse(message);
     if (command) {
         const embed: MessageEmbed = await command.execute();
-        message.channel.send(embed);
+        const out: Message = await message.channel.send(embed);
+        command.onComplite(out);
     }
 });
 

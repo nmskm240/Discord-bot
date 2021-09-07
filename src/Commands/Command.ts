@@ -58,4 +58,6 @@ export abstract class Command {
     }
 
     public abstract execute(): Promise<MessageEmbed>
+
+    public async onComplite(message: Message): Promise<void> {}
 }

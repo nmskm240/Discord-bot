@@ -1,49 +1,47 @@
+import { GuildMember } from "discord.js";
+
 export class Team {
-    isEmpty: any;
-    isMax: any;
-    max: any;
-    members: any;
-    name: any;
-    constructor(name: any, max = -1) {
-        this.name = name;
-        this.max = max <= 0 ? -1 : max;
-        this.isMax = false;
-        this.isEmpty = true;
-        this.members = [];
+    private _max: number;
+    private _members: GuildMember[];
+    private _name: string;
+
+    public get isEmpty(): boolean { return this._members.length == 0; }
+    public get isMax(): boolean { return this.max != -1 && this._members.length >= this.max;; }
+    public get max(): number { return this._max; }
+    public get members(): Iterable<GuildMember> { return this._members; }
+    public get name(): string { return this._name; }
+
+    constructor(name: string, max: number = -1) {
+        this._name = name;
+        this._max = max <= 0 ? -1 : max;
+        this._members = [];
     }
 
-    addMember(member: any) {
+    public addMember(member: GuildMember): void {
         if (!this.isMax && !this.hasMember(member)) {
-            this.members.push(member);
-            this.refresh();
+            this._members.push(member);
         }
     }
 
-    addMembers(members: any) {
-        for (let member of members) {
+    public addMembers(members: GuildMember[]): void {
+        for (const member of members) {
             this.addMember(member);
         }
     }
 
-    hasMember(member: any) {
-        return this.members.indexOf(member) != -1;
+    public hasMember(member: GuildMember): boolean {
+        return this._members.includes(member);
     }
 
-    removeMember(member: any) {
+    public removeMember(member: GuildMember): void {
         if (this.hasMember(member)) {
-            this.members.splice(this.members.indexOf(member), 1);
-            this.refresh();
+            this._members.splice(this._members.indexOf(member), 1);
         }
     }
 
-    refresh() {
-        this.isMax = this.max != -1 && this.members.length >= this.max;
-        this.isEmpty = this.members.length == 0;
-    }
-
-    static random(members: any, size: any) {
-        let teams = [];
-        let count = 1;
+    public static random(members: GuildMember[], size: number): Team[] {
+        const teams: Team[] = [];
+        let count: number = 1;
         while (size <= members.length) {
             let team = new Team("チーム" + count, size);
             while (!team.isMax) {

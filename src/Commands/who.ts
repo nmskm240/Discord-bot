@@ -1,6 +1,6 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Network } from "../Utils/Network";
+import { Network } from "../Utils";
 import { OmittableMemberParameter } from "./Parameters";
 
 export class Who extends Command {

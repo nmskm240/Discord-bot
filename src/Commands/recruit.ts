@@ -1,9 +1,11 @@
-import { MessageEmbed } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Form } from "../Utils/Form";
+import { Form } from "../Utils";
 import { FreeWriteParameter, OmittableNumberParameter } from "./Parameters/";
 
 export class Recruit extends Command {
+    private _form: Form = new Form();
+
     reactions: any;
     constructor() {
         super(
@@ -23,11 +25,17 @@ export class Recruit extends Command {
     }
 
     public async execute(): Promise<MessageEmbed> {
-        const form = new Form(this.parameters[1].valueOrDefault);
-        return form.create("募集中", this.parameters[0].valueOrDefault, "参加者", this.info.message!.author);
+        return this._form.create("募集中", this.parameters[0].valueOrDefault, "参加者", this.info.message!.author);
         // .then((m: any) => m.react(this.reactions.allow))
         // .then((mReaction: any) => mReaction.message.react(this.reactions.cancel))
         // .then((mReaction: any) => mReaction.message.react(this.reactions.close))
         // .then((mReaction: any) => form.open(mReaction.message, this.reactions, parameter.time.term));
+    }
+
+    public async onComplite(message: Message): Promise<void> {
+        for(const reaction of this.reactions.values) {
+            await message.react(reaction);
+        }
+        
     }
 }

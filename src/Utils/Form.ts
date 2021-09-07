@@ -1,6 +1,5 @@
 import discord from "discord.js";
-import { Network } from "./Network";
-import { Team } from "./Team";
+import { Network, Team } from ".";
 
 export class Form {
     creator: any;
