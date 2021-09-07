@@ -35,7 +35,7 @@ export abstract class Command {
         if (command) {
             return command;
         } else {
-            throw new Error("Nonexistent command");
+            throw new Error("Unknown command");
         }
     }
 

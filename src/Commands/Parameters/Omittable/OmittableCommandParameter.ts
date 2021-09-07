@@ -3,10 +3,10 @@ import { IOmittable } from "../IOmittable";
 import { Command } from "../../Command";
 import { CommandParameter } from "..";
 
-export class OmittableCommandParameter extends CommandParameter implements IOmittable<Command> {
-    public default: Command;
+export class OmittableCommandParameter extends CommandParameter implements IOmittable<string> {
+    public default: string;
 
-    constructor(name: string, detail: string, defaultValue: Command) {
+    constructor(name: string, detail: string, defaultValue: string) {
         super(name, detail);
         this.default = defaultValue;
     }
@@ -15,7 +15,7 @@ export class OmittableCommandParameter extends CommandParameter implements IOmit
         try {
             super.setValue(message, index);
         } catch (error) {
-            this._value = this.default;
+            this._value = Command.clone(this.default);
         }
     }
 }

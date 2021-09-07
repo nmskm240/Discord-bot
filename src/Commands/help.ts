@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { CommandParameter, Parameter } from "./Parameters";
+import { OmittableCommandParameter, Parameter } from "./Parameters";
 import { Command } from "./Command";
 
 export class Help extends Command {
@@ -8,13 +8,13 @@ export class Help extends Command {
             "help",
             "実装されているコマンドの説明を表示します。\n",
             [
-                new CommandParameter("コマンド名", "ヘルプを表示するコマンドを指定します。"),
+                new OmittableCommandParameter("コマンド名", "ヘルプを表示するコマンドを指定します。", "help"),
             ]
         );
     }
 
     public async execute(): Promise<MessageEmbed> {
-        const target: Command = this.parameters[0].valueOrDefault();
+        const target: Command = this.parameters[0].valueOrDefault;
         return new MessageEmbed()
             .setTitle("ヘルプ")
             .setColor("#00a2ff")
