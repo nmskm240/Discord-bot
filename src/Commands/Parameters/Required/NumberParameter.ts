@@ -13,7 +13,7 @@ export class NumberParameter extends Parameter<number> {
     public setValue(message: Message, index: number): void {
         const data = message.content.split(Command.PUNCTUATION)[index];
         const value = parseInt(data);
-        if(isNaN(value) && this._rule(value)) {
+        if(!isNaN(value) && this._rule(value)) {
             this._value = value;
             return;
         }
