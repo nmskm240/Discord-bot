@@ -4,7 +4,7 @@ const baseURL = "https://script.google.com";
 export class Network {
     public static URL: string | undefined;
 
-    static async get(query: any) {
+    public static async get(query: any) {
         const axios = axiosBase.create({
             baseURL: baseURL,
         });
@@ -21,7 +21,7 @@ export class Network {
         return res;
     }
 
-    static async post(sendData: any) {
+    public static async post(sendData: any) {
         const axios = axiosBase.create({
             baseURL: baseURL,
             headers: {

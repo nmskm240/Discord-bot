@@ -17,24 +17,24 @@ export class Team {
         this._members = [];
     }
 
-    public addMember(member: GuildMember): void {
-        if (!this.isMax && !this.hasMember(member)) {
+    public add(member: GuildMember): void {
+        if (!this.isMax && !this.has(member)) {
             this._members.push(member);
         }
     }
 
-    public addMembers(members: GuildMember[]): void {
+    public addAll(members: GuildMember[]): void {
         for (const member of members) {
-            this.addMember(member);
+            this.add(member);
         }
     }
 
-    public hasMember(member: GuildMember): boolean {
+    public has(member: GuildMember): boolean {
         return this._members.includes(member);
     }
 
-    public removeMember(member: GuildMember): void {
-        if (this.hasMember(member)) {
+    public remove(member: GuildMember): void {
+        if (this.has(member)) {
             this._members.splice(this._members.indexOf(member), 1);
         }
     }
@@ -46,7 +46,7 @@ export class Team {
             let team = new Team("チーム" + count, size);
             while (!team.isMax) {
                 let index = Math.floor(Math.random() * members.length);
-                team.addMember(members[index]);
+                team.add(members[index]);
                 members.splice(index, 1);
             }
             teams.push(team);
@@ -54,7 +54,7 @@ export class Team {
         }
         if (0 < members.length) {
             let team = new Team("余ったメンバー");
-            team.addMembers(members);
+            team.addAll(members);
             teams.push(team);
         }
         return teams;
