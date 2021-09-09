@@ -34,6 +34,7 @@
     "express"
   ],
   "devDependencies": {
+    "@types/nedb": "^1.8.12",
     "@types/node": "^16.7.10",
     "@types/require-dir": "^1.0.2",
     "ts-migrate": "^0.1.22",
