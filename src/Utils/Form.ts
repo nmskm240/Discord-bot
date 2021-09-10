@@ -1,5 +1,7 @@
 import discord from "discord.js";
 import { Network, Team } from ".";
+import { FormTask } from "./FormTask";
+import { FormTaskDatabase } from "./FormTaskDatabase";
 
 export class Form {
     creator: any;
@@ -8,34 +10,18 @@ export class Form {
         this.respondents = new Team("回答者", answerableSize);
     }
 
-    static reboot(client: any) {
-        Network.get({ command: "recruit" })
-            .then((res: any) => {
-                if (res.data[0].id) {
-                    console.log("[Form]" + res.data.length + "個のFormを再起動");
-                    res.data.forEach((task: any) => {
-                        const now = new Date();
-                        const end = new Date(task.endTime);
-                        const reactions = task.reactions;
-                        const term = {
-                            date: end.getDate() - now.getDate(),
-                            hour: end.getHours() - now.getHours(),
-                        }
-                        const guild = client.guilds.cache.get(task.id.guild);
-                        const channel = guild.channels.cache.get(task.id.channel);
-                        channel.messages.fetch(task.id.message)
-                            .then((message: any) => {
-                                channel.messages.fetch(task.id.creatorMessage)
-                                    .then((cmessage: any) => {
-                                        const creator = cmessage.author;
-                                        const form = new Form(task.id.answerable);
-                                        form.creator = creator;
-                                        form.open(message, reactions, term, true);
-                                    })
-                            });
-                    });
-                }
-            })
+    public static async reboot() {
+        const res = await FormTaskDatabase.instance.all();
+        for(const task of res) {
+            const now = new Date();
+            const end = new Date(task.endTime);
+            const term = {
+                date: end.getDate() - now.getDate(),
+                hour: end.getHours() - now.getHours(),
+            }
+            const form = new Form(task.answerable);
+            form.open(task.message, task.reactions, term, true);
+        }
     }
 
     create(title: any, body: any, fieldName: any, creator: any) {
@@ -50,31 +36,15 @@ export class Form {
 
     open(message: any, reactions: any, term: any, isOpened = false) {
         if (!isOpened) {
-            console.log("[Form]" + this.creator.tag + "によって新しいForm(" + message.id + ")が開かれました");
             const limit = new Date();
             limit.setDate(limit.getDate() + term.date);
             limit.setHours(limit.getHours() + term.hour);
-            const postData = {
-                command: "recruit",
-                method: "append",
-                data: {
-                    id: {
-                        guild: message.guild.id,
-                        channel: message.channel.id,
-                        message: message.id,
-                        creatorMessage: this.creator.lastMessage.id,
-                    },
-                    reactions: reactions,
-                    endTime: limit,
-                    answerable: this.respondents.max,
-                }
-            }
-            Network.post(postData);
+            FormTaskDatabase.instance.insert(new FormTask(message, this.creator, limit, this.respondents.max));
         }
         else {
             message.reactions.cache.get(reactions.allow).users.fetch()
                 .then((users: any) => {
-                    this.respondents.addMembers(users.filter((user: any) => !user.bot).array());
+                    this.respondents.add(users.filter((user: any) => !user.bot).array());
                     this.update(message);
                     console.log("[Form]" + message.id + "の再起動が完了しました");
                 });
@@ -99,7 +69,7 @@ export class Form {
         collector.on("collect", (reaction: any, user: any) => {
             if (reaction.emoji.name === reactions.allow) {
                 console.log("[Form]" + user.tag + "が" + message.id + "に参加しました");
-                this.respondents.addMember(user);
+                this.respondents.add(user);
                 if (this.respondents.isMax) {
                     this.update(message);
                     collector.stop();
@@ -109,10 +79,10 @@ export class Form {
             }
             else if (reaction.emoji.name === reactions.cancel) {
                 console.log("[Form]" + user.tag + "が" + message.id + "への参加を取消しました");
-                this.respondents.removeMember(user);
+                this.respondents.remove(user);
                 const userReactions = reaction.message.reactions.cache.filter((reaction: any) => reaction.users.cache.has(user.id) &&
-                (reaction.emoji.name === reactions.allow ||
-                    reaction.emoji.name === reactions.cancel));
+                    (reaction.emoji.name === reactions.allow ||
+                        reaction.emoji.name === reactions.cancel));
                 try {
                     for (const reaction of userReactions.values()) {
                         reaction.users.remove(user.id);

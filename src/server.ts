@@ -4,6 +4,7 @@ import { Client, Message, MessageEmbed } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
 import { Network, Form } from "./Utils";
+import { FormTaskDatabase } from "./Utils/FormTaskDatabase";
 
 dotenv.config();
 const client = new Client();
@@ -34,8 +35,9 @@ http.createServer(function (req: IncomingMessage, res: ServerResponse) {
 }).listen(3000);
 
 client.on("ready", () => {
+    FormTaskDatabase.instance.init(client);
     Network.URL = process.env.GAS;
-    Form.reboot(client);
+    Form.reboot();
     CommandList.init();
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
