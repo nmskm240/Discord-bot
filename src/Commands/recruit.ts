@@ -2,19 +2,14 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { Form } from "../Utils";
 import { FreeWriteParameter, OmittableNumberParameter } from "./Parameters";
+import { FormTask } from "../Utils/FormTask";
 
 export class Recruit extends Command {
-    private _form: Form = new Form();
-
-    reactions: any = {
+    private _reactions: any = {
         allow: "✅",
         cancel: "❎",
         close: "✖",
-    };
-    term: any = {
-        date: 1,
-        hour: 0,  
-    };
+    }
 
     constructor() {
         super(
@@ -29,20 +24,23 @@ export class Recruit extends Command {
     }
 
     public async execute(): Promise<MessageEmbed> {
-        const now: Date = new Date();
-        const limit: string = 0 < this.parameters[1].valueOrDefault ? this.parameters[1].valueOrDefault.toString() : "制限なし";
+        const now: Date = new Date(this.info.timestamp!);
         now.setDate(now.getDate() + 1);
-        const body:string = this.parameters[0].valueOrDefault + "\n\n" +
-            this.reactions.allow + "：参加 " + this.reactions.cancel + "：参加取消\n" + 
-            "募集人数：" + limit + "\n" + 
-            "募集終了：" + now.toString(); 
-        return this._form.create("募集中", body, "参加者", this.info.message!.author);
+        return new MessageEmbed()
+            .setTitle("募集中")
+            .setDescription(this.parameters[0].valueOrDefault + + "\n\n" +
+                this._reactions.allow + "：参加 " + this._reactions.cancel + "：参加取消\n" +
+                "募集人数：" + this._parameters[1].valueOrDefault + "\n" +
+                "募集終了：" + now.toString())
+            .setColor("#00a2ff")
+            .addField("参加者", "なし")
     }
 
     public async onComplite(message: Message): Promise<void> {
-        for (const reaction of Object.values<string>(this.reactions)) {
-            await message.react(reaction);
-        }
-        this._form.open(message, this.reactions, this.term);
+        const now: Date = new Date(this.info.timestamp!);
+        now.setDate(now.getDate() + 1);
+        new Form(
+            new FormTask(this.info.guild!, this.info.channel!, message, this.info.performer!, now, this.parameters[1].valueOrDefault, this._reactions)
+        ).open(message, { date: 1, hour: 0 });
     }
 }

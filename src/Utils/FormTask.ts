@@ -6,27 +6,24 @@ export class FormTask implements IDatabaseItem {
     private _channel: Channel;
     private _message: Message;
     private _creator: GuildMember;
+    private _reactions: any;
     private _endTime: Date;
     private _answerable: number;
 
     public get message(): Message { return this._message; }
-    public get reactions(): object {
-        return {
-            allow: "✅",
-            cancel: "❎",
-            close: "✖",
-        };
-    }
+    public get creator(): GuildMember { return this._creator; }
+    public get reactions(): any { return this._reactions; }
     public get endTime(): Date { return this._endTime; }
     public get answerable(): number { return this._answerable; }
 
-    constructor(message: Message, creator: GuildMember, endTime: Date, answerable: number) {
-        this._guild = message.guild!;
-        this._channel = message.channel!;
+    constructor(guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, answerable: number, reactions: any) {
+        this._guild = guild;
+        this._channel = channel;
         this._message = message;
         this._creator = creator;
         this._endTime = endTime;
         this._answerable = answerable;
+        this._reactions = reactions;
     }
 
     public toObject(): object {
@@ -57,6 +54,6 @@ export class FormTask implements IDatabaseItem {
         if (!creator) {
             throw new Error("Nonexistent creator");
         }
-        return new FormTask(message, creator, new Date(obj.endTime), obj.answerable);
+        return new FormTask(guild, channel, message, creator, new Date(obj.endTime), obj.answerable, obj.reactions);
     }
 }
