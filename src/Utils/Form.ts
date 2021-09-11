@@ -15,21 +15,16 @@ export class Form {
     public static async reboot() {
         const res = await FormTaskDatabase.instance.all();
         for (const task of res) {
-            const now = new Date();
-            const end = new Date(task.endTime);
-            const term = {
-                date: end.getDate() - now.getDate(),
-                hour: end.getHours() - now.getHours(),
-            }
             const form = new Form(task);
-            form.open(task.message!, term, true);
+            form.open(task.message!, true);
         }
     }
 
-    public async open(message: Message, term: any, isOpened: boolean = false) {
+    public async open(message: Message, isOpened: boolean = false) {
         for (const reaction of Object.values<string>(this._task.reactions)) {
             await message.react(reaction);
         }
+        const now: number = Date.now();
         if (!isOpened) {
             FormTaskDatabase.instance.insert(this._task);
         }
@@ -47,21 +42,16 @@ export class Form {
                 }
             }
             this.update(message);
-            if (term.hour <= 0) {
-                if (term.date <= 0) {
-                    this.close(message);
-                    return;
-                }
-                term.date--;
-                term.hour += 24;
+            if (this._task.endTime.getTime() <= now) {
+                this.close(message);
+                return;
             }
         }
         const reactionFilter: CollectorFilter = (reaction: any) =>
             Object.values(this._task.reactions).includes(reaction.emoji.name);
         const collector: ReactionCollector = message
             .createReactionCollector(reactionFilter, {
-                time: (term.date * 24 * 60 * 60 * 1000) +
-                    (term.hour * 60 * 60 * 1000)
+                time: this._task.endTime.getTime() - now
             });
         collector.on("collect", (reaction: MessageReaction, user: User) => {
             const member = message.guild?.member(user);
@@ -116,6 +106,6 @@ export class Form {
         embed.title = "募集終了";
         embed.color = "#000000";
         message.edit(new discord.MessageEmbed(embed));
-        FormTaskDatabase.instance.remove({message: this._task.message.id})
+        FormTaskDatabase.instance.remove({ message: this._task.message.id })
     }
 }
