@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import { DatabaseProvider } from "../Database";
+import { DatabaseProvider } from "../../Database";
 import { FormTask } from "./FormTask";
 
 export class FormTaskDatabase extends DatabaseProvider<FormTask> {

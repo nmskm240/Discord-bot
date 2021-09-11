@@ -1,8 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Form } from "../Utils";
+import { Form, FormTask } from "../Utils";
 import { FreeWriteParameter, OmittableNumberParameter } from "./Parameters";
-import { FormTask } from "../Utils/FormTask";
 
 export class Recruit extends Command {
     private _reactions: any = {

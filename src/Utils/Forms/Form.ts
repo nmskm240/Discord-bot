@@ -1,5 +1,5 @@
-import discord, { CollectorFilter, GuildMember, Message, MessageEmbed, MessageReaction, ReactionCollector, User } from "discord.js";
-import { Network, Team } from ".";
+import discord, { CollectorFilter, Message, MessageReaction, ReactionCollector, User } from "discord.js";
+import { Team } from "..";
 import { FormTask } from "./FormTask";
 import { FormTaskDatabase } from "./FormTaskDatabase";
 

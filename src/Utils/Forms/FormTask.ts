@@ -1,5 +1,5 @@
 import { Channel, Client, Guild, GuildChannel, GuildMember, Message, TextChannel } from "discord.js";
-import { IDatabaseItem } from "../Database";
+import { IDatabaseItem } from "../../Database";
 
 export class FormTask implements IDatabaseItem {
     private _guild: Guild;
