@@ -1,4 +1,4 @@
-import { CollectorFilter, GuildMember, MessageEmbed, MessageReaction, ReactionCollector, User } from "discord.js";
+import { CollectorFilter, GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
 import { Team, FormTask, FormTaskDatabase, FormType, RecruitForm } from "..";
 
 export abstract class Form {
@@ -6,7 +6,6 @@ export abstract class Form {
     protected _task: FormTask;
     protected _respondents: Team;
     protected _filter: CollectorFilter;
-    protected _collector: ReactionCollector | null = null;
     protected _isClose: boolean = false;
 
     public get isClose(): boolean { 
@@ -20,7 +19,6 @@ export abstract class Form {
         this._filter = (reaction: MessageReaction) => {
             return Object.values(task.reactions).includes(reaction.emoji.name);
         }
-        this._collector = null;
     }
 
     public static async reboot() {
@@ -55,11 +53,11 @@ export abstract class Form {
                 return;
             }
         }
-        this._collector = this._task.message.createReactionCollector(
+        const collector = this._task.message.createReactionCollector(
             this._filter!,
             { time: this._task.endTime.getTime() - this._openTime.getTime() }
         );
-        this._collector.on("collect", (reaction: MessageReaction, user: User) => {
+        collector.on("collect", (reaction: MessageReaction, user: User) => {
             const member: GuildMember | null | undefined = this._task.message.guild?.member(user);
             if (!member) {
                 return;
@@ -71,7 +69,7 @@ export abstract class Form {
                 return;
             }
         });
-        this._collector.on("end", (collection: any) => {
+        collector.on("end", (collection: any) => {
             this.close();
         });
     }
