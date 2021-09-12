@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Form, FormTask } from "../Utils";
+import { Form, FormTask, FormType } from "../Utils";
 import { FreeWriteParameter, OmittableNumberParameter } from "./Parameters";
 
 export class Recruit extends Command {
@@ -37,8 +37,21 @@ export class Recruit extends Command {
     }
 
     public async onComplite(message: Message): Promise<void> {
-        new Form(
-            new FormTask(this.info.guild!, this.info.channel!, message, this.info.performer!, this._limit!, this.parameters[1].valueOrDefault, this._reactions)
-        ).open(message);
+        Form.create(
+            new FormTask(
+                FormType.Recruit, 
+                this.info.guild!, 
+                this.info.channel!, 
+                message, 
+                this.info.performer!, 
+                this._limit!, 
+                this.parameters[1].valueOrDefault, 
+                [
+                    this._reactions.allow,
+                    this._reactions.cancel,
+                    this._reactions.close,
+                ]
+            )
+        ).open();
     }
 }

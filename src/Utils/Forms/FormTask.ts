@@ -1,22 +1,26 @@
-import { Channel, Client, Guild, GuildChannel, GuildMember, Message, TextChannel } from "discord.js";
+import { Channel, Client, Guild, GuildChannel, GuildMember, Message } from "discord.js";
+import { FormType } from "..";
 import { IDatabaseItem } from "../../Database";
 
 export class FormTask implements IDatabaseItem {
+    private _type: FormType;
     private _guild: Guild;
     private _channel: Channel;
     private _message: Message;
     private _creator: GuildMember;
-    private _reactions: any;
+    private _reactions: string[];
     private _endTime: Date;
     private _answerable: number;
 
+    public get type(): FormType { return this._type; }
     public get message(): Message { return this._message; }
     public get creator(): GuildMember { return this._creator; }
-    public get reactions(): any { return this._reactions; }
+    public get reactions(): string[] { return this._reactions; }
     public get endTime(): Date { return this._endTime; }
     public get answerable(): number { return this._answerable; }
 
-    constructor(guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, answerable: number, reactions: any) {
+    constructor(type: FormType, guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, answerable: number, reactions: string[]) {
+        this._type = type;
         this._guild = guild;
         this._channel = channel;
         this._message = message;
@@ -28,6 +32,7 @@ export class FormTask implements IDatabaseItem {
 
     public toObject(): object {
         return {
+            type: this._type,
             guild: this._guild.id,
             channel: this._channel.id,
             message: this._message.id,
@@ -54,6 +59,6 @@ export class FormTask implements IDatabaseItem {
         if (!creator) {
             throw new Error("Nonexistent creator");
         }
-        return new FormTask(guild, channel, message, creator, new Date(obj.endTime), obj.answerable, obj.reactions);
+        return new FormTask(obj.type, guild, channel, message, creator, new Date(obj.endTime), obj.answerable, obj.reactions);
     }
 }

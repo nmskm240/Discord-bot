@@ -1,111 +1,95 @@
-import discord, { CollectorFilter, Message, MessageReaction, ReactionCollector, User } from "discord.js";
-import { Team } from "..";
-import { FormTask } from "./FormTask";
-import { FormTaskDatabase } from "./FormTaskDatabase";
+import { CollectorFilter, GuildMember, MessageEmbed, MessageReaction, ReactionCollector, User } from "discord.js";
+import { Team, FormTask, FormTaskDatabase, FormType, RecruitForm } from "..";
 
-export class Form {
-    private _task: FormTask;
-    private _respondents: Team;
+export abstract class Form {
+    protected _openTime: Date;
+    protected _task: FormTask;
+    protected _respondents: Team;
+    protected _filter: CollectorFilter;
+    protected _collector: ReactionCollector | null = null;
+    protected _isClose: boolean = false;
+
+    public get isClose(): boolean { 
+        return this._isClose || this._task.endTime.getTime() <= this._openTime.getTime(); 
+    }
 
     constructor(task: FormTask) {
+        this._openTime = new Date();
         this._task = task;
-        this._respondents = new Team("回答者", task.answerable);
+        this._respondents = new Team("", task.answerable);
+        this._filter = (reaction: MessageReaction) => {
+            return Object.values(task.reactions).includes(reaction.emoji.name);
+        }
+        this._collector = null;
     }
 
     public static async reboot() {
         const res = await FormTaskDatabase.instance.all();
         for (const task of res) {
-            const form = new Form(task);
-            form.open(task.message!, true);
+            Form.create(task).open(true);
         }
     }
 
-    public async open(message: Message, isOpened: boolean = false) {
-        for (const reaction of Object.values<string>(this._task.reactions)) {
-            await message.react(reaction);
+    public static create(task: FormTask): Form {
+        switch(task.type) {
+            case FormType.Recruit:
+                return new RecruitForm(task);
         }
-        const now: number = Date.now();
+    }
+
+    protected abstract onRebooted(): Promise<void>
+    protected abstract onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
+
+    public async open(isOpened: boolean = false) {
         if (!isOpened) {
-            FormTaskDatabase.instance.insert(this._task);
+            for (const reaction of Object.values<string>(this._task.reactions)) {
+                await this._task.message.react(reaction);
+            }
+            FormTaskDatabase.instance.insert(this._task!);
         }
         else {
-            const allows = message.reactions.cache.get(this._task.reactions.allow);
-            if (!allows) {
-                throw new Error("Couldn't find reactions");
-            }
-            const users: User[] = (allows.users.cache
-                ?? await allows.users.fetch()).array();
-            for (const user of users.filter((user: User) => !user.bot)) {
-                const member = message.guild?.member(user);
-                if (member) {
-                    this._respondents.add(member);
-                }
-            }
-            this.update(message);
-            if (this._task.endTime.getTime() <= now) {
-                this.close(message);
+            await this.onRebooted();
+            this.update();
+            if (this.isClose) {
+                this.close();
                 return;
             }
         }
-        const reactionFilter: CollectorFilter = (reaction: any) =>
-            Object.values(this._task.reactions).includes(reaction.emoji.name);
-        const collector: ReactionCollector = message
-            .createReactionCollector(reactionFilter, {
-                time: this._task.endTime.getTime() - now
-            });
-        collector.on("collect", (reaction: MessageReaction, user: User) => {
-            const member = message.guild?.member(user);
+        this._collector = this._task.message.createReactionCollector(
+            this._filter!,
+            { time: this._task.endTime.getTime() - this._openTime.getTime() }
+        );
+        this._collector.on("collect", (reaction: MessageReaction, user: User) => {
+            const member: GuildMember | null | undefined = this._task.message.guild?.member(user);
             if (!member) {
                 return;
             }
-            if (reaction.emoji.name === this._task.reactions.allow) {
-                this._respondents.add(member);
-                if (this._respondents.isMax) {
-                    this.update(message);
-                    collector.stop();
-                    return;
-                }
+            this.onReacted(reaction, member);
+            this.update();
+            if (this.isClose) {
+                this.close();
+                return;
             }
-            else if (reaction.emoji.name === this._task.reactions.cancel) {
-                this._respondents.remove(member);
-                const userReactions = reaction.message.reactions.cache.filter((reaction: any) => reaction.users.cache.has(user.id) &&
-                    (reaction.emoji.name === this._task.reactions.allow ||
-                        reaction.emoji.name === this._task.reactions.cancel));
-                try {
-                    for (const reaction of userReactions.values()) {
-                        reaction.users.remove(user.id);
-                    }
-                } catch (error) {
-                    console.error('Failed to remove reactions.');
-                }
-            }
-            else {
-                if (user.id == this._task.creator.id) {
-                    console.log("[Form]" + message.id + "は" + user.tag + "によって閉じられました");
-                    collector.stop();
-                    return;
-                }
-            }
-            this.update(message);
         });
-        collector.on("end", (collection: any) => {
-            this.close(message);
+        this._collector.on("end", (collection: any) => {
+            this.close();
         });
     }
 
-    update(message: any) {
-        const embed = Object.assign({}, message.embeds[0]);
+    protected update() {
+        const embed = Object.assign({}, this._task.message.embeds[0]);
         const field = embed.fields[0];
-        field.value = this._respondents.isEmpty ? "なし" : this._respondents.members;
+        field.value = this._respondents.isEmpty ? "なし" : this._respondents.members.toString();
         embed.fields[0] = field;
-        message.edit(new discord.MessageEmbed(embed));
+        this._task.message.edit(new MessageEmbed(embed));
     }
 
-    close(message: any) {
-        const embed = Object.assign({}, message.embeds[0]);
+    protected close() {
+        this._isClose = true;
+        const embed = Object.assign({}, this._task.message.embeds[0]);
         embed.title = "募集終了";
-        embed.color = "#000000";
-        message.edit(new discord.MessageEmbed(embed));
+        embed.color = 0;
+        this._task.message.edit(new MessageEmbed(embed));
         FormTaskDatabase.instance.remove({ message: this._task.message.id })
     }
 }
