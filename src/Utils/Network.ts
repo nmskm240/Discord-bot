@@ -1,15 +1,17 @@
-const axiosBase = require("axios");
+import axiosBase from "axios";
 const baseURL = "https://script.google.com";
 
-module.exports = class Network {
-    static async get(query) {
+export class Network {
+    public static URL: string | undefined;
+
+    public static async get(query: any) {
         const axios = axiosBase.create({
             baseURL: baseURL,
         });
-        const res = await axios.get(Network.URL, {
+        const res = await axios.get((Network as any).URL, {
             params: query,
         })
-            .catch(error => {
+            .catch((error: any) => {
                 console.log("GASへのGETに失敗");
                 return error.response;
             });
@@ -19,7 +21,7 @@ module.exports = class Network {
         return res;
     }
 
-    static async post(sendData) {
+    public static async post(sendData: any) {
         const axios = axiosBase.create({
             baseURL: baseURL,
             headers: {
@@ -28,8 +30,8 @@ module.exports = class Network {
             },
             responseType: "json",
         });
-        const res = await axios.post(Network.URL, sendData)
-            .catch(error => {
+        const res = await axios.post((Network as any).URL, sendData)
+            .catch((error: any) => {
                 console.log("GASへのPOSTに失敗");
                 return error.response;
             });
@@ -39,4 +41,3 @@ module.exports = class Network {
 
     }
 }
-module.exports.URL = "";

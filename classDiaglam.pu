@@ -1,0 +1,148 @@
+@startuml Discord-bot
+
+package Commands
+{
+    package Parameters
+    {
+        package Omittable
+        {
+            class OmittableCommandParameter
+            class OmittableMemberParameter
+            class OmittableMembersParameter
+            class OmittableNumberParameter
+        }
+        package Required
+        {
+            class CommandParameter
+            class FreeWriteParameter
+            class MemberParameter
+            class MembersParameter
+            class NumberParameter
+            {
+                -_rule:(number) => boolean
+            }
+        }
+        interface IOmittable<T>
+        {
+            +default:T
+        }
+        abstract Parameter<T>
+        {
+            #_name:string
+            #_detail:string
+            #_value:T | null
+            +<<property>>name:string{ get only }
+            +<<property>>detail:string{ get only }
+            +<<property>>valueOrDefault:T | null{ get only }
+            +{abstract}setValue(message:Message,index:number):void
+        }
+    }
+    abstract Command
+    {
+        #_name:string
+        #_detail:string
+        #_parameters:Parameter<any>[]
+        +<<property>>name:string{ get only }
+        +<<property>>detail:string{ get only }
+        +<<property>>grammar:string{ get only }
+        +<<property>>parameters:Parameter<any>[]{ get only }
+        +info:ExecutionInfo
+        +{static}<<readonly>>IDENTIFIER:string
+        +{static}<<readonly>>PUNCTUATION:string
+        +{static}clone(commandName:string):Command
+        +{static}isCommand(content:string):boolean
+        +{static}parse(message:Message):Command | null
+        +{abstract}execute():Promise<MessageEmbed>
+        +onComplite(message:Message):Promise<void>
+    }
+    class CommandList
+    {
+        -{static}COMMANDS:Map<string,Command>
+        +{static}init():void
+        +{static}get(name:string):Command
+    }
+    class ExecutionInfo
+    {
+        -_performer:GuildMember | null
+        -_guild:Guild | null
+        -_channel:Channel | null
+        -_message:Message | null
+        +<<property>>performer:GuildMember | null { get only }
+        +<<property>>guild:Guild | null { get only }
+        +<<property>>channel:Channel | null { get only }
+        +<<property>>message:Message | null { get only }
+        +init(message:Message):void
+    }
+    class Help
+    class RandomTeamChat
+    class RandomTeamVoice
+    class Recruit
+    class Who
+}
+package Utils
+{
+    class Form
+    {
+        +{static}reboot(client:Client):void
+        +create(title:string,body:string,fieldName:string,creator:GuildMember):MessageEmbed
+        +open(message:Message,reactions:any,term:any,isOpened:boolean):void
+        +update(message:Message):void
+        +close(message:Message):void
+    }
+    class Network
+    {
+        +{static}URL:string | undefined
+        +{static}get(query:any):any
+        +{static}post(sendData:any):any
+    }
+    class Team
+    {
+        -_max:number
+        -_members:GuildMember[]
+        -_name:string
+        +<<property>>isEmpty:boolean{ get only }
+        +<<property>>isMax:boolean{ get only }
+        +<<property>>max:number{ get only }
+        +<<property>>members:Iterable<GuildMember>{ get only }
+        +<<property>>name:string{ get only }
+        +add(member:GuildMember):void
+        +addAll(members:GuildMember[]):void
+        +has(member:GuildMember):boolean
+        +remove(member:GuildMember):void
+        +{static}random(members:GuildMember[],size:number):Team[]
+    }
+}
+
+Help --|> Command
+RandomTeamChat --|> Command
+RandomTeamVoice --|> Command
+Recruit --|> Command
+Who --|> Command
+CommandParameter --|> Parameter
+FreeWriteParameter --|> Parameter
+MemberParameter --|> Parameter
+MembersParameter --|> Parameter
+NumberParameter --|> Parameter
+OmittableCommandParameter --|> Parameter
+OmittableMemberParameter --|> Parameter
+OmittableMembersParameter --|> Parameter
+OmittableNumberParameter --|> Parameter
+
+OmittableCommandParameter ..|> IOmittable
+OmittableMemberParameter ..|> IOmittable
+OmittableMembersParameter ..|> IOmittable
+OmittableNumberParameter ..|> IOmittable
+
+Command "1" *-- "1..n" Parameter
+Command "1" *-- "1" ExecutionInfo
+CommandList "1" *-- "1..n" Command
+Form "1" *-- "1" Team
+
+Command --> CommandList : use
+RandomTeamChat --> Team : use
+RandomTeamVoice --> Team : use
+Recruit --> Network : use
+Recruit --> Form : use
+Who --> Network : use
+
+@enduml
