@@ -1,2 +1,6 @@
 .vscode
 Links.json
+node_modules/
+package-lock.json
+.env
+Data/
