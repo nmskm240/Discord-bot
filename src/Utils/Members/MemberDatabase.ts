@@ -1,5 +1,5 @@
+import { Member } from "..";
 import { DatabaseProvider } from "../../Database";
-import { Member } from "./Member";
 
 export class MemberDatabase extends DatabaseProvider<Member> {
     private static _instance: MemberDatabase = new MemberDatabase();

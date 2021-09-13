@@ -3,9 +3,7 @@ import querystring from "querystring";
 import { Client, Message, MessageEmbed } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, FormTaskDatabase, Network } from "./Utils";
-import { MemberDatabase } from "./Utils/Members/MemberDatabase";
-import { Member } from "./Utils/Members/Member";
+import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
 
 dotenv.config();
 const client = new Client();

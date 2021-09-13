@@ -1,5 +1,5 @@
+import { Game } from "..";
 import { IDatabaseItem } from "../../Database";
-import { Game } from "./Game";
 
 export class Member implements IDatabaseItem {
     private _tag: string;

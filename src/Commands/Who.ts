@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { OmittableMemberParameter } from "./Parameters";
-import { MemberDatabase } from "../Utils/Members/MemberDatabase";
+import { MemberDatabase } from "../Utils";
 
 export class Who extends Command {
     constructor() {
