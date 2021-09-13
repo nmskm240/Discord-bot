@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Network } from "../Utils";
 import { OmittableMemberParameter } from "./Parameters";
+import { MemberDatabase } from "../Utils/Members/MemberDatabase";
 
 export class Who extends Command {
     constructor() {
@@ -16,24 +16,22 @@ export class Who extends Command {
 
     public async execute(): Promise<MessageEmbed> {
         const target: GuildMember = this.parameters[0].valueOrDefault;
-        const res = await Network.get({ command: "who" });
-        for (const member of res.data) {
-            if (target.user.tag.indexOf(member.DiscordTag) != -1) {
-                const keys = Object.keys(member.game);
-                const values = Object.values(member.game);
-                let description = member.Medals + "\n\n";
-                for (const i in keys) {
-                    description += keys[i] + ": ** " + values[i] + " ** \n";
-                }
-                return new MessageEmbed()
-                    .setTitle(target.displayName)
-                    .setDescription(description)
-                    .setColor("#00a2ff")
-                    .setImage(target.user.avatarURL()!);
+        const tag: string = target.user.tag;
+        const res = await MemberDatabase.instance.find({ tag: tag.slice(tag.length - 5) });
+        if (res.length > 0) {
+            let description: string = "";
+            for (const game of res[0].games) {
+                console.log(game);
+                description = description.concat(game.name + ":**" + game.id + "**\n");
             }
+            return new MessageEmbed()
+                .setTitle(target.displayName)
+                .setDescription(description)
+                .setColor("#00a2ff")
+                .setImage(target.user.avatarURL()!);
         }
         return new MessageEmbed()
             .setTitle("エラー")
-            .setDescription(target + "はデータベースに登録されていません")
+            .setDescription(target.toString() + "はデータベースに登録されていません")
     }
 }
