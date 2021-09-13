@@ -1,5 +1,4 @@
-import { GuildMember, Message, MessageReaction, User } from "discord.js";
-import { memoize } from "lodash";
+import { GuildMember, MessageReaction, User } from "discord.js";
 import { Form } from "..";
 
 export class RecruitForm extends Form {
@@ -67,5 +66,4 @@ export class RecruitForm extends Form {
             }
         }
     }
-
 }
