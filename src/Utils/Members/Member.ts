@@ -14,9 +14,12 @@ export class Member implements IDatabaseItem {
     }
 
     public toObject(): object {
+        const games = this._games.map((game) => {
+            return game.toObject();
+        });
         return {
             tag: this._tag,
-            games: this._games,
+            games: games,
         }
     }
 

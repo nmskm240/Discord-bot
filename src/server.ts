@@ -3,7 +3,9 @@ import querystring from "querystring";
 import { Client, Message, MessageEmbed } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
-import { Network, Form, FormTaskDatabase } from "./Utils";
+import { Form, FormTaskDatabase, Network } from "./Utils";
+import { MemberDatabase } from "./Utils/Members/MemberDatabase";
+import { Member } from "./Utils/Members/Member";
 
 dotenv.config();
 const client = new Client();
@@ -33,11 +35,16 @@ http.createServer(function (req: IncomingMessage, res: ServerResponse) {
     }
 }).listen(3000);
 
-client.on("ready", () => {
+client.on("ready", async () => {
     FormTaskDatabase.instance.init(client);
-    Network.URL = process.env.GAS;
     Form.reboot();
     CommandList.init();
+    for (const data of await Network.get({})) {
+        const member = Member.parse(data);
+        if (member.tag) {
+            MemberDatabase.instance.update({ tag: data.tag }, member, { upsert: true });
+        }
+    }
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
