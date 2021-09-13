@@ -21,7 +21,9 @@ export class Who extends Command {
         if (res.length > 0) {
             let description: string = "";
             for (const game of res[0].games) {
-                console.log(game);
+                if(!game.id) {
+                    continue;
+                }
                 description = description.concat(game.name + ":**" + game.id + "**\n");
             }
             return new MessageEmbed()
