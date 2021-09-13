@@ -1,8 +1,5 @@
 import { DatabaseProvider } from "../../Database";
-import { Course } from "./Course";
-import { Game } from "./Game";
 import { Member } from "./Member";
-import { MemberType } from "./MemberType";
 
 export class MemberDatabase extends DatabaseProvider<Member> {
     private static _instance: MemberDatabase = new MemberDatabase();
