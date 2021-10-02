@@ -1,6 +1,6 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Client, Message, MessageEmbed, Permissions, VoiceState } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
 import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
@@ -56,6 +56,39 @@ client.on("message", async (message: Message) => {
         const embed: MessageEmbed = await command.execute();
         const out: Message = await message.channel.send(embed);
         command.onComplite(out);
+    }
+});
+
+client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
+    if (oldState.channel || newState.channel) {
+        if (oldState.channel && oldState.member && !newState.channel) {
+            console.log("leave" + oldState.channel.name);
+            const role = oldState.guild.roles.cache.find((role) =>
+                role.name == oldState.channel!.name + "_vcc");
+            if (role) {
+                oldState.member.roles.remove(role);
+            }
+        } else if (!oldState.channel && newState.channel && newState.member) {
+            console.log("join" + newState.channel.name);
+            const role = newState.guild.roles.cache.find((role) =>
+                role.name == newState.channel!.name + "_vcc")
+                ?? await newState.guild.roles.create({
+                    data: {
+                        name: newState.channel.name + "_vcc",
+                    }
+                });
+            newState.member.roles.add(role);
+            if (!newState.guild.channels.cache.find((channel) => channel.name == newState.channel!.name + "_vcc")) {
+                newState.guild.channels.create(newState.channel.name + "_vcc", {
+                    permissionOverwrites: [
+                        { id: newState.guild.roles.everyone, deny: Permissions.FLAGS.VIEW_CHANNEL },
+                        { id: role, allow: Permissions.FLAGS.VIEW_CHANNEL },
+                    ]
+                })
+            }
+        } else {
+            console.log("move" + oldState.channel?.name + "to" + newState.channel?.name);
+        }
     }
 });
 
