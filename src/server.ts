@@ -4,6 +4,7 @@ import { Client, Message, MessageEmbed, Permissions, VoiceState } from "discord.
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
 import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
+import { VCC } from "./Utils/VCC";
 
 dotenv.config();
 const client = new Client();
@@ -59,36 +60,27 @@ client.on("message", async (message: Message) => {
     }
 });
 
-client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
-    if (oldState.channel || newState.channel) {
-        if (oldState.channel && oldState.member && !newState.channel) {
-            console.log("leave" + oldState.channel.name);
-            const role = oldState.guild.roles.cache.find((role) =>
-                role.name == oldState.channel!.name + "_vcc");
-            if (role) {
-                oldState.member.roles.remove(role);
-            }
-        } else if (!oldState.channel && newState.channel && newState.member) {
-            console.log("join" + newState.channel.name);
-            const role = newState.guild.roles.cache.find((role) =>
-                role.name == newState.channel!.name + "_vcc")
-                ?? await newState.guild.roles.create({
-                    data: {
-                        name: newState.channel.name + "_vcc",
-                    }
-                });
-            newState.member.roles.add(role);
-            if (!newState.guild.channels.cache.find((channel) => channel.name == newState.channel!.name + "_vcc")) {
-                newState.guild.channels.create(newState.channel.name + "_vcc", {
-                    permissionOverwrites: [
-                        { id: newState.guild.roles.everyone, deny: Permissions.FLAGS.VIEW_CHANNEL },
-                        { id: role, allow: Permissions.FLAGS.VIEW_CHANNEL },
-                    ]
-                })
-            }
-        } else {
-            console.log("move" + oldState.channel?.name + "to" + newState.channel?.name);
+client.on("voiceStateUpdate", (oldState: VoiceState, newState: VoiceState) => {
+    if (oldState.member?.id == client.user?.id || newState.member?.id == client.user?.id) {
+        return;
+    }
+    if (VCC.isLeavedVC(oldState, newState)) {
+        const vcc = new VCC(oldState);
+        vcc.leave(oldState.member!);
+    } else if (VCC.isConnectedVC(oldState, newState)) {
+        const vcc = new VCC(newState);
+        if (!vcc.isCreated) {
+            vcc.create();
         }
+        vcc.join(newState.member!);
+    } else {
+        const oldVCC = new VCC(oldState);
+        const newVCC = new VCC(newState);
+        oldVCC.leave(oldState.member!);
+        if (!newVCC.isCreated) {
+            newVCC.create();
+        }
+        newVCC.join(newState.member!);
     }
 });
 
