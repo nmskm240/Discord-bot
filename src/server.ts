@@ -73,16 +73,14 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
             await vcc.create();
         }
         await vcc.join(newState.member!);
-    } else {
+    } else if (VCC.isSwitchedVC(oldState, newState)) {
         const oldVCC = new VCC(oldState);
         const newVCC = new VCC(newState);
-        if(oldVCC.channel?.id != newVCC.channel?.id) {
-            await oldVCC.leave(oldState.member!);
-            if (!newVCC.channel) {
-                await newVCC.create();
-            }
-            await newVCC.join(newState.member!);
+        await oldVCC.leave(oldState.member!);
+        if (!newVCC.channel) {
+            await newVCC.create();
         }
+        await newVCC.join(newState.member!);
     }
 });
 

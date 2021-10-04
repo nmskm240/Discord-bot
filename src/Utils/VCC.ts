@@ -42,6 +42,10 @@ export class VCC {
         return (oldState.channel && !newState.channel) ? true : false;
     }
 
+    public static isSwitchedVC(oldState: VoiceState, newState: VoiceState): boolean {
+        return oldState.channel?.id != newState.channel?.id;
+    }
+
     public async create(): Promise<GuildChannel> {
         return await this._voiceState.guild.channels.create(this.name, {
             permissionOverwrites: [
