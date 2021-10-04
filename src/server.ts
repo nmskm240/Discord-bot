@@ -60,7 +60,7 @@ client.on("message", async (message: Message) => {
     }
 });
 
-client.on("voiceStateUpdate", (oldState: VoiceState, newState: VoiceState) => {
+client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
     if (oldState.member?.id == client.user?.id || newState.member?.id == client.user?.id) {
         return;
     }
@@ -69,7 +69,7 @@ client.on("voiceStateUpdate", (oldState: VoiceState, newState: VoiceState) => {
         vcc.leave(oldState.member!);
     } else if (VCC.isConnectedVC(oldState, newState)) {
         const vcc = new VCC(newState);
-        if (!vcc.isCreated) {
+        if (!vcc.channel) {
             vcc.create();
         }
         vcc.join(newState.member!);
@@ -77,7 +77,7 @@ client.on("voiceStateUpdate", (oldState: VoiceState, newState: VoiceState) => {
         const oldVCC = new VCC(oldState);
         const newVCC = new VCC(newState);
         oldVCC.leave(oldState.member!);
-        if (!newVCC.isCreated) {
+        if (!newVCC.channel) {
             newVCC.create();
         }
         newVCC.join(newState.member!);
