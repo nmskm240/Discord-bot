@@ -3,7 +3,10 @@ import { GuildChannel, GuildMember, Permissions, Role, VoiceState } from "discor
 export class VCC {
     private _voiceState: VoiceState;
 
-    public get name(): string { return this._voiceState.channel?.name.replace(/ /g, "").toLowerCase() + VCC.IDENTIFIER; }
+    public get name(): string {
+        return this._voiceState.channel?.name.replace(/ |　/g, "-").toLowerCase()
+            + VCC.IDENTIFIER;
+    }
     public get role(): Promise<Role> {
         return new Promise(async (resolve, reject) =>
             resolve(this._voiceState.guild.roles.cache.find((role) =>
