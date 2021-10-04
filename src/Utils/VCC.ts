@@ -23,9 +23,9 @@ export class VCC {
             }
         });
     }
-    public get isCreated(): boolean {
+    public get channel(): GuildChannel | undefined {
         return this._voiceState.guild.channels.cache.find((channel) =>
-            channel.name == this.name) ? true : false;
+            channel.name == this.name);
     }
 
     public static readonly IDENTIFIER: string = "_vcc";
