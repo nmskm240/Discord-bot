@@ -59,13 +59,13 @@ export class VCC {
 
     public async join(member: GuildMember): Promise<void> {
         if (!await this.isViewableMember(member)) {
-            member.roles.add(await this.role);
+            await member.roles.add(await this.role);
         }
     }
 
     public async leave(member: GuildMember): Promise<void> {
         if (await this.isViewableMember(member)) {
-            member.roles.remove(await this.role);
+            await member.roles.remove(await this.role);
         }
     }
 }
