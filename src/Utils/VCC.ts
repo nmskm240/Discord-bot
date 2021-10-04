@@ -4,20 +4,24 @@ export class VCC {
     private _voiceState: VoiceState;
 
     public get name(): string {
-        return this._voiceState.channel?.name.replace(/ |　/g, "-").toLowerCase()
+        return this._voiceState.channel?.name.replace(/ |　|[！-～]/g, "-").toLowerCase()
             + VCC.IDENTIFIER;
     }
     public get role(): Promise<Role> {
-        return new Promise(async (resolve, reject) =>
-            resolve(this._voiceState.guild.roles.cache.find((role) =>
-                role.name == this.name)
-                ?? await this._voiceState.guild.roles.create({
-                    data: {
-                        name: this.name,
-                    }
-                })
-            )
-        );
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(this._voiceState.guild.roles.cache.find((role) =>
+                    role.name == this.name)
+                    ?? await this._voiceState.guild.roles.create({
+                        data: {
+                            name: this.name,
+                        }
+                    })
+                )
+            } catch (e) {
+                throw new Error("Can't create of get role");
+            }
+        });
     }
     public get isCreated(): boolean {
         return this._voiceState.guild.channels.cache.find((channel) =>
@@ -48,11 +52,20 @@ export class VCC {
         })
     }
 
+    public async isViewableMember(member: GuildMember): Promise<boolean> {
+        const needRole = await this.role;
+        return member.roles.cache.find((role) => role.id == needRole.id) ? true : false;
+    }
+
     public async join(member: GuildMember): Promise<void> {
-        member.roles.add(await this.role);
+        if (!await this.isViewableMember(member)) {
+            member.roles.add(await this.role);
+        }
     }
 
     public async leave(member: GuildMember): Promise<void> {
-        member.roles.remove(await this.role);
+        if (await this.isViewableMember(member)) {
+            member.roles.remove(await this.role);
+        }
     }
 }
