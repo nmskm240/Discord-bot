@@ -1,6 +1,6 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
-import { Client, Message, MessageEmbed, Permissions, VoiceState } from "discord.js";
+import { Client, Message, MessageEmbed, VoiceState } from "discord.js";
 import { Command, CommandList } from './Commands';
 import * as dotenv from "dotenv";
 import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
@@ -66,21 +66,21 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
     }
     if (VCC.isLeavedVC(oldState, newState)) {
         const vcc = new VCC(oldState);
-        vcc.leave(oldState.member!);
+        await vcc.leave(oldState.member!);
     } else if (VCC.isConnectedVC(oldState, newState)) {
         const vcc = new VCC(newState);
         if (!vcc.channel) {
-            vcc.create();
+            await vcc.create();
         }
-        vcc.join(newState.member!);
-    } else {
+        await vcc.join(newState.member!);
+    } else if (VCC.isSwitchedVC(oldState, newState)) {
         const oldVCC = new VCC(oldState);
         const newVCC = new VCC(newState);
-        oldVCC.leave(oldState.member!);
+        await oldVCC.leave(oldState.member!);
         if (!newVCC.channel) {
-            newVCC.create();
+            await newVCC.create();
         }
-        newVCC.join(newState.member!);
+        await newVCC.join(newState.member!);
     }
 });
 
