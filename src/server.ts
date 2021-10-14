@@ -1,9 +1,9 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
 import { Client, Message, MessageEmbed, VoiceState } from "discord.js";
-import { Command, CommandList } from './Commands';
+import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
+import { Form, FormTaskDatabase, Member, MemberDatabase, Network, TypeGuird } from "./Utils";
 import { VCC } from "./Utils/VCC";
 
 dotenv.config();
@@ -56,7 +56,10 @@ client.on("message", async (message: Message) => {
     if (command) {
         const embed: MessageEmbed = await command.execute();
         const out: Message = await message.channel.send(embed);
-        command.onComplite(out);
+        if(TypeGuird.isIExecutedCallback(command)) {
+            const callback = command as IExecutedCallback;
+            callback.onCompleted(out);
+        }
     }
 });
 

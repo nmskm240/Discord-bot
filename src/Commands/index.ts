@@ -1,6 +1,7 @@
 export { Command } from "./Command";
 export { ExecutionInfo } from "./ExecutionInfo";
 export { CommandList } from "./CommandList";
+export { IExecutedCallback } from "./IExecutedCallback";
 
 export { Help } from "./Help";
 export { RandomTeamChat } from "./RandomTeamChat";
