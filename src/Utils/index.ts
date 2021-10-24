@@ -11,3 +11,4 @@ export { MemberDatabase } from "./Members/MemberDatabase";
 export { Network } from "./Network";
 export { Team } from "./Team";
 export { TypeGuird } from "./TypeGuird";
+export { VCC } from "./VCC";

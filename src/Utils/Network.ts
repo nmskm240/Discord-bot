@@ -24,7 +24,7 @@ export class Network {
             },
             responseType: "json",
         });
-        const res = await axios.post(process.env.GAS!, sendData)
+        const res: AxiosResponse<any> = await axios.post(process.env.GAS!, sendData)
             .catch((error: any) => {
                 console.log("GASへのPOSTに失敗");
                 return error.response;
@@ -32,6 +32,6 @@ export class Network {
         if (res.status != 200) {
             return null;
         }
-
+        return res.data;
     }
 }
