@@ -2,8 +2,9 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { Form, FormTask, FormType } from "../Utils";
 import { FreeWriteParameter, OmittableNumberParameter } from "./Parameters";
+import { IExecutedCallback } from ".";
 
-export class Recruit extends Command {
+export class Recruit extends Command implements IExecutedCallback {
     private _reactions: any = {
         allow: "✅",
         cancel: "❎",
@@ -46,7 +47,7 @@ export class Recruit extends Command {
             .addField("参加者", "なし")
     }
 
-    public async onComplite(message: Message): Promise<void> {
+    public onCompleted(message: Message): void {
         Form.create(
             new FormTask(
                 FormType.Recruit,

@@ -1,10 +1,9 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import querystring from "querystring";
 import { Client, Message, MessageEmbed, VoiceState } from "discord.js";
-import { Command, CommandList } from './Commands';
+import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, FormTaskDatabase, Member, MemberDatabase, Network } from "./Utils";
-import { VCC } from "./Utils/VCC";
+import { Form, FormTaskDatabase, Network, TypeGuird, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -38,12 +37,6 @@ client.on("ready", async () => {
     FormTaskDatabase.instance.init(client);
     Form.reboot();
     CommandList.init();
-    for (const data of await Network.get({})) {
-        const member = Member.parse(data);
-        if (member.tag) {
-            MemberDatabase.instance.update({ tag: data.tag }, member, { upsert: true });
-        }
-    }
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
@@ -56,7 +49,10 @@ client.on("message", async (message: Message) => {
     if (command) {
         const embed: MessageEmbed = await command.execute();
         const out: Message = await message.channel.send(embed);
-        command.onComplite(out);
+        if (TypeGuird.isIExecutedCallback(command)) {
+            const callback = command as IExecutedCallback;
+            callback.onCompleted(out);
+        }
     }
 });
 
@@ -82,6 +78,11 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
         }
         await newVCC.join(newState.member!);
     }
+});
+
+client.on("guildMemberUpdate", async (oldMember, newMember) => {
+    const tag = oldMember.user!.tag.slice(oldMember.user!.tag.length - 5);
+    await Network.post({datas: [{ tag: tag, nickname: newMember.displayName }]});
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

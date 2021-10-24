@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { OmittableMemberParameter } from "./Parameters";
-import { MemberDatabase } from "../Utils";
+import { Network } from "../Utils";
 
 export class Who extends Command {
     constructor() {
@@ -17,7 +17,7 @@ export class Who extends Command {
     public async execute(): Promise<MessageEmbed> {
         const target: GuildMember = this.parameters[0].valueOrDefault;
         const tag: string = target.user.tag;
-        const res = await MemberDatabase.instance.find({ tag: tag.slice(tag.length - 5) });
+        const res = await Network.get({ tag: tag.slice(tag.length - 5) });
         if (res.length > 0) {
             let description: string = "";
             for (const game of res[0].games) {
