@@ -81,8 +81,11 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
 });
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
+    if(oldMember.displayName == newMember.displayName) {
+        return;
+    }
     const tag = oldMember.user!.tag.slice(oldMember.user!.tag.length - 5);
-    await Network.post({datas: [{ tag: tag, nickname: newMember.displayName }]});
+    await Network.post({ tag: tag, nickname: newMember.displayName });
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
