@@ -18,9 +18,9 @@ export class Who extends Command {
         const target: GuildMember = this.parameters[0].valueOrDefault;
         const tag: string = target.user.tag;
         const res = await Network.get({ tag: tag.slice(tag.length - 5) });
-        if (res.length > 0) {
+        if (res) {
             let description: string = "";
-            for (const game of res[0].games) {
+            for (const game of res.games) {
                 if(!game.id) {
                     continue;
                 }
@@ -34,6 +34,6 @@ export class Who extends Command {
         }
         return new MessageEmbed()
             .setTitle("エラー")
-            .setDescription(target.toString() + "はデータベースに登録されていません")
+            .setDescription(target.toString() + "は名簿に登録されていません")
     }
 }
