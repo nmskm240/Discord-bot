@@ -13,11 +13,11 @@ export class Help extends Command {
         );
     }
 
-    public async execute(): Promise<MessageEmbed> {
+    public async execute(): Promise<void> {
         const target: Command = this.parameters[0].valueOrDefault;
-        return new MessageEmbed()
+        this._result = new MessageEmbed()
             .setTitle("ヘルプ")
-            .setColor("#00a2ff")
+            .setColor("BLUE")
             .setDescription("**" + target.grammar + "**\n\n" + target.detail)
             .addFields(target.parameters.map((p: Parameter<any>) => {
                 return { name: p.name, value: p.detail };

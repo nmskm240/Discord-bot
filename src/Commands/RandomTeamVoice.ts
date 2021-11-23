@@ -15,27 +15,30 @@ export class RandomTeamVoice extends Command {
         );
     }
 
-    public async execute(): Promise<MessageEmbed> {
+    public async execute(): Promise<void> {
+        const vc: VoiceChannel | null | undefined = this.info.performer?.voice.channel;
         try {
-            const vc: VoiceChannel | null | undefined = this.info.performer?.voice.channel;
             if (!vc) {
                 throw new Error("Failed to acquire voice channel");
             }
-            const size: number = this.parameters[0].valueOrDefault;
-            const exclusion: GuildMember[] = this.parameters[1].valueOrDefault;
-            const members: GuildMember[] = vc.members.array().filter((member: GuildMember) => {
-                return !exclusion.includes(member);
-            });
-            const teams: Team[] = Team.random(members, size);
-            const fields: EmbedFieldData[] = teams.map((team: Team) => {
-                return { name: team.name, value: team.members };
-            })
-            return new MessageEmbed()
-                .setTitle("チーム分け結果")
-                .addFields(fields);
         } catch (error) {
-            return new MessageEmbed()
-                .setTitle("エラー");
+            this._result = new MessageEmbed()
+                .setTitle("エラー")
+                .setDescription("ボイスチャンネルに参加した状態でコマンドを実行してください。")
+                .setColor("RED");
+            return;
         }
+        const size: number = this.parameters[0].valueOrDefault;
+        const exclusion: GuildMember[] = this.parameters[1].valueOrDefault;
+        const members: GuildMember[] = vc.members.array().filter((member: GuildMember) => {
+            return !exclusion.includes(member);
+        });
+        const teams: Team[] = Team.random(members, size);
+        const fields: EmbedFieldData[] = teams.map((team: Team) => {
+            return { name: team.name, value: team.members };
+        })
+        this._result = new MessageEmbed()
+            .setTitle("チーム分け結果")
+            .addFields(fields);
     }
 }

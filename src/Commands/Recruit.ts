@@ -22,7 +22,7 @@ export class Recruit extends Command implements IExecutedCallback {
         );
     }
 
-    public async execute(): Promise<MessageEmbed> {
+    public async execute(): Promise<void> {
         this._limit = new Date(this.info.timestamp!);
         this._limit.setHours(this._limit.getHours() + 24);
         const options: Intl.DateTimeFormatOptions = {
@@ -34,12 +34,12 @@ export class Recruit extends Command implements IExecutedCallback {
             minute: 'numeric',
             hour12: false,
         };
-        return new MessageEmbed()
+        this._result = new MessageEmbed()
             .setTitle("募集中")
             .setDescription(this.parameters[0].valueOrDefault + "\n\n" +
                 this._reactions.allow + "：参加 " + this._reactions.cancel + "：参加取消\n" +
                 "募集終了：" + this._limit.toLocaleString('jp', options))
-            .setColor("#00a2ff")
+            .setColor("BLUE")
             .addField("参加者", "なし")
     }
 
