@@ -15,7 +15,7 @@ export abstract class Form {
     constructor(task: FormTask) {
         this._openTime = new Date();
         this._task = task;
-        this._respondents = new Team("", task.answerable);
+        this._respondents = new Team("");
         this._filter = (reaction: MessageReaction) => {
             return Object.values(task.reactions).includes(reaction.emoji.name);
         }

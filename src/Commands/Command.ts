@@ -45,16 +45,20 @@ export abstract class Command {
 
     public static parse(message: Message): Command | null {
         if (Command.isCommand(message.content)) {
-            let i = 2;
             const command: Command = Command.clone(message.content.split(Command.PUNCTUATION)[1]);
             command.info.init(message);
-            for (const parameter of command.parameters) {
-                parameter.setValue(message, i);
-                i++;
-            }
+            command.setParameters(message);
             return command;
         }
         return null
+    }
+
+    public setParameters(message: Message): void {
+        let i = 2;
+        for (const parameter of this.parameters) {
+            parameter.setValue(message, i);
+            i++;
+        }
     }
 
     public abstract execute(): Promise<MessageEmbed>
