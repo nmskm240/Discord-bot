@@ -47,9 +47,9 @@ client.on("message", async (message: Message) => {
     }
     const command: Command | null = Command.parse(message);
     if (command) {
-        const embed: MessageEmbed = await command.execute();
-        const out: Message = await message.channel.send(embed);
-        if (TypeGuird.isIExecutedCallback(command)) {
+        await command.execute();
+        const out = await command.send();
+        if (out && TypeGuird.isIExecutedCallback(command)) {
             const callback = command as IExecutedCallback;
             callback.onCompleted(out);
         }

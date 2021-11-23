@@ -10,23 +10,20 @@ export class FormTask implements IDatabaseItem {
     private _creator: GuildMember;
     private _reactions: string[];
     private _endTime: Date;
-    private _answerable: number;
 
     public get type(): FormType { return this._type; }
     public get message(): Message { return this._message; }
     public get creator(): GuildMember { return this._creator; }
     public get reactions(): string[] { return this._reactions; }
     public get endTime(): Date { return this._endTime; }
-    public get answerable(): number { return this._answerable; }
 
-    constructor(type: FormType, guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, answerable: number, reactions: string[]) {
+    constructor(type: FormType, guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, reactions: string[]) {
         this._type = type;
         this._guild = guild;
         this._channel = channel;
         this._message = message;
         this._creator = creator;
         this._endTime = endTime;
-        this._answerable = answerable;
         this._reactions = reactions;
     }
 
@@ -39,7 +36,6 @@ export class FormTask implements IDatabaseItem {
             creator: this._creator.id,
             reactions: this.reactions,
             endTime: this.endTime,
-            answerable: this.answerable,
         }
     }
 
@@ -59,6 +55,6 @@ export class FormTask implements IDatabaseItem {
         if (!creator) {
             throw new Error("Nonexistent creator");
         }
-        return new FormTask(obj.type, guild, channel, message, creator, new Date(obj.endTime), obj.answerable, obj.reactions);
+        return new FormTask(obj.type, guild, channel, message, creator, new Date(obj.endTime), obj.reactions);
     }
 }

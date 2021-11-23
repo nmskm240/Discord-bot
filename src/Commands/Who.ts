@@ -14,7 +14,7 @@ export class Who extends Command {
         );
     }
 
-    public async execute(): Promise<MessageEmbed> {
+    public async execute(): Promise<void> {
         const target: GuildMember = this.parameters[0].valueOrDefault;
         const tag: string = target.user.tag;
         const res = await Network.get({ tag: tag.slice(tag.length - 5) });
@@ -26,14 +26,16 @@ export class Who extends Command {
                 }
                 description = description.concat(game.name + ":**" + game.id + "**\n");
             }
-            return new MessageEmbed()
+            this._result = new MessageEmbed()
                 .setTitle(target.displayName)
                 .setDescription(description)
-                .setColor("#00a2ff")
+                .setColor("BLUE")
                 .setImage(target.user.avatarURL()!);
+            return;
         }
-        return new MessageEmbed()
+        this._result = new MessageEmbed()
             .setTitle("エラー")
             .setDescription(target.toString() + "は名簿に登録されていません")
+            .setColor("RED")
     }
 }

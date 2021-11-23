@@ -15,14 +15,14 @@ export class RandomTeamChat extends Command {
         );
     }
 
-    public async execute(): Promise<MessageEmbed> {
+    public async execute(): Promise<void> {
         const size: number = this.parameters[0].valueOrDefault;
         const members: GuildMember[] = this.parameters[1].valueOrDefault;
         const teams: Team[] = Team.random(members, size);
         const fields: EmbedFieldData[] = teams.map((team: Team) => {
             return { name: team.name, value: team.members };
         })
-        return new MessageEmbed()
+        this._result = new MessageEmbed()
             .setTitle("チーム分け結果")
             .addFields(fields)
     }

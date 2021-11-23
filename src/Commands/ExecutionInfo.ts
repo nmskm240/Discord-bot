@@ -1,9 +1,9 @@
-import { Channel, Guild, GuildMember, Message } from "discord.js";
+import { Guild, GuildMember, Message, TextChannel, DMChannel, NewsChannel } from "discord.js";
 
 export class ExecutionInfo {
     private _performer: GuildMember | null;
     private _guild: Guild | null;
-    private _channel: Channel | null;
+    private _channel: TextChannel | DMChannel | NewsChannel | null;
     private _message: Message | null;
     private _timestamp: Date | null;
 
@@ -13,7 +13,7 @@ export class ExecutionInfo {
     public get guild(): Guild | null {
         return this._guild;
     }
-    public get channel(): Channel | null {
+    public get channel(): TextChannel | DMChannel | NewsChannel | null {
         return this._channel;
     }
     public get message(): Message | null {

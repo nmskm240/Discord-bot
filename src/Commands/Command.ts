@@ -7,6 +7,7 @@ export abstract class Command {
     protected _name: string = "";
     protected _detail: string = "";
     protected _parameters: Parameter<any>[] = [];
+    protected _result: MessageEmbed | null = null;
 
     public get name(): string { return this._name; }
     public get detail(): string { return this._detail; }
@@ -45,17 +46,27 @@ export abstract class Command {
 
     public static parse(message: Message): Command | null {
         if (Command.isCommand(message.content)) {
-            let i = 2;
             const command: Command = Command.clone(message.content.split(Command.PUNCTUATION)[1]);
             command.info.init(message);
-            for (const parameter of command.parameters) {
-                parameter.setValue(message, i);
-                i++;
-            }
+            command.setParameters(message);
             return command;
         }
         return null
     }
 
-    public abstract execute(): Promise<MessageEmbed>
+    private setParameters(message: Message): void {
+        let i = 2;
+        for (const parameter of this.parameters) {
+            parameter.setValue(message, i);
+            i++;
+        }
+    }
+
+    public async send(): Promise<Message | undefined> {
+        if(this.info.channel && this._result) {
+            return await this.info.channel.send(this._result);
+        }
+    }
+
+    public abstract execute(): Promise<void>
 }
