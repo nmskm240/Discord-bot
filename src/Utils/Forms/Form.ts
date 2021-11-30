@@ -8,8 +8,8 @@ export abstract class Form {
     protected _filter: CollectorFilter;
     protected _isClose: boolean = false;
 
-    public get isClose(): boolean { 
-        return this._isClose || this._task.endTime.getTime() <= this._openTime.getTime(); 
+    public get isClose(): boolean {
+        return this._isClose || this._task.endTime.getTime() <= this._openTime.getTime();
     }
 
     constructor(task: FormTask) {
@@ -29,7 +29,7 @@ export abstract class Form {
     }
 
     public static create(task: FormTask): Form {
-        switch(task.type) {
+        switch (task.type) {
             case FormType.Recruit:
                 return new RecruitForm(task);
         }

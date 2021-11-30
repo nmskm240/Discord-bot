@@ -16,15 +16,14 @@ export class Who extends Command {
 
     public async execute(): Promise<void> {
         const target: GuildMember = this.parameters[0].valueOrDefault;
-        const tag: string = target.user.tag;
-        const res = await Network.get({ tag: tag.slice(tag.length - 5) });
+        const res = await Network.get({ id: target.user.id });
         if (res) {
             let description: string = "";
             for (const game of res.games) {
                 if(!game.id) {
                     continue;
                 }
-                description = description.concat(game.name + ":**" + game.id + "**\n");
+                description = description.concat(game.title + ":**" + game.id + "**\n");
             }
             this._result = new MessageEmbed()
                 .setTitle(target.displayName)
