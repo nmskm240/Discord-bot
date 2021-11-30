@@ -84,8 +84,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     if(oldMember.displayName == newMember.displayName) {
         return;
     }
-    const tag = oldMember.user!.tag.slice(oldMember.user!.tag.length - 5);
-    await Network.post({ tag: tag, nickname: newMember.displayName });
+    console.log(oldMember.id);
+    await Network.post({ id: oldMember.id, nickname: newMember.displayName });
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
