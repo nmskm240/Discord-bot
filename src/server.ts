@@ -1,37 +1,19 @@
-import http, { IncomingMessage, ServerResponse } from "http";
-import querystring from "querystring";
-import { Client, Message, MessageEmbed, VoiceState } from "discord.js";
+import express from "express";
+import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
 import { Form, FormTaskDatabase, Network, TypeGuird, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
+const app = express();
 
-http.createServer(function (req: IncomingMessage, res: ServerResponse) {
-    if (req.method == "POST") {
-        var data = "";
-        req.on("data", function (chunk: any) {
-            data += chunk;
-        });
-        req.on("end", function () {
-            if (!data) {
-                res.end("No post data");
-                return;
-            }
-            var dataObject = querystring.parse(data);
-            if (dataObject.type == "wake") {
-                res.end();
-                return;
-            }
-            res.end();
-        });
-    }
-    else if (req.method == "GET") {
-        res.writeHead(200, { "Content-Type": "text/plain" });
-        res.end("Discord Bot is active now\n");
-    }
-}).listen(3000);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.get("/", (req, res)=>{
+    res.send("Discord bot is active now!");
+})
+app.listen(process.env.PORT);
 
 client.on("ready", async () => {
     FormTaskDatabase.instance.init(client);
@@ -81,10 +63,9 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
 });
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    if(oldMember.displayName == newMember.displayName) {
+    if (oldMember.displayName == newMember.displayName) {
         return;
     }
-    console.log(oldMember.id);
     await Network.post({ id: oldMember.id, nickname: newMember.displayName });
 });
 
