@@ -2,7 +2,7 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, FormTaskDatabase, Network, TypeGuird, VCC } from "./Utils";
+import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -31,7 +31,7 @@ client.on("message", async (message: Message) => {
     if (command) {
         await command.execute();
         const out = await command.send();
-        if (out && TypeGuird.isIExecutedCallback(command)) {
+        if (out && TypeGuard.isIExecutedCallback(command)) {
             const callback = command as IExecutedCallback;
             callback.onCompleted(out);
         }
@@ -66,7 +66,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     if (oldMember.displayName == newMember.displayName) {
         return;
     }
-    await Network.post({ id: oldMember.id, nickname: newMember.displayName });
+    const request = new DiscordUpdate(oldMember.id, newMember.displayName);
+    await Network.post<DiscordUpdate, NoneResponse>(request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

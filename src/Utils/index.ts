@@ -2,13 +2,21 @@ export { Form } from "./Forms/Form";
 export { FormTask } from "./Forms/FormTask";
 export { FormTaskDatabase } from "./Forms/FormTaskDatabase";
 export { FormType } from "./Forms/FormType";
-export { RecruitForm } from "./Forms/RectuirForm";
+export { RecruitForm } from "./Forms/RecruitForm";
 
 export { Game } from "./Members/Game";
 export { Member } from "./Members/Member";
 export { MemberDatabase } from "./Members/MemberDatabase";
 
-export { Network } from "./Network";
+export { Network } from "./Networks/Network";
+export { DTO } from "./Networks/Models/DTO";
+export { DiscordID } from "./Networks/Models/Requests/DiscordID";
+export { DiscordUpdate } from "./Networks/Models/Requests/DiscordUpdate";
+export { DiscordData } from "./Networks/Models/Responses/DiscordData";
+export { GameData } from "./Networks/Models/Responses/GameData";
+export { MemberData } from "./Networks/Models/Responses/MemberData";
+export { NoneResponse } from "./Networks/Models/Responses/NoneResponse";
+
 export { Team } from "./Team";
-export { TypeGuird } from "./TypeGuird";
+export { TypeGuard } from "./TypeGuard";
 export { VCC } from "./VCC";
