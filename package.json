@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
+    "@types/express": "^4.17.13",
     "@types/lodash": "^4.14.172",
     "axios": "^0.22.0",
     "discord.js": "^12.5.3",

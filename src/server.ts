@@ -1,37 +1,22 @@
-import http, { IncomingMessage, ServerResponse } from "http";
-import querystring from "querystring";
-import { Client, Message, MessageEmbed, VoiceState } from "discord.js";
+import express from "express";
+import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, FormTaskDatabase, Network, TypeGuird, VCC } from "./Utils";
+import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
+const app = express();
 
-http.createServer(function (req: IncomingMessage, res: ServerResponse) {
-    if (req.method == "POST") {
-        var data = "";
-        req.on("data", function (chunk: any) {
-            data += chunk;
-        });
-        req.on("end", function () {
-            if (!data) {
-                res.end("No post data");
-                return;
-            }
-            var dataObject = querystring.parse(data);
-            if (dataObject.type == "wake") {
-                res.end();
-                return;
-            }
-            res.end();
-        });
-    }
-    else if (req.method == "GET") {
-        res.writeHead(200, { "Content-Type": "text/plain" });
-        res.end("Discord Bot is active now\n");
-    }
-}).listen(3000);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.get("/", (req, res)=>{
+    res.send("Discord bot is active now!");
+});
+app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
+    console.log(req.body);
+});
+app.listen(process.env.PORT);
 
 client.on("ready", async () => {
     FormTaskDatabase.instance.init(client);
@@ -49,7 +34,7 @@ client.on("message", async (message: Message) => {
     if (command) {
         await command.execute();
         const out = await command.send();
-        if (out && TypeGuird.isIExecutedCallback(command)) {
+        if (out && TypeGuard.isIExecutedCallback(command)) {
             const callback = command as IExecutedCallback;
             callback.onCompleted(out);
         }
@@ -81,11 +66,11 @@ client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState)
 });
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    if(oldMember.displayName == newMember.displayName) {
+    if (oldMember.displayName == newMember.displayName) {
         return;
     }
-    console.log(oldMember.id);
-    await Network.post({ id: oldMember.id, nickname: newMember.displayName });
+    const request = new DiscordUpdate(oldMember.id, newMember.displayName);
+    await Network.post<DiscordUpdate, NoneResponse>(request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

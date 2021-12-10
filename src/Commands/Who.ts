@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { OmittableMemberParameter } from "./Parameters";
-import { Network } from "../Utils";
+import { DiscordID, MemberData, Network } from "../Utils";
 
 export class Who extends Command {
     constructor() {
@@ -16,7 +16,8 @@ export class Who extends Command {
 
     public async execute(): Promise<void> {
         const target: GuildMember = this.parameters[0].valueOrDefault;
-        const res = await Network.get({ id: target.user.id });
+        const request = new DiscordID(target.user.id);
+        const res = await Network.get<MemberData>(request);
         if (res) {
             let description: string = "";
             for (const game of res.games) {
