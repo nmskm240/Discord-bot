@@ -4,10 +4,6 @@ export { FormTaskDatabase } from "./Forms/FormTaskDatabase";
 export { FormType } from "./Forms/FormType";
 export { RecruitForm } from "./Forms/RecruitForm";
 
-export { Game } from "./Members/Game";
-export { Member } from "./Members/Member";
-export { MemberDatabase } from "./Members/MemberDatabase";
-
 export { Network } from "./Networks/Network";
 export { DTO } from "./Networks/Models/DTO";
 export { DiscordID } from "./Networks/Models/Requests/DiscordID";
