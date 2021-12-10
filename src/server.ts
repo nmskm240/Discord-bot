@@ -2,7 +2,7 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, TypeGuard, VCC } from "./Utils";
+import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -12,7 +12,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res)=>{
     res.send("Discord bot is active now!");
-})
+});
+app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
+    console.log(req.body);
+});
 app.listen(process.env.PORT);
 
 client.on("ready", async () => {
