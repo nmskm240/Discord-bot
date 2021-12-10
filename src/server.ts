@@ -14,7 +14,8 @@ app.get("/", (req, res)=>{
     res.send("Discord bot is active now!");
 });
 app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
-    console.log(req.body);
+    res.status(200).send(new NoneResponse());
+    console.log(req.body.inmates);
 });
 app.listen(process.env.PORT);
 
