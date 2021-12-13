@@ -2,7 +2,7 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
+import { AccessPoint, DiscordUpdate, Form, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/", (req, res)=>{
+app.get("/", (req, res) => {
     res.send("Discord bot is active now!");
 });
 app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
@@ -20,7 +20,6 @@ app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneRes
 app.listen(process.env.PORT);
 
 client.on("ready", async () => {
-    FormTaskDatabase.instance.init(client);
     Form.reboot();
     CommandList.init();
     console.log("Bot準備完了");
@@ -71,7 +70,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         return;
     }
     const request = new DiscordUpdate(oldMember.id, newMember.displayName);
-    await Network.post<DiscordUpdate, NoneResponse>(request);
+    await Network.post<DiscordUpdate, NoneResponse>(AccessPoint.NAME_LIST, request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

@@ -9,11 +9,4 @@ export class DiscordUpdate extends DTO {
         this.id = id;
         this.nickname = nickname;
     }
-
-    toObject(): object {
-        return {
-            id: this.id,
-            nickname: this.nickname
-        };
-    }
 }

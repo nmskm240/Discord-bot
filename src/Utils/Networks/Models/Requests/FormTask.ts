@@ -1,8 +1,8 @@
 import { Channel, Client, Guild, GuildChannel, GuildMember, Message } from "discord.js";
-import { FormType } from "..";
-import { IDatabaseItem } from "../../Database";
+import { FormType } from "../../..";
+import { DTO } from "../DTO";
 
-export class FormTask implements IDatabaseItem {
+export class FormTask extends DTO {
     private _type: FormType;
     private _guild: Guild;
     private _channel: Channel;
@@ -18,6 +18,7 @@ export class FormTask implements IDatabaseItem {
     public get endTime(): Date { return this._endTime; }
 
     constructor(type: FormType, guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, reactions: string[]) {
+        super();
         this._type = type;
         this._guild = guild;
         this._channel = channel;
@@ -25,18 +26,6 @@ export class FormTask implements IDatabaseItem {
         this._creator = creator;
         this._endTime = endTime;
         this._reactions = reactions;
-    }
-
-    public toObject(): object {
-        return {
-            type: this._type,
-            guild: this._guild.id,
-            channel: this._channel.id,
-            message: this._message.id,
-            creator: this._creator.id,
-            reactions: this.reactions,
-            endTime: this.endTime,
-        }
     }
 
     public static async parse(client: Client, obj: any): Promise<FormTask> {

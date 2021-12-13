@@ -1,10 +1,10 @@
 export { Form } from "./Forms/Form";
-export { FormTask } from "./Forms/FormTask";
-export { FormTaskDatabase } from "./Forms/FormTaskDatabase";
+export { FormTask } from "./Networks/Models/Requests/FormTask";
 export { FormType } from "./Forms/FormType";
 export { RecruitForm } from "./Forms/RecruitForm";
 
 export { Network } from "./Networks/Network";
+export { AccessPoint } from "./Networks/AccessPoint";
 export { DTO } from "./Networks/Models/DTO";
 export { DiscordID } from "./Networks/Models/Requests/DiscordID";
 export { DiscordUpdate } from "./Networks/Models/Requests/DiscordUpdate";

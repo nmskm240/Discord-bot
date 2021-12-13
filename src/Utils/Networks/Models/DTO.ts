@@ -1,3 +1,5 @@
 export abstract class DTO {
-    abstract toObject(): object
+    toJSON() {
+        return this;
+    }
 }

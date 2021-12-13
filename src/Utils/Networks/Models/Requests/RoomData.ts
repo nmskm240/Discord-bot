@@ -10,11 +10,4 @@ export class RoomData extends DTO {
         this.campus = campus;
         this.inmates = inmates;
     }
-
-    toObject(): object {
-        return {
-            campus: this.campus,
-            inmates: this.inmates
-        };
-    }
 }

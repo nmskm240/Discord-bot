@@ -11,12 +11,4 @@ export class InRoomMember extends DTO {
         this.name = name;
         this.discordID = discordID;
     }
-
-    toObject(): object {
-        return {
-            id: this.id,
-            name: this.name,
-            discordID: this.discordID
-        };
-    }
 }

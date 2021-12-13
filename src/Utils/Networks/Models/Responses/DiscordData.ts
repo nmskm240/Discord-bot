@@ -11,12 +11,4 @@ export class DiscordData extends DTO {
         this.nickname = nickname;
         this.tag = tag;
     }
-
-    toObject(): object {
-        return {
-            id: this.id,
-            nickname: this.nickname,
-            tag: this.tag
-        };
-    }
 }
