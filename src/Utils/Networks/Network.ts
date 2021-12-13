@@ -1,15 +1,11 @@
 import axiosBase, { AxiosInstance, AxiosResponse } from "axios";
-import { AccessPoint } from "..";
 import { DTO } from "./Models/DTO";
 import { IQuery } from "./Models/IQuery";
 
 export class Network {
-    public static async get<Response extends DTO>(accessPoint: AccessPoint, query: IQuery | undefined = undefined): Promise<Response | null> {
-        if (!accessPoint) {
-            return null;
-        }
+    public static async get<Response extends DTO>(url: string, query: IQuery | undefined = undefined): Promise<Response | null> {
         const axios: AxiosInstance = axiosBase.create();
-        const res: AxiosResponse<Response> = await axios.get<Response>(accessPoint, {
+        const res: AxiosResponse<Response> = await axios.get<Response>(url, {
             params: query?.toObject(),
         });
         if (res.status != 200) {
@@ -18,10 +14,7 @@ export class Network {
         return res.data;
     }
 
-    public static async post<Request extends DTO, Response extends DTO>(accessPoint: AccessPoint, data: Request, query: IQuery | undefined = undefined): Promise<Response | null> {
-        if (!accessPoint) {
-            return null;
-        }
+    public static async post<Request extends DTO, Response extends DTO>(url: string, data: Request, query: IQuery | undefined = undefined): Promise<Response | null> {
         const axios = axiosBase.create({
             headers: {
                 "Content-Type": "application/json",
@@ -29,7 +22,7 @@ export class Network {
             },
             responseType: "json",
         });
-        const res: AxiosResponse<Response> = await axios.post<Request, Response>(accessPoint, data, {
+        const res: AxiosResponse<Response> = await axios.post<Request, Response>(url, data, {
             params: query?.toObject(),
         }).catch((error: any) => {
             console.log("GASへのPOSTに失敗");

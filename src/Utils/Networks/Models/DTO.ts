@@ -1,5 +1,1 @@
-export abstract class DTO {
-    toJSON() {
-        return this;
-    }
-}
+export abstract class DTO {}

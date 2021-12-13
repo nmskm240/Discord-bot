@@ -46,7 +46,7 @@ export class Recruit extends Command implements IExecutedCallback {
     public onCompleted(message: Message): void {
         Form.create(
             new FormTask(
-                FormType.Recruit,
+                FormType.RECRUIT,
                 this.info.guild!,
                 this.info.channel!,
                 message,

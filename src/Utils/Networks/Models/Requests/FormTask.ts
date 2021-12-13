@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildChannel, GuildMember, Message } from "discord.js";
+import { Channel, Client, Guild, GuildMember, Message, TextChannel } from "discord.js";
 import { FormType } from "../../..";
 import { DTO } from "../DTO";
 
@@ -28,22 +28,29 @@ export class FormTask extends DTO {
         this._reactions = reactions;
     }
 
-    public static async parse(client: Client, obj: any): Promise<FormTask> {
-        const guild: Guild = client.guilds.cache.get(obj.guild)
-            ?? await client.guilds.fetch(obj.guild);
-        const channel: GuildChannel | undefined = guild.channels.cache.get(obj.channel);
-        if (!channel) {
-            throw new Error("Nonexistent channel");
-        } else if (!channel.isText()) {
-            throw new Error("Invalid channel");
-        }
-        const message: Message = channel.messages.cache.get(obj.message)
-            ?? await channel.messages.fetch(obj.message);
-        const creator: GuildMember | undefined = guild.members.cache.get(obj.creator)
-            ?? await guild.members.fetch(obj.creator);
-        if (!creator) {
-            throw new Error("Nonexistent creator");
-        }
-        return new FormTask(obj.type, guild, channel, message, creator, new Date(obj.endTime), obj.reactions);
+    static async parse(client: Client, data: any): Promise<FormTask> {
+        const guild = client.guilds.cache.get(data.ids.guild) ??
+            await client.guilds.fetch(data.ids.guild);
+        const channel = guild.channels.cache.get(data.ids.channel) as TextChannel ??
+            await client.channels.fetch(data.ids.channel) as TextChannel;
+        const message = channel.messages.cache.get(data.ids.message) ?? 
+            await channel.messages.fetch(data.ids.message);
+        const creator = guild.members.cache.get(data.ids.creator) ?? 
+            await guild.members.fetch(data.ids.creator);
+        return new FormTask(data.type, guild, channel, message, creator, new Date(data.endtime), data.reactions);
+    }
+
+    toJSON() {
+        return {
+            type: this._type,
+            ids: {
+                guild: this._guild.id,
+                channel: this._channel.id,
+                message: this._message.id,
+                creator: this._creator.id,
+            },
+            endtime: this._endTime,
+            reactions: this._reactions
+        };
     }
 }

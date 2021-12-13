@@ -1,10 +1,11 @@
-import { CollectorFilter, GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
-import { Team, FormTask, FormTaskDatabase, FormType, RecruitForm } from "..";
+import { Client, CollectorFilter, GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
+import { FormTask, FormType, Network, NoneResponse, RecruitForm } from "..";
+import { FormTaskUpdate } from "../Networks/Models/Query/FormTaskUpdate";
+import { FormTaskData } from "../Networks/Models/Responses/FormTaskData";
 
 export abstract class Form {
     protected _openTime: Date;
     protected _task: FormTask;
-    protected _respondents: Team;
     protected _filter: CollectorFilter;
     protected _isClose: boolean = false;
 
@@ -15,42 +16,49 @@ export abstract class Form {
     constructor(task: FormTask) {
         this._openTime = new Date();
         this._task = task;
-        this._respondents = new Team("");
         this._filter = (reaction: MessageReaction) => {
             return Object.values(task.reactions).includes(reaction.emoji.name);
         }
     }
 
-    public static async reboot() {
-        const res = await FormTaskDatabase.instance.all();
-        for (const task of res) {
-            Form.create(task).open(true);
+    public static async reboot(client: Client) {
+        const res = await Network.get<FormTaskData>(process.env.FORM_DB_API!);
+        if (!res) {
+            return;
+        }
+        for (const task of res.tasks) {
+            Form.create(await FormTask.parse(client, task)).open(true);
         }
     }
 
     public static create(task: FormTask): Form {
         switch (task.type) {
-            case FormType.Recruit:
+            case FormType.RECRUIT:
+                return new RecruitForm(task);
+            case FormType.ROOM:
                 return new RecruitForm(task);
         }
     }
 
     protected abstract onRebooted(): Promise<void>
     protected abstract onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
+    protected abstract onUpdate(embed: MessageEmbed): void
+    protected abstract onClosed(embed: MessageEmbed): void
 
     public async open(isOpened: boolean = false) {
-        if (!isOpened) {
-            for (const reaction of Object.values<string>(this._task.reactions)) {
-                await this._task.message.react(reaction);
-            }
-            FormTaskDatabase.instance.insert(this._task!);
-        }
-        else {
+        if (isOpened) {
             await this.onRebooted();
             this.update();
             if (this.isClose) {
                 this.close();
                 return;
+            }
+        }
+        else {
+            const query = new FormTaskUpdate("append");
+            await Network.post<FormTask, NoneResponse>(process.env.FORM_DB_API!, this._task, query);
+            for (const reaction of Object.values<string>(this._task.reactions)) {
+                await this._task.message.react(reaction);
             }
         }
         const collector = this._task.message.createReactionCollector(
@@ -65,8 +73,7 @@ export abstract class Form {
             this.onReacted(reaction, member);
             this.update();
             if (this.isClose) {
-                this.close();
-                return;
+                collector.stop();
             }
         });
         collector.on("end", (collection: any) => {
@@ -76,18 +83,16 @@ export abstract class Form {
 
     protected update() {
         const embed = Object.assign({}, this._task.message.embeds[0]);
-        const field = embed.fields[0];
-        field.value = this._respondents.isEmpty ? "なし" : this._respondents.members.toString();
-        embed.fields[0] = field;
+        this.onUpdate(embed);
         this._task.message.edit(new MessageEmbed(embed));
     }
 
     protected close() {
         this._isClose = true;
         const embed = Object.assign({}, this._task.message.embeds[0]);
-        embed.title = "募集終了";
-        embed.color = 0;
+        this.onClosed(embed);
         this._task.message.edit(new MessageEmbed(embed));
-        FormTaskDatabase.instance.remove({ message: this._task.message.id })
+        const query = new FormTaskUpdate("delete");
+        Network.post<FormTask, NoneResponse>(process.env.FORM_DB_API!, this._task, query);
     }
 }

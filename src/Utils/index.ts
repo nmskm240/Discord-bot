@@ -4,9 +4,8 @@ export { FormType } from "./Forms/FormType";
 export { RecruitForm } from "./Forms/RecruitForm";
 
 export { Network } from "./Networks/Network";
-export { AccessPoint } from "./Networks/AccessPoint";
 export { DTO } from "./Networks/Models/DTO";
-export { DiscordID } from "./Networks/Models/Requests/DiscordID";
+export { DiscordID } from "./Networks/Models/Query/DiscordID";
 export { DiscordUpdate } from "./Networks/Models/Requests/DiscordUpdate";
 export { InRoomMember } from "./Networks/Models/Requests/InRoomMember";
 export { RoomData } from "./Networks/Models/Requests/RoomData";

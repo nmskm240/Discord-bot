@@ -2,7 +2,7 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { AccessPoint, DiscordUpdate, Form, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
+import { DiscordUpdate, Form, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();
@@ -20,7 +20,7 @@ app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneRes
 app.listen(process.env.PORT);
 
 client.on("ready", async () => {
-    Form.reboot();
+    Form.reboot(client);
     CommandList.init();
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
@@ -70,7 +70,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         return;
     }
     const request = new DiscordUpdate(oldMember.id, newMember.displayName);
-    await Network.post<DiscordUpdate, NoneResponse>(AccessPoint.NAME_LIST, request);
+    await Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

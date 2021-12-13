@@ -1,7 +1,26 @@
-import { GuildMember, MessageReaction, User } from "discord.js";
-import { Form } from "..";
+import { GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
+import { Form, Team } from "..";
+import { FormTask } from "../Networks/Models/Requests/FormTask";
 
 export class RecruitForm extends Form {
+    private _respondents: Team;
+
+    constructor(task: FormTask) {
+        super(task);
+        this._respondents = new Team("参加者");
+    }
+
+    protected onUpdate(embed: MessageEmbed): void {
+        const field = embed.fields[0];
+        field.value = this._respondents.isEmpty ? "なし" : this._respondents.members.toString();
+        embed.fields[0] = field;
+    }
+
+    protected onClosed(embed: MessageEmbed): void {
+        embed.title = "募集終了";
+        embed.color = 0;
+    }
+
     private onJoin(member: GuildMember): void {
         this._respondents.add(member);
         if (this._respondents.isMax) {
@@ -45,10 +64,8 @@ export class RecruitForm extends Form {
             if (!reaction) {
                 throw new Error("Couldn't find reactions");
             }
-            const users: User[] = (reaction.users.cache
-                ?? await reaction.users.fetch()).array();
-            console.log(users);
-            for (const user of users.filter((user: User) => !user.bot)) {
+            const users = reaction.users.cache.array();
+            for (const user of users.filter(user => { return !user.bot; })) {
                 const member = this._task.message.guild?.member(user);
                 if (member) {
                     switch (this._task.reactions.indexOf(name)) {
