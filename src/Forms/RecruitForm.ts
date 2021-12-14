@@ -1,6 +1,7 @@
-import { GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
-import { Form, Team } from "..";
-import { FormTask } from "../Networks/Models/Requests/FormTask";
+import { GuildMember, MessageEmbed, MessageReaction } from "discord.js";
+import { Form } from ".";
+import { FormTask } from "../Networks";
+import { Team } from "../Utils";
 
 export class RecruitForm extends Form {
     private _respondents: Team;

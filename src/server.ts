@@ -2,7 +2,9 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, CommandList, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { DiscordUpdate, Form, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
+import { Form } from "./Forms";
+import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
+import { TypeGuard, VCC } from "./Utils";
 
 dotenv.config();
 const client = new Client();

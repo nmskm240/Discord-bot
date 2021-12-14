@@ -1,7 +1,6 @@
 import { Client, CollectorFilter, GuildMember, MessageEmbed, MessageReaction, User } from "discord.js";
-import { FormTask, FormType, Network, NoneResponse, RecruitForm } from "..";
-import { FormTaskUpdate } from "../Networks/Models/Query/FormTaskUpdate";
-import { FormTaskData } from "../Networks/Models/Responses/FormTaskData";
+import { FormType, RecruitForm } from ".";
+import { FormTask, FormTaskData, FormTaskUpdate, Network, NoneResponse } from "../Networks";
 
 export abstract class Form {
     protected readonly _openTime: Date;
@@ -36,6 +35,8 @@ export abstract class Form {
             case FormType.RECRUIT:
                 return new RecruitForm(task);
             case FormType.ROOM:
+                return new RecruitForm(task);
+            default:
                 return new RecruitForm(task);
         }
     }

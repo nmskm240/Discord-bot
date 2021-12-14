@@ -1,8 +1,9 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
-import { Form, FormTask, FormType } from "../Utils";
 import { FreeWriteParameter } from "./Parameters";
 import { IExecutedCallback } from ".";
+import { Form, FormType } from "../Forms";
+import { FormTask } from "../Networks";
 
 export class Recruit extends Command implements IExecutedCallback {
     private _reactions: any = {
