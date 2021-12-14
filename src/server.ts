@@ -1,6 +1,6 @@
 import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
-import { Command, CommandList, IExecutedCallback } from './Commands';
+import { Command, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
 import { Form } from "./Forms";
 import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
@@ -23,7 +23,6 @@ app.listen(process.env.PORT);
 
 client.on("ready", async () => {
     Form.reboot(client);
-    CommandList.init();
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });

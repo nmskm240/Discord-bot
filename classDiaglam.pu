@@ -39,14 +39,11 @@ package Commands
     }
     abstract class Command
     {
-        #_name: string
-        #_detail: string
-        #_parameters: Parameter<any>[]
+        +<<readonly>>name: string
+        +<<readonly>>detail: string
+        +<<readonly>>parameters: Parameter<any>[]
         #_result: MessageEmbed | null
-        +<<getter>>name(): string
-        +<<getter>>detail():string
         +<<getter>>grammar():string
-        +<<getter>>parameters: Parameter<any>[]
         +info: ExecutionInfo
         +<<readonly>>{static}IDENTIFIER: string
         +<<readonly>>{static}PUNCTUATION: string
@@ -58,16 +55,19 @@ package Commands
         +<<async>>execute(): Promise<void>
     }
 
+    class CommandFactory
     interface IExecutedCallback
     {
         +onCompleted(message: Message): void
     }
 
-    class Help
-    class RandomTeamChat
-    class RandomTeamVoice
-    class Recruit
-    class Who
+    together {
+        class Help
+        class RandomTeamChat
+        class RandomTeamVoice
+        class Recruit
+        class Who
+    }
 }
 
 package Networks
@@ -204,6 +204,12 @@ package Forms
 
 package Utils
 {
+    interface IFactory<T>
+    {
+        +create(arg: any): T
+    }
+
+
     class Team
     {
         -_max: number
@@ -244,10 +250,10 @@ RandomTeamVoice --|> Command
 Recruit --|> Command
 Who --|> Command
 
-OmittableCommandParameter --|> Parameter
-OmittableMemberParameter --|> Parameter
-OmittableMembersParameter --|> Parameter
-OmittableNumberParameter --|> Parameter
+OmittableCommandParameter --|> CommandParameter
+OmittableMemberParameter --|> MemberParameter
+OmittableMembersParameter --|> MembersParameter
+OmittableNumberParameter --|> NumberParameter
 CommandParameter --|> Parameter
 FreeWriteParameter --|> Parameter
 MemberParameter --|> Parameter
@@ -276,6 +282,8 @@ OmittableNumberParameter ..|> IOmittable
 DiscordID ..|> IQuery
 FormTaskUpdate ..|> IQuery
 
+CommandFactory ..|> IFactory
+
 Parameter --o Command
 
 FormType --* Form
@@ -289,6 +297,8 @@ FormTask --* FormTaskData
 Network .up.> IQuery
 Network .up.> DTO
 
+CommandFactory -left-> Command : create
 Recruit --> Network : use
+Who --> Network : use
 
 @enduml

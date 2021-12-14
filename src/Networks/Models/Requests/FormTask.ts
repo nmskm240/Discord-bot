@@ -1,5 +1,5 @@
 import { Channel, Client, Guild, GuildMember, Message, TextChannel } from "discord.js";
-import { FormType } from "../../../Utils";
+import { FormType } from "../../../Forms";
 import { DTO } from "../DTO";
 
 export class FormTask extends DTO {
