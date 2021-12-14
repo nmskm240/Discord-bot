@@ -3,29 +3,23 @@ import { FormType } from "../../..";
 import { DTO } from "../DTO";
 
 export class FormTask extends DTO {
-    private _type: FormType;
-    private _guild: Guild;
-    private _channel: Channel;
-    private _message: Message;
-    private _creator: GuildMember;
-    private _reactions: string[];
-    private _endTime: Date;
-
-    public get type(): FormType { return this._type; }
-    public get message(): Message { return this._message; }
-    public get creator(): GuildMember { return this._creator; }
-    public get reactions(): string[] { return this._reactions; }
-    public get endTime(): Date { return this._endTime; }
+    public readonly type: FormType;
+    public readonly guild: Guild;
+    public readonly channel: Channel;
+    public readonly message: Message;
+    public readonly creator: GuildMember;
+    public readonly reactions: string[];
+    public readonly endTime: Date;
 
     constructor(type: FormType, guild: Guild, channel: Channel, message: Message, creator: GuildMember, endTime: Date, reactions: string[]) {
         super();
-        this._type = type;
-        this._guild = guild;
-        this._channel = channel;
-        this._message = message;
-        this._creator = creator;
-        this._endTime = endTime;
-        this._reactions = reactions;
+        this.type = type;
+        this.guild = guild;
+        this.channel = channel;
+        this.message = message;
+        this.creator = creator;
+        this.endTime = endTime;
+        this.reactions = reactions;
     }
 
     static async parse(client: Client, data: any): Promise<FormTask> {
@@ -42,15 +36,15 @@ export class FormTask extends DTO {
 
     toJSON() {
         return {
-            type: this._type,
+            type: this.type,
             ids: {
-                guild: this._guild.id,
-                channel: this._channel.id,
-                message: this._message.id,
-                creator: this._creator.id,
+                guild: this.guild.id,
+                channel: this.channel.id,
+                message: this.message.id,
+                creator: this.creator.id,
             },
-            endtime: this._endTime,
-            reactions: this._reactions
+            endtime: this.endTime,
+            reactions: this.reactions
         };
     }
 }
