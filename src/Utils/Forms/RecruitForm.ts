@@ -10,6 +10,10 @@ export class RecruitForm extends Form {
         this._respondents = new Team("参加者");
     }
 
+    public toMessageEmbed(): MessageEmbed {
+        throw new Error("Method not implemented.");
+    }
+
     protected onUpdate(embed: MessageEmbed): void {
         const field = embed.fields[0];
         field.value = this._respondents.isEmpty ? "なし" : this._respondents.members.toString();
@@ -21,14 +25,14 @@ export class RecruitForm extends Form {
         embed.color = 0;
     }
 
-    private onJoin(member: GuildMember): void {
+    private onReactionByJoin(member: GuildMember): void {
         this._respondents.add(member);
         if (this._respondents.isMax) {
             this._isClose = true;
         }
     }
 
-    private onCancel(reaction: MessageReaction, member: GuildMember): void {
+    private onReactionByCancel(reaction: MessageReaction, member: GuildMember): void {
         this._respondents.remove(member);
         const userReactions = reaction.message.reactions.cache.filter((reaction: MessageReaction) => {
             return reaction.users.cache.has(member.id) &&
@@ -39,22 +43,21 @@ export class RecruitForm extends Form {
         }
     }
 
-    private onClose(member: GuildMember): void {
+    private onReactionByClose(member: GuildMember): void {
         if (member.id == this._task.creator.id) {
             this._isClose = true;
-            return;
         }
     }
 
     protected onReacted(reaction: MessageReaction, reactionMember: GuildMember): void {
         if (reaction.emoji.name === this._task.reactions[0]) {
-            this.onJoin(reactionMember);
+            this.onReactionByJoin(reactionMember);
         }
         else if (reaction.emoji.name === this._task.reactions[1]) {
-            this.onCancel(reaction, reactionMember);
+            this.onReactionByCancel(reaction, reactionMember);
         }
         else {
-            this.onClose(reactionMember);
+            this.onReactionByClose(reactionMember);
         }
     }
 
@@ -70,13 +73,13 @@ export class RecruitForm extends Form {
                 if (member) {
                     switch (this._task.reactions.indexOf(name)) {
                         case 0:
-                            this.onJoin(member);
+                            this.onReactionByJoin(member);
                             break;
                         case 1:
-                            this.onCancel(reaction, member);
+                            this.onReactionByCancel(reaction, member);
                             break;
                         case 2:
-                            this.onClose(member);
+                            this.onReactionByClose(member);
                             break;
                     }
                 }

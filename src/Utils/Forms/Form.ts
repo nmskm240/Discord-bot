@@ -4,9 +4,9 @@ import { FormTaskUpdate } from "../Networks/Models/Query/FormTaskUpdate";
 import { FormTaskData } from "../Networks/Models/Responses/FormTaskData";
 
 export abstract class Form {
-    protected _openTime: Date;
+    protected readonly _openTime: Date;
     protected _task: FormTask;
-    protected _filter: CollectorFilter;
+    protected readonly _filter: CollectorFilter;
     protected _isClose: boolean = false;
 
     public get isClose(): boolean {
@@ -40,6 +40,7 @@ export abstract class Form {
         }
     }
 
+    public abstract toMessageEmbed(): MessageEmbed
     protected abstract onRebooted(): Promise<void>
     protected abstract onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
     protected abstract onUpdate(embed: MessageEmbed): void
@@ -66,7 +67,7 @@ export abstract class Form {
             { time: this._task.endTime.getTime() - this._openTime.getTime() }
         );
         collector.on("collect", (reaction: MessageReaction, user: User) => {
-            const member: GuildMember | null | undefined = this._task.message.guild?.member(user);
+            const member: GuildMember | null | undefined = this._task.guild.member(user);
             if (!member) {
                 return;
             }
