@@ -22,7 +22,7 @@ export class FormTask extends DTO {
         this.reactions = reactions;
     }
 
-    static async parse(client: Client, data: any): Promise<FormTask> {
+    public static async parse(client: Client, data: any): Promise<FormTask> {
         const guild = client.guilds.cache.get(data.ids.guild) ??
             await client.guilds.fetch(data.ids.guild);
         const channel = guild.channels.cache.get(data.ids.channel) as TextChannel ??
@@ -34,7 +34,7 @@ export class FormTask extends DTO {
         return new FormTask(data.type, guild, channel, message, creator, new Date(data.endtime), data.reactions);
     }
 
-    toJSON() {
+    public toJSON(): object {
         return {
             type: this.type,
             ids: {
