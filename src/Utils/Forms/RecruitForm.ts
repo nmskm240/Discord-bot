@@ -67,9 +67,10 @@ export class RecruitForm extends Form {
             if (!reaction) {
                 throw new Error("Couldn't find reactions");
             }
-            const users = reaction.users.cache.array();
+            const users = reaction.users.cache ?? 
+                await reaction.users.fetch();
             for (const user of users.filter(user => { return !user.bot; })) {
-                const member = this._task.message.guild?.member(user);
+                const member = this._task.message.guild?.member(user[1]);
                 if (member) {
                     switch (this._task.reactions.indexOf(name)) {
                         case 0:

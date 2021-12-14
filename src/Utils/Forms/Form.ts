@@ -82,13 +82,13 @@ export abstract class Form {
         });
     }
 
-    protected update() {
+    public update() {
         const embed = Object.assign({}, this._task.message.embeds[0]);
         this.onUpdate(embed);
         this._task.message.edit(new MessageEmbed(embed));
     }
 
-    protected close() {
+    public close() {
         this._isClose = true;
         const embed = Object.assign({}, this._task.message.embeds[0]);
         this.onClosed(embed);
