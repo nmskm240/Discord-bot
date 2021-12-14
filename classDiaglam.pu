@@ -66,6 +66,7 @@ package Commands
         class RandomTeamChat
         class RandomTeamVoice
         class Recruit
+        class Room
         class Who
     }
 }
@@ -170,22 +171,26 @@ package Forms
 {
     abstract Form
     {
-        #<<readonly>>_openTime: Data
-        #<<readonly>>_filter: CollectorFilter
-        #_task: FormTask
-        #_isClose: boolean
-        +<<getter>>isClose(): boolean
+        #_task: FormTask | null
+        #_openTime: Dater | null
+        #filter: ConllectorFilte | null
+        +{abstract}<<getter>>isClose(): boolean
+        +<<getter>>timelimit(): number
+        +<<getter>>isTimeOut(): boolean
+        +setTask(task: FormTask): void
         +<<async>>{static}reboot(client: Client): void
-        +{static}create(task: FormTask): Form
-        +{abstract}toMessageEmbed(): MessageEmbed
         +<<async>>{abstract}onRebooted(): Promise<void>
         +{abstract}onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
         +{abstract}onUpdate(embed: MessageEmbed): void
-        +{abstract}onClosed(embed: MessageEmbed): void
-        +<<async>>open(isOpened: boolean): void
+        +{abstract}onClose(embed: MessageEmbed): void
+        -<<async>>reopen(): Promise<void>
+        -<<async>>save(): Promise<void>
+        +<<async>>open(isReboot: boolean): void
         +update(): void
         +close():void
     }
+
+    class FormFactory 
 
     enum FormType
     {
@@ -196,9 +201,17 @@ package Forms
     class RecruitForm
     {
         -_respondents: Team
+        -_isClose: boolean
         -onReactionByJoin(member: GuildMember):void
         -onReactionByCancel(reaction: MessageReaction, member: GuildMember): void
         -onReactionByClose(member: GuildMember): void
+    }
+
+    class RoomForm 
+    {
+        -_inmates: User[]
+        +{static}instance: RoomForm | null
+        +onPost(client: Client, room: RoomData): void
     }
 }
 
@@ -248,6 +261,7 @@ Help --|> Command
 RandomTeamChat --|> Command
 RandomTeamVoice --|> Command
 Recruit --|> Command
+Room --|> Command
 Who --|> Command
 
 OmittableCommandParameter --|> CommandParameter
@@ -271,8 +285,10 @@ MemberData --|> DTO
 NoneResponse --|> DTO
 
 RecruitForm --|> Form
+RoomForm --|> Form
 
 Recruit ..|> IExecutedCallback
+Room ..|> IExecutedCallback
 
 OmittableCommandParameter ..|> IOmittable
 OmittableMemberParameter ..|> IOmittable
@@ -283,6 +299,7 @@ DiscordID ..|> IQuery
 FormTaskUpdate ..|> IQuery
 
 CommandFactory ..|> IFactory
+FormFactory ..|> IFactory
 
 Parameter --o Command
 
@@ -299,6 +316,7 @@ Network .up.> DTO
 
 CommandFactory -left-> Command : create
 Recruit --> Network : use
+Room --> Network : use
 Who --> Network : use
 
 @enduml

@@ -1,5 +1,6 @@
 import { Command, Help, RandomTeamChat, RandomTeamVoice, Recruit, Who } from ".";
 import { IFactory } from "../Utils";
+import { Room } from "./Room";
 
 export class CommandFactory implements IFactory<Command | null> {
     public create(arg: string): Command | null {
@@ -14,6 +15,8 @@ export class CommandFactory implements IFactory<Command | null> {
                 return new Recruit();
             case "who":
                 return new Who();
+            case "room":
+                return new Room();
             default:
                 return null;
         }

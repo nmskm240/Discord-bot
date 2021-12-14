@@ -2,7 +2,7 @@ import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
 import { Command, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form } from "./Forms";
+import { Form, RoomForm } from "./Forms";
 import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
 import { TypeGuard, VCC } from "./Utils";
 
@@ -17,7 +17,9 @@ app.get("/", (req, res) => {
 });
 app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
     res.status(200).send(new NoneResponse());
-    console.log(req.body.inmates);
+    if(RoomForm.instance) {
+        RoomForm.instance.onPost(client, req.body);
+    }
 });
 app.listen(process.env.PORT);
 

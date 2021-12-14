@@ -2,7 +2,7 @@ import { Message, MessageEmbed } from "discord.js";
 import { Command } from "./Command";
 import { FreeWriteParameter } from "./Parameters";
 import { IExecutedCallback } from ".";
-import { Form, FormType } from "../Forms";
+import { Form, FormType, RecruitForm } from "../Forms";
 import { FormTask } from "../Networks";
 
 export class Recruit extends Command implements IExecutedCallback {
@@ -25,7 +25,7 @@ export class Recruit extends Command implements IExecutedCallback {
 
     public async execute(): Promise<void> {
         this._limit = new Date(this.info.timestamp!);
-        this._limit.setHours(this._limit.getHours() + 24);
+        this._limit.setDate(this._limit.getDate() + 1);
         const options: Intl.DateTimeFormatOptions = {
             weekday: 'long',
             year: 'numeric',
@@ -45,20 +45,21 @@ export class Recruit extends Command implements IExecutedCallback {
     }
 
     public onCompleted(message: Message): void {
-        Form.create(
-            new FormTask(
-                FormType.RECRUIT,
-                this.info.guild!,
-                this.info.channel!,
-                message,
-                this.info.performer!,
-                this._limit!,
-                [
-                    this._reactions.allow,
-                    this._reactions.cancel,
-                    this._reactions.close,
-                ]
-            )
-        ).open();
+        const task = new FormTask(
+            FormType.RECRUIT,
+            this.info.guild!,
+            this.info.channel!,
+            message,
+            this.info.performer!,
+            this._limit!,
+            [
+                this._reactions.allow,
+                this._reactions.cancel,
+                this._reactions.close,
+            ]
+        );
+        const form = new RecruitForm();
+        form.setTask(task);
+        form.open();
     }
 }
