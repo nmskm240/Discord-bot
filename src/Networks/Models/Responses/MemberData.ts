@@ -16,13 +16,4 @@ export class MemberData extends DTO {
         this.discord = discord;
         this.games = games;
     }
-
-    toObject(): object {
-        return {
-            id: this.id,
-            name: this.name,
-            discord: this.discord,
-            games: this.games
-        };
-    }
 }

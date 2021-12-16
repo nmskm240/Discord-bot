@@ -11,6 +11,7 @@ package Commands
             class OmittableMembersParameter
             class OmittableNumberParameter
         }
+
         package Required
         {
             class CommandParameter
@@ -18,98 +19,250 @@ package Commands
             class MemberParameter
             class MembersParameter
             class NumberParameter
-            {
-                -_rule:(number) => boolean
-            }
         }
+
         interface IOmittable<T>
         {
-            +default:T
+            +default: T
         }
+
         abstract Parameter<T>
         {
-            #_name:string
-            #_detail:string
-            #_value:T | null
-            +<<property>>name:string{ get only }
-            +<<property>>detail:string{ get only }
-            +<<property>>valueOrDefault:T | null{ get only }
-            +{abstract}setValue(message:Message,index:number):void
+            #_name: string
+            #_detail: string
+            #_value: T | null
+            +<<getter>>name(): string
+            +<<getter>>detail(): string
+            +<<getter>>valueOrDefault(): T | null
+            +{abstract}setValue(message: Message, index: number): void
         }
     }
-    abstract Command
+    abstract class Command
     {
-        #_name:string
-        #_detail:string
-        #_parameters:Parameter<any>[]
-        +<<property>>name:string{ get only }
-        +<<property>>detail:string{ get only }
-        +<<property>>grammar:string{ get only }
-        +<<property>>parameters:Parameter<any>[]{ get only }
-        +info:ExecutionInfo
-        +{static}<<readonly>>IDENTIFIER:string
-        +{static}<<readonly>>PUNCTUATION:string
-        +{static}clone(commandName:string):Command
-        +{static}isCommand(content:string):boolean
-        +{static}parse(message:Message):Command | null
-        +{abstract}execute():Promise<MessageEmbed>
-        +onComplite(message:Message):Promise<void>
+        +<<readonly>>name: string
+        +<<readonly>>detail: string
+        +<<readonly>>parameters: Parameter<any>[]
+        #_result: MessageEmbed | null
+        +<<getter>>grammar():string
+        +info: ExecutionInfo
+        +<<readonly>>{static}IDENTIFIER: string
+        +<<readonly>>{static}PUNCTUATION: string
+        +{static}clone(commandName: sting): Command
+        +{static}isCommand(content: string): boolean
+        +{static}parse(message: Message): Command | null
+        -setParameters(message: Message): void
+        +<<async>>send(): Promise<Message | undefined>
+        +<<async>>execute(): Promise<void>
     }
-    class CommandList
+
+    class CommandFactory
+    interface IExecutedCallback
     {
-        -{static}COMMANDS:Map<string,Command>
-        +{static}init():void
-        +{static}get(name:string):Command
+        +onCompleted(message: Message): void
     }
-    class ExecutionInfo
-    {
-        -_performer:GuildMember | null
-        -_guild:Guild | null
-        -_channel:Channel | null
-        -_message:Message | null
-        +<<property>>performer:GuildMember | null { get only }
-        +<<property>>guild:Guild | null { get only }
-        +<<property>>channel:Channel | null { get only }
-        +<<property>>message:Message | null { get only }
-        +init(message:Message):void
+
+    together {
+        class Help
+        class RandomTeamChat
+        class RandomTeamVoice
+        class Recruit
+        class Who
     }
-    class Help
-    class RandomTeamChat
-    class RandomTeamVoice
-    class Recruit
-    class Who
 }
-package Utils
+
+package Networks
 {
-    class Form
+    package Models
     {
-        +{static}reboot(client:Client):void
-        +create(title:string,body:string,fieldName:string,creator:GuildMember):MessageEmbed
-        +open(message:Message,reactions:any,term:any,isOpened:boolean):void
-        +update(message:Message):void
-        +close(message:Message):void
+        package Query
+        {
+            class DiscordID
+            {
+                id: string
+            }
+
+            class FormTaskUpdate
+            {
+                method: string
+            }
+        }
+
+        package Requests
+        {
+            class DiscordUpdate
+            {
+                id: string
+                nickname: sting
+            }
+
+            class FormTask
+            {
+                +<<readonly>>type: FormType
+                +<<readonly>>guild: Guild
+                +<<readonly>>channel: Channel
+                +<<readonly>>message: Message
+                +<<readonly>>creator: GuildMember
+                +<<readonly>>reactions: string[]
+                +<<readonly>>endTime: Date
+                +<<async>>{static}parse(client: Client, data: any): FormTask
+                +toJSON(): object
+            }
+
+            class InRoomMember
+            {
+                +id: number
+                +name: string
+                +DiscordID: string
+            }
+
+            class RoomData
+            {
+                campus: string
+                inmates: InRoomMember[]
+            }
+        }
+
+        package Responses
+        {
+            class DiscordData
+            {
+                id: string
+                nickname: string
+                tag: string
+            }
+
+            class FormTaskData
+            {
+                task: FormTask[]
+            }
+
+            class GameData
+            {
+                title: string
+                id: string
+            }
+
+            class MemberData
+            {
+                id: number
+                name: string
+                discord: DiscordData
+                games: GameData[]
+            }
+
+            class NoneResponse
+        }
+        class DTO
+        interface IQuery
+        {
+            +toObject: object
+        }
     }
+
     class Network
     {
-        +{static}URL:string | undefined
-        +{static}get(query:any):any
-        +{static}post(sendData:any):any
+        +<<async>>{static}get<Response extends DTO>(url: string, query: IQuery | undefined): Promise<Response | null>
+        +<<async>>{static}post<Request extends DTO, Response extends DTO>(url: string, data: Request, query: IQuery | undefined): Promise<Response | null>
     }
+}
+
+package Forms
+{
+    abstract Form
+    {
+        #_task: FormTask | null
+        +{abstract}<<getter>>isClose(): boolean
+        +setTask(task: FormTask): void
+        +<<async>>{static}reboot(client: Client): void
+        +<<async>>{abstract}onRebooted(): Promise<void>
+        +{abstract}onUpdate(embed: MessageEmbed): void
+        +{abstract}onClose(embed: MessageEmbed): void
+        -<<async>>reopen(): Promise<void>
+        -<<async>>save(): Promise<void>
+        +<<async>>open(isReboot: boolean): void
+        +update(): void
+        +close():void
+    }
+
+    class FormFactory
+
+    enum FormType
+    {
+        RECRUIT,
+        ROOM
+    }
+
+    abstract ReactionForm
+    {
+        #_openTime: Dater | null
+        #filter: ConllectorFilte | null
+        +<<getter>>timelimit(): number
+        +<<getter>>isTimeOut(): boolean
+        +{abstract}onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
+
+    }
+
+    class RecruitForm
+    {
+        -_respondents: Team
+        -_isClose: boolean
+        -onReactionByJoin(member: GuildMember):void
+        -onReactionByCancel(reaction: MessageReaction, member: GuildMember): void
+        -onReactionByClose(member: GuildMember): void
+    }
+
+    class RoomForm
+    {
+        -_inmates: User[]
+        +{static}instance: RoomForm | null
+        +onPost(client: Client, room: RoomData): void
+    }
+}
+
+package Utils
+{
+    interface IFactory<T>
+    {
+        +create(arg: any): T
+    }
+
+    class Room
+    {
+        +<<async>>open(client: Clietn): Promise<void>
+        -<<async>>openForm(message: Message): void
+    }
+
     class Team
     {
-        -_max:number
-        -_members:GuildMember[]
-        -_name:string
-        +<<property>>isEmpty:boolean{ get only }
-        +<<property>>isMax:boolean{ get only }
-        +<<property>>max:number{ get only }
-        +<<property>>members:Iterable<GuildMember>{ get only }
-        +<<property>>name:string{ get only }
-        +add(member:GuildMember):void
-        +addAll(members:GuildMember[]):void
-        +has(member:GuildMember):boolean
-        +remove(member:GuildMember):void
-        +{static}random(members:GuildMember[],size:number):Team[]
+        -_max: number
+        -_members: GuildMember[]
+        -_name: string
+        +<<getter>>isEmpty(): boolean
+        +<<getter>>isMax(): boolean
+        +<<getter>>max(): number
+        +<<getter>>members()
+        +<<getter>>name(): string
+        +add(member: GuildMember): void
+        +addAll(members: GuildMember[]): void
+        +has(member: GuildMember): boolean
+        +remove(member: GuildMember): void
+        +{static}random(members: GuildMember[], size: number): Team[]
+    }
+
+    class VCC
+    {
+        -_voiceState: VoiceState
+        +<<getter>>name(): string
+        +<<getter>>role(): Promise<Role>
+        +<<getter>>channel(): GuildChannel | undefined
+        +<<readonly>>{static}IDENTIFIER: string
+        +{static}isConnectedVC(oldState: VoiceState, newState: VoiceState): boolean
+        +{static}isLeavedVC(oldState: VoiceState, newState: VoiceState): boolean
+        +{static}isSwitchedVC(oldState: VoiceState, newState: VoiceState): boolean
+        +<<async>>create(): Promise<GuildChannel>
+        +<<async>>isViewableMember(member: GuildMember): Promise<boolean>
+        +<<async>>join(member: GuildMember): Promise<void>
+        +<<async>>leave(member: GuildMember): Promise<void>
     }
 }
 
@@ -117,32 +270,64 @@ Help --|> Command
 RandomTeamChat --|> Command
 RandomTeamVoice --|> Command
 Recruit --|> Command
+Room --|> Command
 Who --|> Command
+
+OmittableCommandParameter --|> CommandParameter
+OmittableMemberParameter --|> MemberParameter
+OmittableMembersParameter --|> MembersParameter
+OmittableNumberParameter --|> NumberParameter
 CommandParameter --|> Parameter
 FreeWriteParameter --|> Parameter
 MemberParameter --|> Parameter
 MembersParameter --|> Parameter
 NumberParameter --|> Parameter
-OmittableCommandParameter --|> Parameter
-OmittableMemberParameter --|> Parameter
-OmittableMembersParameter --|> Parameter
-OmittableNumberParameter --|> Parameter
+
+DiscordUpdate --|> DTO
+FormTask --|> DTO
+InRoomMember --|> DTO
+RoomData --|> DTO
+DiscordData --|> DTO
+FormTaskData --|> DTO
+GameData --|> DTO
+MemberData --|> DTO
+NoneResponse --|> DTO
+
+ReactionForm --|> Form
+RoomForm --|> Form
+RecruitForm --|> ReactionForm
+
+Recruit ..|> IExecutedCallback
+Room ..|> IExecutedCallback
 
 OmittableCommandParameter ..|> IOmittable
 OmittableMemberParameter ..|> IOmittable
 OmittableMembersParameter ..|> IOmittable
 OmittableNumberParameter ..|> IOmittable
 
-Command "1" *-- "1..n" Parameter
-Command "1" *-- "1" ExecutionInfo
-CommandList "1" *-- "1..n" Command
-Form "1" *-- "1" Team
+DiscordID ..|> IQuery
+FormTaskUpdate ..|> IQuery
 
-Command --> CommandList : use
-RandomTeamChat --> Team : use
-RandomTeamVoice --> Team : use
+CommandFactory ..|> IFactory
+FormFactory ..|> IFactory
+
+Parameter -left-o Command
+
+FormType --* Form
+FormTask --* Form
+Team --* RecruitForm
+InRoomMember --* RoomData
+GameData --* MemberData
+DiscordData --* MemberData
+FormTask --* FormTaskData
+
+Network .up.> IQuery
+Network .up.> DTO
+
+CommandFactory --> Command : create
+FormFactory --> Form : create
 Recruit --> Network : use
-Recruit --> Form : use
+Room --> Network : use
 Who --> Network : use
 
 @enduml

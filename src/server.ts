@@ -1,8 +1,11 @@
 import express from "express";
 import { Client, Message, VoiceState } from "discord.js";
-import { Command, CommandList, IExecutedCallback } from './Commands';
+import { Command, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { DiscordUpdate, Form, FormTaskDatabase, Network, NoneResponse, RoomData, TypeGuard, VCC } from "./Utils";
+import { Form, RoomForm } from "./Forms";
+import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
+import { TypeGuard, VCC } from "./Utils";
+import { Room } from "./Utils/Room";
 
 dotenv.config();
 const client = new Client();
@@ -10,18 +13,21 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.get("/", (req, res)=>{
+app.get("/", (req, res) => {
     res.send("Discord bot is active now!");
 });
-app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
-    console.log(req.body);
+app.post("/room", async (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
+    res.status(200).send(new NoneResponse());
+    if(!RoomForm.instance) {
+        const room = new Room();
+        await room.open(client);
+    }
+    RoomForm.instance?.onPost(client, req.body);
 });
 app.listen(process.env.PORT);
 
 client.on("ready", async () => {
-    FormTaskDatabase.instance.init(client);
-    Form.reboot();
-    CommandList.init();
+    Form.reboot(client);
     console.log("Bot準備完了");
     client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
@@ -70,7 +76,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
         return;
     }
     const request = new DiscordUpdate(oldMember.id, newMember.displayName);
-    await Network.post<DiscordUpdate, NoneResponse>(request);
+    await Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

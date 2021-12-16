@@ -13,17 +13,13 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/express": "^4.17.13",
-    "@types/lodash": "^4.14.172",
     "axios": "^0.22.0",
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "lodash": "^4.17.21",
-    "nedb": "^1.8.0",
-    "querystring": "^0.2.0"
+    "express": "^4.17.1"
   },
   "engines": {
-    "node": "14.x"
+    "node": "16.x"
   },
   "repository": {
     "url": "https://glitch.com/edit/#!/hello-express"
@@ -35,9 +31,8 @@
     "express"
   ],
   "devDependencies": {
-    "@types/nedb": "^1.8.12",
     "@types/node": "^16.7.10",
-    "ts-migrate": "^0.1.22",
+    "ts-migrate": "^0.0.0",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
   }

@@ -1,10 +1,9 @@
-import { DTO } from "../DTO";
+import { IQuery } from "../IQuery";
 
-export class DiscordID extends DTO {
+export class DiscordID implements IQuery {
     id: string = "";
 
     constructor(id: string) {
-        super();
         this.id = id;
     }
 

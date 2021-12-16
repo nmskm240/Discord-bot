@@ -9,11 +9,4 @@ export class GameData extends DTO {
         this.title = title;
         this.id = id;
     }
-
-    toObject(): object {
-        return {
-            title: this.title,
-            id: this.id
-        };
-    }
 }

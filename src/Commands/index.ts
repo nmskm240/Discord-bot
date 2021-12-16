@@ -1,6 +1,6 @@
 export { Command } from "./Command";
+export { CommandFactory } from "./CommandFactory";
 export { ExecutionInfo } from "./ExecutionInfo";
-export { CommandList } from "./CommandList";
 export { IExecutedCallback } from "./IExecutedCallback";
 
 export { Help } from "./Help";

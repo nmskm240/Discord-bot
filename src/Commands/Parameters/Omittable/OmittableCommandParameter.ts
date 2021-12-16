@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
 import { IOmittable } from "../IOmittable";
-import { Command } from "../../Command";
 import { CommandParameter } from "..";
 
 export class OmittableCommandParameter extends CommandParameter implements IOmittable<string> {
@@ -15,7 +14,7 @@ export class OmittableCommandParameter extends CommandParameter implements IOmit
         try {
             super.setValue(message, index);
         } catch (error) {
-            this._value = Command.clone(this.default);
+            this._value = this._factory.create(this.default);
         }
     }
 }
