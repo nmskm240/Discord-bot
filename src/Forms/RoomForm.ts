@@ -1,4 +1,4 @@
-import { MessageReaction, GuildMember, MessageEmbed, Client, User } from "discord.js";
+import { MessageEmbed, Client, User } from "discord.js";
 import { Form } from ".";
 import { RoomData } from "../Networks";
 
@@ -31,13 +31,13 @@ export class RoomForm extends Form {
 
     protected async onRebooted(): Promise<void> {}
 
-    protected onReacted(reaction: MessageReaction, reactionMember: GuildMember): void {}
-
     protected onUpdate(embed: MessageEmbed): void {
         const field = embed.fields[0];
         field.value = this._inmates.length ? this._inmates.toString() : "なし";
         embed.fields[0] = field;
     }
 
-    protected onClose(embed: MessageEmbed): void {} 
+    protected onClose(embed: MessageEmbed): void {
+        RoomForm.instance = null;
+    } 
 }

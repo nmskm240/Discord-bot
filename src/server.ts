@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import { Form, RoomForm } from "./Forms";
 import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
 import { TypeGuard, VCC } from "./Utils";
+import { Room } from "./Utils/Room";
 
 dotenv.config();
 const client = new Client();
@@ -15,11 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
     res.send("Discord bot is active now!");
 });
-app.post("/room", (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
+app.post("/room", async (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
     res.status(200).send(new NoneResponse());
-    if(RoomForm.instance) {
-        RoomForm.instance.onPost(client, req.body);
+    if(!RoomForm.instance) {
+        const room = new Room();
+        await room.open(client);
     }
+    RoomForm.instance?.onPost(client, req.body);
 });
 app.listen(process.env.PORT);
 

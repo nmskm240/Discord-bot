@@ -1,8 +1,8 @@
 import { GuildMember, MessageEmbed, MessageReaction } from "discord.js";
-import { Form } from ".";
+import { ReactionForm } from ".";
 import { Team } from "../Utils";
 
-export class RecruitForm extends Form {
+export class RecruitForm extends ReactionForm {
     private _respondents: Team;
     private _isClose: boolean = false;
 
