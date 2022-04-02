@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
 });
 app.post("/room", async (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
     res.status(200).send(new NoneResponse());
-    if(!RoomForm.instance) {
+    if (!RoomForm.instance) {
         const room = new Room();
         await room.open(client);
     }
@@ -35,6 +35,15 @@ client.on("ready", async () => {
 client.on("message", async (message: Message) => {
     if (message.author.id == client.user?.id || message.author.bot) {
         return;
+    }
+    if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
+        const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
+        if (role && message.member && !message.member.roles.cache.has(role.id)) {
+            message.member.roles.add(role);
+            const request = new DiscordUpdate(message.member.id, message.member.displayName);
+            console.log(request);
+            Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
+        }
     }
     const command: Command | null = Command.parse(message);
     if (command) {
