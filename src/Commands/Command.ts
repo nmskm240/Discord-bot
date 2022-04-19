@@ -53,7 +53,7 @@ export abstract class Command {
 
     public async send(): Promise<Message | undefined> {
         if (this.info.channel && this._result) {
-            return await this.info.channel.send(this._result);
+            return await this.info.channel.send({ embeds: [this._result] });
         }
     }
 

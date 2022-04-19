@@ -1,5 +1,5 @@
 import express from "express";
-import { Client, Message, VoiceState } from "discord.js";
+import { Client, Intents, Message, VoiceState } from "discord.js";
 import { Command, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
 import { Form, RoomForm } from "./Forms";
@@ -8,7 +8,11 @@ import { TypeGuard, VCC } from "./Utils";
 import { Room } from "./Utils/Room";
 
 dotenv.config();
-const client = new Client();
+const options = {
+    intents: Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_MESSAGES
+        | Intents.FLAGS.GUILD_VOICE_STATES | Intents.FLAGS.GUILD_MEMBERS
+};
+const client = new Client(options);
 const app = express();
 
 app.use(express.json());
@@ -29,7 +33,6 @@ app.listen(process.env.PORT);
 client.on("ready", async () => {
     Form.reboot(client);
     console.log("Bot準備完了");
-    client.user?.setPresence({ activity: { name: ".nit help" }, status: "online" });
 });
 
 client.on("message", async (message: Message) => {
