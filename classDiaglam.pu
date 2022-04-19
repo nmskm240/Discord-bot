@@ -2,72 +2,15 @@
 
 package Commands
 {
-    package Parameters
-    {
-        package Omittable
-        {
-            class OmittableCommandParameter
-            class OmittableMemberParameter
-            class OmittableMembersParameter
-            class OmittableNumberParameter
-        }
-
-        package Required
-        {
-            class CommandParameter
-            class FreeWriteParameter
-            class MemberParameter
-            class MembersParameter
-            class NumberParameter
-        }
-
-        interface IOmittable<T>
-        {
-            +default: T
-        }
-
-        abstract Parameter<T>
-        {
-            #_name: string
-            #_detail: string
-            #_value: T | null
-            +<<getter>>name(): string
-            +<<getter>>detail(): string
-            +<<getter>>valueOrDefault(): T | null
-            +{abstract}setValue(message: Message, index: number): void
-        }
-    }
     abstract class Command
     {
         +<<readonly>>name: string
-        +<<readonly>>detail: string
-        +<<readonly>>parameters: Parameter<any>[]
-        #_result: MessageEmbed | null
-        +<<getter>>grammar():string
-        +info: ExecutionInfo
-        +<<readonly>>{static}IDENTIFIER: string
-        +<<readonly>>{static}PUNCTUATION: string
-        +{static}clone(commandName: sting): Command
-        +{static}isCommand(content: string): boolean
-        +{static}parse(message: Message): Command | null
-        -setParameters(message: Message): void
-        +<<async>>send(): Promise<Message | undefined>
+        +<<readonly>>description: string
         +<<async>>execute(): Promise<void>
+        +toCommandData(): ApplicationCommandData
     }
 
-    class CommandFactory
-    interface IExecutedCallback
-    {
-        +onCompleted(message: Message): void
-    }
-
-    together {
-        class Help
-        class RandomTeamChat
-        class RandomTeamVoice
-        class Recruit
-        class Who
-    }
+    class CommandList
 }
 
 package Networks
@@ -80,11 +23,6 @@ package Networks
             {
                 id: string
             }
-
-            class FormTaskUpdate
-            {
-                method: string
-            }
         }
 
         package Requests
@@ -93,19 +31,6 @@ package Networks
             {
                 id: string
                 nickname: sting
-            }
-
-            class FormTask
-            {
-                +<<readonly>>type: FormType
-                +<<readonly>>guild: Guild
-                +<<readonly>>channel: Channel
-                +<<readonly>>message: Message
-                +<<readonly>>creator: GuildMember
-                +<<readonly>>reactions: string[]
-                +<<readonly>>endTime: Date
-                +<<async>>{static}parse(client: Client, data: any): FormTask
-                +toJSON(): object
             }
 
             class InRoomMember
@@ -129,11 +54,6 @@ package Networks
                 id: string
                 nickname: string
                 tag: string
-            }
-
-            class FormTaskData
-            {
-                task: FormTask[]
             }
 
             class GameData
@@ -166,72 +86,8 @@ package Networks
     }
 }
 
-package Forms
-{
-    abstract Form
-    {
-        #_task: FormTask | null
-        +{abstract}<<getter>>isClose(): boolean
-        +setTask(task: FormTask): void
-        +<<async>>{static}reboot(client: Client): void
-        +<<async>>{abstract}onRebooted(): Promise<void>
-        +{abstract}onUpdate(embed: MessageEmbed): void
-        +{abstract}onClose(embed: MessageEmbed): void
-        -<<async>>reopen(): Promise<void>
-        -<<async>>save(): Promise<void>
-        +<<async>>open(isReboot: boolean): void
-        +update(): void
-        +close():void
-    }
-
-    class FormFactory
-
-    enum FormType
-    {
-        RECRUIT,
-        ROOM
-    }
-
-    abstract ReactionForm
-    {
-        #_openTime: Dater | null
-        #filter: ConllectorFilte | null
-        +<<getter>>timelimit(): number
-        +<<getter>>isTimeOut(): boolean
-        +{abstract}onReacted(reaction: MessageReaction, reactionMember: GuildMember): void
-
-    }
-
-    class RecruitForm
-    {
-        -_respondents: Team
-        -_isClose: boolean
-        -onReactionByJoin(member: GuildMember):void
-        -onReactionByCancel(reaction: MessageReaction, member: GuildMember): void
-        -onReactionByClose(member: GuildMember): void
-    }
-
-    class RoomForm
-    {
-        -_inmates: User[]
-        +{static}instance: RoomForm | null
-        +onPost(client: Client, room: RoomData): void
-    }
-}
-
 package Utils
 {
-    interface IFactory<T>
-    {
-        +create(arg: any): T
-    }
-
-    class Room
-    {
-        +<<async>>open(client: Clietn): Promise<void>
-        -<<async>>openForm(message: Message): void
-    }
-
     class Team
     {
         -_max: number
@@ -266,68 +122,22 @@ package Utils
     }
 }
 
-Help --|> Command
-RandomTeamChat --|> Command
-RandomTeamVoice --|> Command
-Recruit --|> Command
-Room --|> Command
-Who --|> Command
-
-OmittableCommandParameter --|> CommandParameter
-OmittableMemberParameter --|> MemberParameter
-OmittableMembersParameter --|> MembersParameter
-OmittableNumberParameter --|> NumberParameter
-CommandParameter --|> Parameter
-FreeWriteParameter --|> Parameter
-MemberParameter --|> Parameter
-MembersParameter --|> Parameter
-NumberParameter --|> Parameter
-
 DiscordUpdate --|> DTO
-FormTask --|> DTO
 InRoomMember --|> DTO
 RoomData --|> DTO
 DiscordData --|> DTO
-FormTaskData --|> DTO
 GameData --|> DTO
 MemberData --|> DTO
 NoneResponse --|> DTO
 
-ReactionForm --|> Form
-RoomForm --|> Form
-RecruitForm --|> ReactionForm
-
-Recruit ..|> IExecutedCallback
-Room ..|> IExecutedCallback
-
-OmittableCommandParameter ..|> IOmittable
-OmittableMemberParameter ..|> IOmittable
-OmittableMembersParameter ..|> IOmittable
-OmittableNumberParameter ..|> IOmittable
-
 DiscordID ..|> IQuery
-FormTaskUpdate ..|> IQuery
 
-CommandFactory ..|> IFactory
-FormFactory ..|> IFactory
-
-Parameter -left-o Command
-
-FormType --* Form
-FormTask --* Form
-Team --* RecruitForm
+Command --* CommandList
 InRoomMember --* RoomData
 GameData --* MemberData
 DiscordData --* MemberData
-FormTask --* FormTaskData
 
 Network .up.> IQuery
 Network .up.> DTO
-
-CommandFactory --> Command : create
-FormFactory --> Form : create
-Recruit --> Network : use
-Room --> Network : use
-Who --> Network : use
 
 @enduml

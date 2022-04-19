@@ -1,11 +1,9 @@
 import express from "express";
 import { Client, Intents, Message, VoiceState } from "discord.js";
-import { Command, IExecutedCallback } from './Commands';
 import * as dotenv from "dotenv";
-import { Form, RoomForm } from "./Forms";
-import { RoomData, NoneResponse, DiscordUpdate, Network } from "./Networks";
-import { TypeGuard, VCC } from "./Utils";
-import { Room } from "./Utils/Room";
+import { NoneResponse, DiscordUpdate, Network } from "./Networks";
+import { VCC } from "./Utils";
+import { CommandList } from "./Commands";
 
 dotenv.config();
 const options = {
@@ -20,19 +18,26 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
     res.send("Discord bot is active now!");
 });
-app.post("/room", async (req: express.Request<RoomData>, res: express.Response<NoneResponse>) => {
-    res.status(200).send(new NoneResponse());
-    if (!RoomForm.instance) {
-        const room = new Room();
-        await room.open(client);
-    }
-    RoomForm.instance?.onPost(client, req.body);
-});
 app.listen(process.env.PORT);
 
 client.on("ready", async () => {
-    Form.reboot(client);
-    console.log("Bot準備完了");
+    const data = CommandList.map((command) => { return command.toCommandData(); })
+    for (const guild of client.guilds.cache) {
+        await client.application!.commands.set(data, guild[0]);
+    }
+    console.log("Bot ready");
+});
+
+client.on("interactionCreate", async (interaction) => {
+    if (!interaction.isCommand()) {
+        return;
+    }
+    const command = CommandList.find((command) => {
+        return command.name === interaction.commandName
+    });
+    if (command) {
+        await command.execute(interaction);
+    }
 });
 
 client.on("message", async (message: Message) => {
@@ -46,15 +51,6 @@ client.on("message", async (message: Message) => {
             const request = new DiscordUpdate(message.member.id, message.member.displayName);
             console.log(request);
             Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
-        }
-    }
-    const command: Command | null = Command.parse(message);
-    if (command) {
-        await command.execute();
-        const out = await command.send();
-        if (out && TypeGuard.isIExecutedCallback(command)) {
-            const callback = command as IExecutedCallback;
-            callback.onCompleted(out);
         }
     }
 });
