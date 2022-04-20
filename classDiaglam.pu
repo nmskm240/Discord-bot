@@ -6,11 +6,11 @@ package Commands
     {
         +<<readonly>>name: string
         +<<readonly>>description: string
-        +<<async>>execute(): Promise<void>
+        +<<async>>execute(interaction: CommandInteraction<CacheType>): any
         +toCommandData(): ApplicationCommandData
     }
-
     class CommandList
+    class Teaming
 }
 
 package Networks
@@ -102,7 +102,7 @@ package Utils
         +addAll(members: GuildMember[]): void
         +has(member: GuildMember): boolean
         +remove(member: GuildMember): void
-        +{static}random(members: GuildMember[], size: number): Team[]
+        +{static}random(members: Collection<string, GuildMember>, size: number): Team[]
     }
 
     class VCC
@@ -122,6 +122,8 @@ package Utils
     }
 }
 
+Teaming --|> Command
+
 DiscordUpdate --|> DTO
 InRoomMember --|> DTO
 RoomData --|> DTO
@@ -137,6 +139,7 @@ InRoomMember --* RoomData
 GameData --* MemberData
 DiscordData --* MemberData
 
+Teaming .down.> Team
 Network .up.> IQuery
 Network .up.> DTO
 

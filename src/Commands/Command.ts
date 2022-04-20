@@ -9,7 +9,7 @@ export abstract class Command {
         this.description = description;
     }
 
-    abstract execute(interaction: CommandInteraction): Promise<void>
+    abstract execute(interaction: CommandInteraction): any
 
     toCommandData(): ApplicationCommandData {
         return {
