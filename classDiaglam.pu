@@ -11,6 +11,7 @@ package Commands
     }
     class CommandList
     class Teaming
+    class Who
 }
 
 package Networks
@@ -123,6 +124,7 @@ package Utils
 }
 
 Teaming --|> Command
+Who --|> Command
 
 DiscordUpdate --|> DTO
 InRoomMember --|> DTO
@@ -139,7 +141,8 @@ InRoomMember --* RoomData
 GameData --* MemberData
 DiscordData --* MemberData
 
-Teaming .down.> Team
+Teaming .up.> Team
+Who .up.> Network
 Network .up.> IQuery
 Network .up.> DTO
 
