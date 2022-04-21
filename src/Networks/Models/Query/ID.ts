@@ -1,6 +1,6 @@
 import { IQuery } from "../IQuery";
 
-export class DiscordID implements IQuery {
+export class ID implements IQuery {
     id: string = "";
 
     constructor(id: string) {

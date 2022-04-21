@@ -1,4 +1,4 @@
-import { GuildMember } from "discord.js";
+import { Collection, GuildMember } from "discord.js";
 
 export class Team {
     private _max: number;
@@ -39,22 +39,28 @@ export class Team {
         }
     }
 
-    public static random(members: GuildMember[], size: number): Team[] {
+    public static random(members: Collection<string, GuildMember>, size: number): Team[] {
         const teams: Team[] = [];
         let count: number = 1;
-        while (size <= members.length) {
-            let team = new Team("チーム" + count, size);
-            while (!team.isMax) {
-                let index = Math.floor(Math.random() * members.length);
-                team.add(members[index]);
-                members.splice(index, 1);
-            }
+        while (size <= members.size) {
+            const team = new Team("チーム" + count, size);
+            const keys = members.randomKey(size);
+            for (const key of keys) {
+                const member = members.get(key) as GuildMember;
+                team.add(member);
+                members.delete(key);
+            }   
             teams.push(team);
             count++;
         }
-        if (0 < members.length) {
-            let team = new Team("余ったメンバー");
-            team.addAll(members);
+        if (0 < members.size) {
+            const team = new Team("余ったメンバー");
+            const keys = members.keys();
+            for (const key of keys) {
+                const member = members.get(key) as GuildMember;
+                team.add(member);
+                members.delete(key);
+            }   
             teams.push(team);
         }
         return teams;
