@@ -1,4 +1,4 @@
-import { GuildChannel, GuildMember, Permissions, Role, VoiceState } from "discord.js";
+import { GuildBasedChannel, GuildChannel, GuildMember, Permissions, Role, VoiceState } from "discord.js";
 
 export class VCC {
     private _voiceState: VoiceState;
@@ -12,18 +12,14 @@ export class VCC {
             try {
                 resolve(this._voiceState.guild.roles.cache.find((role) =>
                     role.name == this.name)
-                    ?? await this._voiceState.guild.roles.create({
-                        data: {
-                            name: this.name,
-                        }
-                    })
+                    ?? await this._voiceState.guild.roles.create({ name: this.name })
                 )
             } catch (e) {
                 throw new Error("Can't create of get role");
             }
         });
     }
-    public get channel(): GuildChannel | undefined {
+    public get channel(): GuildBasedChannel | undefined {
         return this._voiceState.guild.channels.cache.find((channel) =>
             channel.name == this.name);
     }
