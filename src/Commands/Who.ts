@@ -1,6 +1,6 @@
 import { ApplicationCommandData, CommandInteraction, MessageEmbed } from "discord.js";
 import { Command } from ".";
-import { DiscordID, MemberData, Network } from "../Networks";
+import { ID, MemberData, Network } from "../Networks";
 
 export class Who extends Command {
     constructor() {
@@ -9,7 +9,7 @@ export class Who extends Command {
 
     async execute(interaction: CommandInteraction) {
         const user = interaction.options.getUser("target") || interaction.user;
-        const query = new DiscordID(user.id);
+        const query = new ID(user.id);
         await interaction.deferReply();
         const data = await Network.get<MemberData>(process.env.NAME_LIST_API!, query);
         if (data) {

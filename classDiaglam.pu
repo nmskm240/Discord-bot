@@ -20,7 +20,7 @@ package Networks
     {
         package Query
         {
-            class DiscordID
+            class ID
             {
                 id: string
             }
@@ -28,12 +28,6 @@ package Networks
 
         package Requests
         {
-            class DiscordUpdate
-            {
-                id: string
-                nickname: sting
-            }
-
             class InRoomMember
             {
                 +id: number
@@ -126,7 +120,6 @@ package Utils
 Teaming --|> Command
 Who --|> Command
 
-DiscordUpdate --|> DTO
 InRoomMember --|> DTO
 RoomData --|> DTO
 DiscordData --|> DTO
@@ -134,7 +127,7 @@ GameData --|> DTO
 MemberData --|> DTO
 NoneResponse --|> DTO
 
-DiscordID ..|> IQuery
+ID ..|> IQuery
 
 Command --* CommandList
 InRoomMember --* RoomData

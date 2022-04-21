@@ -1,7 +1,7 @@
 import express from "express";
 import { Client, Intents, Message, VoiceState } from "discord.js";
 import * as dotenv from "dotenv";
-import { NoneResponse, DiscordUpdate, Network } from "./Networks";
+import { NoneResponse, Network, DiscordData } from "./Networks";
 import { VCC } from "./Utils";
 import { CommandList } from "./Commands";
 
@@ -48,9 +48,9 @@ client.on("message", async (message: Message) => {
         const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
         if (role && message.member && !message.member.roles.cache.has(role.id)) {
             message.member.roles.add(role);
-            const request = new DiscordUpdate(message.member.id, message.member.displayName);
+            const request = new DiscordData(message.member.id, message.member.displayName);
             console.log(request);
-            Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
+            Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
         }
     }
 });
@@ -83,8 +83,8 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     if (oldMember.displayName == newMember.displayName) {
         return;
     }
-    const request = new DiscordUpdate(oldMember.id, newMember.displayName);
-    await Network.post<DiscordUpdate, NoneResponse>(process.env.NAME_LIST_API!, request);
+    const request = new DiscordData(oldMember.id, newMember.displayName);
+    await Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
