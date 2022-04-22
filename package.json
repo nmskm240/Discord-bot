@@ -1,10 +1,7 @@
 {
-  "//1": "describes your app and its dependencies",
-  "//2": "https://docs.npmjs.com/files/package.json",
-  "//3": "updating this file will download and update your packages",
-  "name": "hello-express",
+  "name": "n-bot",
   "version": "0.0.1",
-  "description": "A simple Node app built on Express, instantly up and running.",
+  "description": "Discord bot",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -22,18 +19,24 @@
     "node": "16.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/hello-express"
+    "url": "github.com:nmskm240/Discord-bot"
   },
   "license": "MIT",
   "keywords": [
     "node",
     "glitch",
-    "express"
+    "express",
+    "discord",
+    "bot"
   ],
   "devDependencies": {
     "@types/node": "^16.7.10",
     "ts-migrate": "^0.0.0",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
+  },
+  "author": {
+    "name": "Masaki Nishio",
+    "email": "s192080@nishitech.ac.jp"
   }
 }
