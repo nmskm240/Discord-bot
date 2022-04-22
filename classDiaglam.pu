@@ -10,6 +10,7 @@ package Commands
         +toCommandData(): ApplicationCommandData
     }
     class CommandList
+    class Help
     class Teaming
     class Who
 }
@@ -117,6 +118,7 @@ package Utils
     }
 }
 
+Help --|> Command
 Teaming --|> Command
 Who --|> Command
 
@@ -134,6 +136,7 @@ InRoomMember --* RoomData
 GameData --* MemberData
 DiscordData --* MemberData
 
+Help ..> CommandList
 Teaming .up.> Team
 Who .up.> Network
 Network .up.> IQuery

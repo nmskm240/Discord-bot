@@ -1,7 +1,7 @@
-import { Command, Ping, Teaming, Who } from "."
+import { Command, Help, Teaming, Who } from "."
 
 export const CommandList: Command[] = [
-    new Ping(),
+    new Help(),
     new Teaming(),
     new Who()
 ]
