@@ -40,7 +40,7 @@ client.on("interactionCreate", async (interaction) => {
     }
 });
 
-client.on("message", async (message: Message) => {
+client.on("messageCreate", async (message: Message) => {
     if (message.author.id == client.user?.id || message.author.bot) {
         return;
     }
