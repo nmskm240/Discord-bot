@@ -8,7 +8,8 @@ import { CommandList } from "./Commands";
 dotenv.config();
 const options = {
     intents: Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_MESSAGES
-        | Intents.FLAGS.GUILD_VOICE_STATES | Intents.FLAGS.GUILD_MEMBERS
+        | Intents.FLAGS.GUILD_VOICE_STATES | Intents.FLAGS.GUILD_MEMBERS,
+    presence: { activities: [{ name: "/help" }] }
 };
 const client = new Client(options);
 const app = express();
