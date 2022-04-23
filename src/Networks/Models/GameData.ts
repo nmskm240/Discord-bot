@@ -1,4 +1,4 @@
-import { DTO } from "../DTO";
+import { DTO } from "..";
 
 export class GameData extends DTO {
     title: string;

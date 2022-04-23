@@ -1,6 +1,5 @@
 import axiosBase, { AxiosInstance, AxiosResponse } from "axios";
-import { DTO } from "./Models/DTO";
-import { IQuery } from "./Models/IQuery";
+import { DTO, IQuery } from ".";
 
 export class Network {
     public static async get<Response extends DTO>(url: string, query: IQuery | undefined = undefined): Promise<Response | null> {

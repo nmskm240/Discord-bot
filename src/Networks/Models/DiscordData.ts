@@ -1,4 +1,4 @@
-import { DTO } from "../DTO";
+import { DTO } from "..";
 
 export class DiscordData extends DTO {
     id: string;

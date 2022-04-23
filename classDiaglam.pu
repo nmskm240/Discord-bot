@@ -23,51 +23,50 @@ package Networks
         {
             class ID
             {
-                id: string
+                +id: string
+            }
+
+            class Campus 
+            {
+                +campus: string
             }
         }
 
-        package Requests
+        class RoomData
         {
-            class InRoomMember
-            {
-                +id: number
-                +name: string
-                +DiscordID: string
-            }
-
-            class RoomData
-            {
-                campus: string
-                inmates: InRoomMember[]
-            }
+            +campus: string
+            +inmates: MemberData[]
         }
 
-        package Responses
+        class DiscordData
         {
-            class DiscordData
-            {
-                id: string
-                nickname: string
-                tag: string
-            }
-
-            class GameData
-            {
-                title: string
-                id: string
-            }
-
-            class MemberData
-            {
-                id: number
-                name: string
-                discord: DiscordData
-                games: GameData[]
-            }
-
-            class NoneResponse
+            +id: string
+            +nickname: string
         }
+
+        class GameData
+        {
+            +title: string
+            +id: string
+        }
+
+        class MemberData
+        {
+            +discord: DiscordData
+        }
+
+        class MemberFullData
+        {
+            +games: GameData[]
+        }
+
+        class StudentData 
+        {
+            +id: number
+            +name: string
+        }
+
+        class NoneResponse
         class DTO
         interface IQuery
         {
@@ -122,19 +121,21 @@ Help --|> Command
 Teaming --|> Command
 Who --|> Command
 
-InRoomMember --|> DTO
 RoomData --|> DTO
 DiscordData --|> DTO
 GameData --|> DTO
-MemberData --|> DTO
+StudentData --|> DTO
 NoneResponse --|> DTO
+MemberData --|> StudentData
+MemberFullData --|> MemberData
 
+Campus ..|> IQuery
 ID ..|> IQuery
 
-Command --* CommandList
-InRoomMember --* RoomData
-GameData --* MemberData
-DiscordData --* MemberData
+Command -* CommandList
+DiscordData -* MemberData
+GameData -* MemberFullData
+MemberData -* RoomData
 
 Help ..> CommandList
 Teaming .up.> Team
