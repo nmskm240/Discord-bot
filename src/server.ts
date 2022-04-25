@@ -2,8 +2,8 @@ import express from "express";
 import { Client, Intents, Message, VoiceState } from "discord.js";
 import * as dotenv from "dotenv";
 import { NoneResponse, Network, DiscordData } from "./Networks";
-import { VCC } from "./Utils";
-import { CommandList } from "./Commands";
+import { TypeGuards, VCC } from "./Utils";
+import { CommandList, ICallbackableButtonInteraction } from "./Commands";
 
 dotenv.config();
 const options = {
@@ -30,14 +30,26 @@ client.on("ready", async () => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isCommand()) {
-        return;
+    if (interaction.isCommand()) {
+        const command = CommandList.find((command) => {
+            return command.name === interaction.commandName
+        });
+        if (command) {
+            await command.execute(interaction);
+        }
     }
-    const command = CommandList.find((command) => {
-        return command.name === interaction.commandName
-    });
-    if (command) {
-        await command.execute(interaction);
+    if (interaction.isButton()) {
+        const id = interaction.customId;
+        const data = id.split("/");
+        if (data.at(0) == "nBot") {
+            const commandName = data.at(1);
+            const command = CommandList.find((command) => {
+                return command.name === commandName;
+            });
+            if (TypeGuards.isCallbackableButtonInteraction(command)) {
+                await command.callback(interaction);
+            }
+        }
     }
 });
 

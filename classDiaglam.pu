@@ -9,8 +9,13 @@ package Commands
         +<<async>>execute(interaction: CommandInteraction<CacheType>): any
         +toCommandData(): ApplicationCommandData
     }
+    interface ICallbackableButtonInteraction
+    {
+        +callback(interaction: ButtonInteraction): any
+    }
     class CommandList
     class Help
+    class Room
     class Teaming
     class Who
 }
@@ -118,6 +123,7 @@ package Utils
 }
 
 Help --|> Command
+Room --|> Command
 Teaming --|> Command
 Who --|> Command
 
@@ -129,6 +135,8 @@ NoneResponse --|> DTO
 MemberData --|> StudentData
 MemberFullData --|> MemberData
 
+Room ..|> ICallbackableButtonInteraction
+
 Campus ..|> IQuery
 ID ..|> IQuery
 
@@ -139,6 +147,7 @@ MemberData -* RoomData
 
 Help ..> CommandList
 Teaming .up.> Team
+Room .up.> Network
 Who .up.> Network
 Network .up.> IQuery
 Network .up.> DTO
