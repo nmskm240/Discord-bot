@@ -1,10 +1,14 @@
 import { ApplicationCommandData, CommandInteraction, MessageEmbed } from "discord.js";
-import { Command } from ".";
+import { ICommand } from ".";
 import { ID, MemberFullData, Network } from "../Networks";
 
-export class Who extends Command {
+export class Who implements ICommand {
+    name: string;
+    description: string;
+    
     constructor() {
-        super("who", "対象ユーザーのゲーム内IDを表示")
+        this.name = "who";
+        this.description = "対象ユーザーのゲーム内IDを表示";
     }
 
     async execute(interaction: CommandInteraction) {

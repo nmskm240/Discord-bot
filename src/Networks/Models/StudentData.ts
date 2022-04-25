@@ -1,11 +1,10 @@
-import { DTO } from "..";
+import { IDto } from "..";
 
-export class StudentData extends DTO {
+export class StudentData implements IDto {
     id: number;
     name: string;
 
     constructor(id: number, name: string) {
-        super();
         this.id = id;
         this.name = name;
     }

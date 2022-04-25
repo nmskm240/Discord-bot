@@ -3,7 +3,7 @@ import { Client, Intents, Message, VoiceState } from "discord.js";
 import * as dotenv from "dotenv";
 import { NoneResponse, Network, DiscordData } from "./Networks";
 import { TypeGuards, VCC } from "./Utils";
-import { CommandList, ICallbackableButtonInteraction } from "./Commands";
+import { CommandList } from "./Commands";
 
 dotenv.config();
 const options = {

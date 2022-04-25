@@ -1,5 +1,5 @@
-import { DTO } from "..";
+import { IDto } from "..";
 
-export class NoneResponse extends DTO {
+export class NoneResponse implements IDto {
     
 }

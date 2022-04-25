@@ -1,10 +1,14 @@
-import { CommandInteraction, CacheType, MessageEmbed, ButtonInteraction, Guild } from "discord.js";
-import { Command, ICallbackableButtonInteraction } from ".";
+import { CommandInteraction, CacheType, MessageEmbed, ButtonInteraction, Guild, ApplicationCommandData } from "discord.js";
+import { ICommand, ICallbackableButtonInteraction } from ".";
 import { Campus, Network, RoomData } from "../Networks";
 
-export class Room extends Command implements ICallbackableButtonInteraction {
+export class Room implements ICommand, ICallbackableButtonInteraction {
+    name: string;
+    description: string;
+    
     constructor() {
-        super("room", "部室の状態を表示します");
+        this.name = "room";
+        this.description = "部室の状態を表示します";
     }
 
     async callback(interaction: ButtonInteraction<CacheType>) {
@@ -53,5 +57,12 @@ export class Room extends Command implements ICallbackableButtonInteraction {
                 }
             ]
         })
+    }
+
+    toCommandData(): ApplicationCommandData {
+        return {
+            name: this.name,
+            description: this.description
+        }
     }
 }

@@ -1,9 +1,13 @@
 import { CommandInteraction, CacheType, ApplicationCommandData, MessageEmbed } from "discord.js";
-import { Command, CommandList } from ".";
+import { ICommand, CommandList } from ".";
 
-export class Help extends Command {
+export class Help implements ICommand {
+    name: string;
+    description: string;
+    
     constructor() {
-        super("help", "各コマンドのヘルプを表示")
+        this.name = "help";
+        this.description = "各コマンドのヘルプを表示";
     }
 
     execute(interaction: CommandInteraction<CacheType>) {

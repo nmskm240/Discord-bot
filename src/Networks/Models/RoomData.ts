@@ -1,11 +1,10 @@
-import { DTO, MemberData } from ".."
+import { IDto, MemberData } from ".."
 
-export class RoomData extends DTO {
+export class RoomData implements IDto {
     campus: string;
     inmates: MemberData[];
 
     constructor(campus: string, inmates: MemberData[]) {
-        super();
         this.campus = campus;
         this.inmates = inmates;
     }

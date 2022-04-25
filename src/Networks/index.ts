@@ -1,6 +1,6 @@
 export { Network } from "./Network";
 export { IQuery } from "./Models/IQuery";
-export { DTO } from "./Models/DTO";
+export { IDto } from "./Models/IDto";
 
 export { ID } from "./Models/Query/ID";
 export { Campus } from "./Models/Query/Campus"
