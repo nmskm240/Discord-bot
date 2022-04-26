@@ -1,7 +1,9 @@
-import { Command, Ping, Teaming, Who } from "."
+import { ICommand, Help, Teaming, Who } from "."
+import { Room } from "./Room"
 
-export const CommandList: Command[] = [
-    new Ping(),
+export const CommandList: ICommand[] = [
+    new Help(),
+    new Room(),
     new Teaming(),
     new Who()
 ]

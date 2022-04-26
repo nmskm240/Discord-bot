@@ -1,4 +1,4 @@
-import { IQuery } from "../IQuery";
+import { IQuery } from "../..";
 
 export class ID implements IQuery {
     id: string = "";

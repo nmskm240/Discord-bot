@@ -1,5 +1,6 @@
-export { Command } from "./Command";
-export { Ping } from "./Ping";
+export { ICommand } from "./ICommand";
+export { ICallbackableButtonInteraction } from "./ICallbackableButtonInteraction"
+export { Help } from "./Help"
 export { Teaming } from "./Teaming";
 export { Who } from "./Who";
 

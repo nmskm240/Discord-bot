@@ -1,17 +1,21 @@
 import { ApplicationCommandData, CommandInteraction, MessageEmbed } from "discord.js";
-import { Command } from ".";
-import { ID, MemberData, Network } from "../Networks";
+import { ICommand } from ".";
+import { ID, MemberFullData, Network } from "../Networks";
 
-export class Who extends Command {
+export class Who implements ICommand {
+    name: string;
+    description: string;
+    
     constructor() {
-        super("who", "対象ユーザーのゲーム内IDを表示")
+        this.name = "who";
+        this.description = "対象ユーザーのゲーム内IDを表示";
     }
 
     async execute(interaction: CommandInteraction) {
         const user = interaction.options.getUser("target") || interaction.user;
         const query = new ID(user.id);
         await interaction.deferReply();
-        const data = await Network.get<MemberData>(process.env.NAME_LIST_API!, query);
+        const data = await Network.get<MemberFullData>(process.env.NAME_LIST_API!, query);
         if (data) {
             const fields = data.games.filter((game) => {
                 return game.id.length != 0;

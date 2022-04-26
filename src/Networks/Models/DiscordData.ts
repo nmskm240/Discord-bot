@@ -1,11 +1,10 @@
-import { DTO } from "../DTO";
+import { IDto } from "..";
 
-export class DiscordData extends DTO {
+export class DiscordData implements IDto {
     id: string;
     nickname: string;
 
     constructor(id: string, nickname: string) {
-        super();
         this.id = id;
         this.nickname = nickname;
     }

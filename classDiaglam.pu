@@ -2,14 +2,20 @@
 
 package Commands
 {
-    abstract class Command
+    interface ICommand
     {
         +<<readonly>>name: string
         +<<readonly>>description: string
         +<<async>>execute(interaction: CommandInteraction<CacheType>): any
         +toCommandData(): ApplicationCommandData
     }
+    interface ICallbackableButtonInteraction
+    {
+        +callback(interaction: ButtonInteraction): any
+    }
     class CommandList
+    class Help
+    class Room
     class Teaming
     class Who
 }
@@ -22,52 +28,51 @@ package Networks
         {
             class ID
             {
-                id: string
+                +id: string
+            }
+
+            class Campus 
+            {
+                +campus: string
             }
         }
 
-        package Requests
+        class RoomData
         {
-            class InRoomMember
-            {
-                +id: number
-                +name: string
-                +DiscordID: string
-            }
-
-            class RoomData
-            {
-                campus: string
-                inmates: InRoomMember[]
-            }
+            +campus: string
+            +inmates: MemberData[]
         }
 
-        package Responses
+        class DiscordData
         {
-            class DiscordData
-            {
-                id: string
-                nickname: string
-                tag: string
-            }
-
-            class GameData
-            {
-                title: string
-                id: string
-            }
-
-            class MemberData
-            {
-                id: number
-                name: string
-                discord: DiscordData
-                games: GameData[]
-            }
-
-            class NoneResponse
+            +id: string
+            +nickname: string
         }
-        class DTO
+
+        class GameData
+        {
+            +title: string
+            +id: string
+        }
+
+        class MemberData
+        {
+            +discord: DiscordData
+        }
+
+        class MemberFullData
+        {
+            +games: GameData[]
+        }
+
+        class StudentData 
+        {
+            +id: number
+            +name: string
+        }
+
+        class NoneResponse
+        interface IDto
         interface IQuery
         {
             +toObject: object
@@ -76,8 +81,8 @@ package Networks
 
     class Network
     {
-        +<<async>>{static}get<Response extends DTO>(url: string, query: IQuery | undefined): Promise<Response | null>
-        +<<async>>{static}post<Request extends DTO, Response extends DTO>(url: string, data: Request, query: IQuery | undefined): Promise<Response | null>
+        +<<async>>{static}get<Response extends IDto>(url: string, query: IQuery | undefined): Promise<Response | null>
+        +<<async>>{static}post<Request extends IDto, Response extends IDto>(url: string, data: Request, query: IQuery | undefined): Promise<Response | null>
     }
 }
 
@@ -117,26 +122,34 @@ package Utils
     }
 }
 
-Teaming --|> Command
-Who --|> Command
+Help ..|> ICommand
+Room ..|> ICommand
+Teaming ..|> ICommand
+Who ..|> ICommand
 
-InRoomMember --|> DTO
-RoomData --|> DTO
-DiscordData --|> DTO
-GameData --|> DTO
-MemberData --|> DTO
-NoneResponse --|> DTO
+RoomData ..|> IDto
+DiscordData ..|> IDto
+GameData ..|> IDto
+StudentData ..|> IDto
+NoneResponse ..|> IDto
+MemberData ..|> StudentData
+MemberFullData ..|> MemberData
 
+Room ..|> ICallbackableButtonInteraction
+
+Campus ..|> IQuery
 ID ..|> IQuery
 
-Command --* CommandList
-InRoomMember --* RoomData
-GameData --* MemberData
-DiscordData --* MemberData
+ICommand -* CommandList
+DiscordData -* MemberData
+GameData -* MemberFullData
+MemberData -* RoomData
 
+Help ..> CommandList
 Teaming .up.> Team
+Room .up.> Network
 Who .up.> Network
 Network .up.> IQuery
-Network .up.> DTO
+Network .up.> IDto
 
 @enduml
