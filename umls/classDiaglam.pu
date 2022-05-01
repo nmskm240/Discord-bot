@@ -104,22 +104,6 @@ package Utils
         +remove(member: GuildMember): void
         +{static}random(members: Collection<string, GuildMember>, size: number): Team[]
     }
-
-    class VCC
-    {
-        -_voiceState: VoiceState
-        +<<getter>>name(): string
-        +<<getter>>role(): Promise<Role>
-        +<<getter>>channel(): GuildChannel | undefined
-        +<<readonly>>{static}IDENTIFIER: string
-        +{static}isConnectedVC(oldState: VoiceState, newState: VoiceState): boolean
-        +{static}isLeavedVC(oldState: VoiceState, newState: VoiceState): boolean
-        +{static}isSwitchedVC(oldState: VoiceState, newState: VoiceState): boolean
-        +<<async>>create(): Promise<GuildChannel>
-        +<<async>>isViewableMember(member: GuildMember): Promise<boolean>
-        +<<async>>join(member: GuildMember): Promise<void>
-        +<<async>>leave(member: GuildMember): Promise<void>
-    }
 }
 
 Help ..|> ICommand

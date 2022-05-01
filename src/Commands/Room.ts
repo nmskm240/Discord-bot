@@ -24,7 +24,7 @@ export class Room implements ICommand, ICallbackableButtonInteraction {
             const embed = new MessageEmbed({
                 title: "部室利用状況",
                 fields: [{
-                    name: "F02",
+                    name: "F202",
                     value: Array.from(inmateMembers!.values()).toString() || "空室"
                 }],
                 timestamp: Date.now()
@@ -37,7 +37,7 @@ export class Room implements ICommand, ICallbackableButtonInteraction {
         const embed = new MessageEmbed({
             title: "部室利用状況",
             fields: [{
-                name: "F02",
+                name: "F202",
                 value: "空室"
             }]
         });
