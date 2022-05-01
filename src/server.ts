@@ -1,8 +1,8 @@
 import express from "express";
-import { Client, Intents, Message, VoiceState } from "discord.js";
+import { Client, Intents, Message } from "discord.js";
 import * as dotenv from "dotenv";
 import { NoneResponse, Network, DiscordData } from "./Networks";
-import { TypeGuards, VCC } from "./Utils";
+import { TypeGuards } from "./Utils";
 import { CommandList } from "./Commands";
 
 dotenv.config();
@@ -65,30 +65,6 @@ client.on("messageCreate", async (message: Message) => {
             console.log(request);
             Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
         }
-    }
-});
-
-client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
-    if (oldState.member?.id == client.user?.id || newState.member?.id == client.user?.id) {
-        return;
-    }
-    if (VCC.isLeavedVC(oldState, newState)) {
-        const vcc = new VCC(oldState);
-        await vcc.leave(oldState.member!);
-    } else if (VCC.isConnectedVC(oldState, newState)) {
-        const vcc = new VCC(newState);
-        if (!vcc.channel) {
-            await vcc.create();
-        }
-        await vcc.join(newState.member!);
-    } else if (VCC.isSwitchedVC(oldState, newState)) {
-        const oldVCC = new VCC(oldState);
-        const newVCC = new VCC(newState);
-        await oldVCC.leave(oldState.member!);
-        if (!newVCC.channel) {
-            await newVCC.create();
-        }
-        await newVCC.join(newState.member!);
     }
 });
 
