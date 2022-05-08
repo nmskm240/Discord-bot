@@ -16,8 +16,15 @@ export class Teaming implements ICommand {
         if (member) {
             const vc = member.voice.channel;
             const size = interaction.options.getInteger("size");
+            const exceptions = [
+                interaction.options.getUser("exception-0"), 
+                interaction.options.getUser("exception-1"),
+                interaction.options.getUser("exception-2"), 
+                interaction.options.getUser("exception-3"),
+                interaction.options.getUser("exception-4"), 
+            ]
             if (vc) {
-                const teams = Team.random(vc.members, size || 3);
+                const teams = Team.random(vc.members.filter(member => !exceptions.includes(member.user)), size || 3);
                 const fields = teams.map((team) => {
                     return { name: team.name, value: team.members.toString() };
                 })
@@ -49,6 +56,31 @@ export class Teaming implements ICommand {
                             name: "size",
                             description: "1チームあたりの人数",
                             minValue: 1
+                        },
+                        {
+                            type: "USER",
+                            name: "exception-0",
+                            description: "除外メンバー",
+                        },
+                        {
+                            type: "USER",
+                            name: "exception-1",
+                            description: "除外メンバー",
+                        },
+                        {
+                            type: "USER",
+                            name: "exception-2",
+                            description: "除外メンバー",
+                        },
+                        {
+                            type: "USER",
+                            name: "exception-3",
+                            description: "除外メンバー",
+                        },
+                        {
+                            type: "USER",
+                            name: "exception-4",
+                            description: "除外メンバー",
                         }
                     ]
                 }
