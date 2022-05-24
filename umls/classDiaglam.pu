@@ -79,10 +79,18 @@ package Networks
         }
     }
 
+    enum AccessPoint
+    {
+        MEMBER_SEARCH,
+        MEMBER_UPDATE,
+        MEMBER_REGISTER,
+        ROOM_STATE
+    }
+
     class Network
     {
-        +<<async>>{static}get<Response extends IDto>(url: string, query: IQuery | undefined): Promise<Response | null>
-        +<<async>>{static}post<Request extends IDto, Response extends IDto>(url: string, data: Request, query: IQuery | undefined): Promise<Response | null>
+        +<<async>>{static}get<Response extends IDto>(accessPoint: AccessPoint, query: IQuery | undefined): Promise<Response | null>
+        +<<async>>{static}post<Request extends IDto, Response extends IDto>(accessPoint: AccessPoint, data: Request, query: IQuery | undefined): Promise<Response | null>
     }
 }
 
@@ -135,5 +143,7 @@ Room .up.> Network
 Who .up.> Network
 Network .up.> IQuery
 Network .up.> IDto
+
+Network --> AccessPoint
 
 @enduml

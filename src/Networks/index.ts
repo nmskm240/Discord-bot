@@ -1,4 +1,5 @@
 export { Network } from "./Network";
+export { AccessPoint } from "./AccessPoint"
 export { IQuery } from "./Models/IQuery";
 export { IDto } from "./Models/IDto";
 

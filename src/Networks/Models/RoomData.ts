@@ -1,11 +1,11 @@
 import { IDto, MemberData } from ".."
 
 export class RoomData implements IDto {
-    campus: string;
+    info: { name: string, campus: string };
     inmates: MemberData[];
 
-    constructor(campus: string, inmates: MemberData[]) {
-        this.campus = campus;
+    constructor(name: string, campus: string, inmates: MemberData[]) {
+        this.info = { name: name, campus: campus };
         this.inmates = inmates;
     }
 }

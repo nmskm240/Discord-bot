@@ -1,32 +1,32 @@
 import { CommandInteraction, CacheType, MessageEmbed, ButtonInteraction, Guild, ApplicationCommandData } from "discord.js";
 import { ICommand, ICallbackableButtonInteraction } from ".";
-import { Campus, Network, RoomData } from "../Networks";
+import { AccessPoint, Campus, Network, RoomData } from "../Networks";
 
 export class Room implements ICommand, ICallbackableButtonInteraction {
     name: string;
     description: string;
-    
+
     constructor() {
         this.name = "room";
         this.description = "部室の状態を表示します";
     }
 
     async callback(interaction: ButtonInteraction<CacheType>) {
-        const query = new Campus("小波瀬");
         await interaction.deferUpdate()
-        const room = await Network.get<RoomData>(process.env.ROOM_ACCESS_API!, query);
-        if (room) {
-            const inmateMembers = await interaction.guild?.members.fetch({
-                user: room.inmates.map((inmate) => {
-                    return inmate.discord.id;
-                })
-            });
+        const rooms = await Network.get<RoomData[]>(AccessPoint.ROOM_STATE);
+        if (rooms) {
+            const fields = await Promise.all(rooms.map(async (room) => {
+                const inmates = await interaction.guild?.members.fetch({
+                    user: room.inmates.map((inmate) => {
+                        return inmate.discord.id;
+                    })
+                });
+                const value = Array.from(inmates!.values()).toString() || "空室";
+                return { name: room.info.name, value: value };
+            })) || [];
             const embed = new MessageEmbed({
                 title: "部室利用状況",
-                fields: [{
-                    name: "F202",
-                    value: Array.from(inmateMembers!.values()).toString() || "空室"
-                }],
+                fields: fields,
                 timestamp: Date.now()
             });
             await interaction.editReply({ embeds: [embed] });
@@ -35,11 +35,7 @@ export class Room implements ICommand, ICallbackableButtonInteraction {
 
     async execute(interaction: CommandInteraction<CacheType>) {
         const embed = new MessageEmbed({
-            title: "部室利用状況",
-            fields: [{
-                name: "F202",
-                value: "空室"
-            }]
+            title: "部室利用状況"
         });
         interaction.reply({
             embeds: [embed],
