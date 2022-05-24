@@ -53,28 +53,28 @@ client.on("interactionCreate", async (interaction) => {
     }
 });
 
-client.on("messageCreate", async (message: Message) => {
-    if (message.author.id == client.user?.id || message.author.bot) {
-        return;
-    }
-    if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
-        const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
-        if (role && message.member && !message.member.roles.cache.has(role.id)) {
-            message.member.roles.add(role);
-            const request = new DiscordData(message.member.id, message.member.displayName);
-            console.log(request);
-            Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
-        }
-    }
-});
+// client.on("messageCreate", async (message: Message) => {
+//     if (message.author.id == client.user?.id || message.author.bot) {
+//         return;
+//     }
+//     if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
+//         const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
+//         if (role && message.member && !message.member.roles.cache.has(role.id)) {
+//             message.member.roles.add(role);
+//             const request = new DiscordData(message.member.id, message.member.displayName);
+//             console.log(request);
+//             Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
+//         }
+//     }
+// });
 
-client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    if (oldMember.displayName == newMember.displayName) {
-        return;
-    }
-    const request = new DiscordData(oldMember.id, newMember.displayName);
-    await Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
-});
+// client.on("guildMemberUpdate", async (oldMember, newMember) => {
+//     if (oldMember.displayName == newMember.displayName) {
+//         return;
+//     }
+//     const request = new DiscordData(oldMember.id, newMember.displayName);
+//     await Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
+// });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
     console.log("DISCORD_BOT_TOKENが設定されていません。");

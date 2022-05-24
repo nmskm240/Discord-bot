@@ -1,6 +1,6 @@
 import { ApplicationCommandData, CommandInteraction, MessageEmbed } from "discord.js";
 import { ICommand } from ".";
-import { ID, MemberFullData, Network } from "../Networks";
+import { AccessPoint, ID, MemberFullData, Network } from "../Networks";
 
 export class Who implements ICommand {
     name: string;
@@ -15,7 +15,7 @@ export class Who implements ICommand {
         const user = interaction.options.getUser("target") || interaction.user;
         const query = new ID(user.id);
         await interaction.deferReply();
-        const data = await Network.get<MemberFullData>(process.env.NAME_LIST_API!, query);
+        const data = await Network.get<MemberFullData>(AccessPoint.MEMBER_SEARCH, query);
         if (data) {
             const fields = data.games.filter((game) => {
                 return game.id.length != 0;
