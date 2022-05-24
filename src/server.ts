@@ -1,9 +1,10 @@
 import express from "express";
 import { Client, Intents, Message } from "discord.js";
 import * as dotenv from "dotenv";
-import { NoneResponse, Network, DiscordData } from "./Networks";
+import { NoneResponse, Network, DiscordData, AccessPoint, ID } from "./Networks";
 import { TypeGuards } from "./Utils";
 import { CommandList } from "./Commands";
+import { NicknameUpdateRequest } from "./Networks/Models/NicknameUpdateRequest";
 
 dotenv.config();
 const options = {
@@ -68,13 +69,14 @@ client.on("interactionCreate", async (interaction) => {
 //     }
 // });
 
-// client.on("guildMemberUpdate", async (oldMember, newMember) => {
-//     if (oldMember.displayName == newMember.displayName) {
-//         return;
-//     }
-//     const request = new DiscordData(oldMember.id, newMember.displayName);
-//     await Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
-// });
+client.on("guildMemberUpdate", async (old, current) => {
+    if (old.displayName == current.displayName) {
+        return;
+    }
+    const request = new NicknameUpdateRequest(current.displayName);
+    const query = new ID(current.id);
+    await Network.post<NicknameUpdateRequest, NoneResponse>(AccessPoint.MEMBER_UPDATE, request, query);
+});
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {
     console.log("DISCORD_BOT_TOKENが設定されていません。");
