@@ -1,6 +1,6 @@
-import { IDto } from "..";
+import { DTO } from "..";
 
-export class DiscordData implements IDto {
+export class Discord implements DTO {
     id: string;
     nickname: string;
 

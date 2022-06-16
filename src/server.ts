@@ -1,10 +1,8 @@
 import express from "express";
-import { Client, Intents, Message } from "discord.js";
+import { Client, Intents } from "discord.js";
 import * as dotenv from "dotenv";
-import { NoneResponse, Network, DiscordData, AccessPoint, ID } from "./Networks";
-import { TypeGuards } from "./Utils";
-import { CommandList } from "./Commands";
-import { NicknameUpdateRequest } from "./Networks/Models/NicknameUpdateRequest";
+import { TypeGuards } from "./utils";
+import { CommandList } from "./commands";
 
 dotenv.config();
 const options = {
@@ -52,30 +50,6 @@ client.on("interactionCreate", async (interaction) => {
             }
         }
     }
-});
-
-// client.on("messageCreate", async (message: Message) => {
-//     if (message.author.id == client.user?.id || message.author.bot) {
-//         return;
-//     }
-//     if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
-//         const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
-//         if (role && message.member && !message.member.roles.cache.has(role.id)) {
-//             message.member.roles.add(role);
-//             const request = new DiscordData(message.member.id, message.member.displayName);
-//             console.log(request);
-//             Network.post<DiscordData, NoneResponse>(process.env.NAME_LIST_API!, request);
-//         }
-//     }
-// });
-
-client.on("guildMemberUpdate", async (old, current) => {
-    if (old.displayName == current.displayName) {
-        return;
-    }
-    const request = new NicknameUpdateRequest(current.displayName);
-    const query = new ID(current.id);
-    await Network.post<NicknameUpdateRequest, NoneResponse>(AccessPoint.MEMBER_UPDATE, request, query);
 });
 
 if (process.env.DISCORD_BOT_TOKEN == undefined) {

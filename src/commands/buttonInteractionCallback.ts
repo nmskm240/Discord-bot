@@ -1,5 +1,5 @@
 import { ButtonInteraction } from "discord.js";
 
-export interface ICallbackableButtonInteraction {
+export interface ButtonInteractionCallback {
     callback(interaction: ButtonInteraction): any
 }
