@@ -45,7 +45,7 @@ client.on("interactionCreate", async (interaction) => {
             const command = CommandList.find((command) => {
                 return command.name === commandName;
             });
-            if (TypeGuards.isCallbackableButtonInteraction(command)) {
+            if (TypeGuards.isButtonInteractionCallback(command)) {
                 await command.callback(interaction);
             }
         }
