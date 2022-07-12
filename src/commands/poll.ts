@@ -1,4 +1,4 @@
-import { CommandInteraction, CacheType, ApplicationCommandData, ApplicationCommandChoicesData, MessageEmbed, GuildMember, Interaction, ApplicationCommandOptionChoice, CommandOptionChoiceResolvableType, Emoji, Message } from "discord.js";
+import { CommandInteraction, CacheType, ApplicationCommandData, ApplicationCommandChoicesData, MessageEmbed, Message } from "discord.js";
 import { Command } from "."
 
 const REACTIONS = ["0⃣", "1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣"]
@@ -28,6 +28,7 @@ export class Poll implements Command {
                 title: title,
                 description: description,
                 color: "BLUE",
+                author: { name: interaction.user.username, icon_url: interaction.user.displayAvatarURL() }
             });
             interaction.reply({ embeds: [embed] });
             const message = await interaction.fetchReply() as Message;
@@ -41,7 +42,12 @@ export class Poll implements Command {
             const message = interaction.channel?.messages.cache.get(id) ??
                 await interaction.channel?.messages.fetch(id);
             if (!message || message.interaction?.commandName != this.name) {
-                interaction.reply({ content: "指定されたidの投票フォームは見つかりませんでした", ephemeral: true })
+                const embed = new MessageEmbed({
+                    title: "エラー",
+                    description: "指定されたidの投票フォームは見つかりませんでした",
+                    color: "RED",
+                })
+                interaction.reply({ embeds: [embed], ephemeral: true })
                 return
             }
             const form = message.embeds.at(0)!;
@@ -62,12 +68,11 @@ export class Poll implements Command {
                 let choice = choices.find((c) => {
                     return c.includes(value.reaction!);
                 });
-                choice += `(${value.count})票`;
                 if (index < 3) {
                     choice += `${RANKING[index]}`;
                     choice = `**${choice}**`;
                 }
-                const raitoBar = "\`\`\`" + value.raito * 100 + "%\`\`\`".padEnd(value.raito * 100, "\\|");
+                const raitoBar = `\`\`\`${value.count}票 (${value.raito * 100}%)\`\`\``;
                 return { name: choice!, value: raitoBar };
             });
             const embed = new MessageEmbed({
@@ -75,6 +80,7 @@ export class Poll implements Command {
                 fields: fields,
             });
             interaction.reply({ embeds: [embed] });
+            message.reactions.removeAll();
         }
     }
 
