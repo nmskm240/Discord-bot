@@ -1,8 +1,8 @@
 import { CommandInteraction, CacheType, ApplicationCommandData, GuildMember, MessageEmbed } from "discord.js";
-import { ICommand } from ".";
-import { Team } from "../Utils";
+import { Command } from ".";
+import { Team } from "../utils";
 
-export class Teaming implements ICommand {
+export class Teaming implements Command {
     name: string;
     description: string;
 

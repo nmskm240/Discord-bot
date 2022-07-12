@@ -1,6 +1,6 @@
-import { IQuery } from "../..";
+import { Query } from "../..";
 
-export class ID implements IQuery {
+export class ID implements Query {
     id: string = "";
 
     constructor(id: string) {

@@ -1,8 +1,8 @@
-import { CommandInteraction, CacheType, MessageEmbed, ButtonInteraction, Guild, ApplicationCommandData } from "discord.js";
-import { ICommand, ICallbackableButtonInteraction } from ".";
-import { AccessPoint, Campus, Network, RoomData } from "../Networks";
+import { CommandInteraction, CacheType, MessageEmbed, ButtonInteraction, ApplicationCommandData } from "discord.js";
+import { Command, ButtonInteractionCallback } from ".";
+import { AccessPoint, Network, Room as RoomModel } from "../networks";
 
-export class Room implements ICommand, ICallbackableButtonInteraction {
+export class Room implements Command, ButtonInteractionCallback {
     name: string;
     description: string;
 
@@ -13,7 +13,7 @@ export class Room implements ICommand, ICallbackableButtonInteraction {
 
     async callback(interaction: ButtonInteraction<CacheType>) {
         await interaction.deferUpdate()
-        const rooms = await Network.get<RoomData[]>(AccessPoint.ROOM_STATE);
+        const rooms = await Network.get<RoomModel[]>(AccessPoint.ROOM_STATE);
         if (rooms) {
             const fields = await Promise.all(rooms.map(async (room) => {
                 const inmates = await interaction.guild?.members.fetch({

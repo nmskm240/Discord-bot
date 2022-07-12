@@ -1,6 +1,6 @@
 import { ApplicationCommandData, CommandInteraction } from "discord.js";
 
-export interface ICommand {
+export interface Command {
     readonly name: string
     readonly description: string
 

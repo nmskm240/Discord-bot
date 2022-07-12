@@ -1,6 +1,6 @@
-import { IDto } from "..";
+import { DTO } from "..";
 
-export class GameData implements IDto {
+export class Game implements DTO {
     title: string;
     id: string;
 

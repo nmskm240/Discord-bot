@@ -1,7 +1,7 @@
 import axiosBase, { AxiosInstance, AxiosResponse } from "axios";
-import { AccessPoint, IDto, IQuery } from ".";
+import { AccessPoint, DTO, Query } from ".";
 
-class AccessToken implements IQuery {
+class AccessToken implements Query {
     token: string = "";
 
     constructor(partial: Partial<AccessToken> = { token: "" }) {
@@ -25,7 +25,7 @@ export class Network {
         return new AccessToken(res.data);
     }
 
-    public static async get<Response extends IDto>(accessPoint: AccessPoint, parameters: IQuery | undefined = undefined): Promise<Response | null> {
+    public static async get<Response extends DTO>(accessPoint: AccessPoint, parameters: Query | undefined = undefined): Promise<Response | null> {
         const token = await Network.getToken();
         const query = Object.assign({}, token.toObject(), parameters?.toObject());
         const axios: AxiosInstance = axiosBase.create();
@@ -39,7 +39,7 @@ export class Network {
         return res.data;
     }
 
-    public static async post<Request extends IDto, Response extends IDto>(accessPoint: AccessPoint, data: Request, query: IQuery | undefined = undefined): Promise<Response | null> {
+    public static async post<Request extends DTO, Response extends DTO>(accessPoint: AccessPoint, data: Request, query: Query | undefined = undefined): Promise<Response | null> {
         const axios = axiosBase.create({
             headers: {
                 "Content-Type": "application/json",

@@ -1,7 +1,7 @@
 import { CommandInteraction, CacheType, ApplicationCommandData, MessageEmbed } from "discord.js";
-import { ICommand, CommandList } from ".";
+import { Command, CommandList } from ".";
 
-export class Help implements ICommand {
+export class Help implements Command {
     name: string;
     description: string;
     
