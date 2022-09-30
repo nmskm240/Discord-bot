@@ -39,7 +39,9 @@ export class Network {
         return res.data;
     }
 
-    public static async post<Request extends DTO, Response extends DTO>(accessPoint: AccessPoint, data: Request, query: Query | undefined = undefined): Promise<Response | null> {
+    public static async post<Request extends DTO, Response extends DTO>(accessPoint: AccessPoint, data: Request, parameters: Query | undefined = undefined): Promise<Response | null> {
+        const token = await Network.getToken();
+        const query = Object.assign({}, token.toObject(), parameters?.toObject());
         const axios = axiosBase.create({
             headers: {
                 "Content-Type": "application/json",
@@ -50,7 +52,7 @@ export class Network {
         const res: AxiosResponse<Response> = await axios.post<Request, Response>(process.env.MAIN_API! + "/" + accessPoint,
             data,
             {
-                params: query?.toObject(),
+                params: query,
             }).catch((error: any) => {
                 return error.response;
             });
