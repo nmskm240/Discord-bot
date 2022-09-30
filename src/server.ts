@@ -3,6 +3,7 @@ import { Client, Intents } from "discord.js";
 import * as dotenv from "dotenv";
 import { TypeGuards } from "./utils";
 import { CommandList } from "./commands";
+import { AccessPoint, Discord, Member, Network, NoneResponse } from "./networks";
 
 dotenv.config();
 const options = {
@@ -48,6 +49,21 @@ client.on("interactionCreate", async (interaction) => {
             if (TypeGuards.isButtonInteractionCallback(command)) {
                 await command.callback(interaction);
             }
+        }
+    }
+});
+
+client.on("messageCreate", async (message) => {
+    if (message.author.id == client.user?.id || message.author.bot) {
+        return;
+    }
+    if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
+        const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
+        if (role && message.member && !message.member.roles.cache.has(role.id)) {
+            message.member.roles.add(role);
+            const discord = new Discord(message.member.id, message.member.displayName);
+            const member = new Member(-1, "", discord, []);
+            await Network.post<Member, NoneResponse>(AccessPoint.MEMBER_REGISTER, member);
         }
     }
 });
