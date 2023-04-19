@@ -1,7 +1,7 @@
 import express from "express";
-import { Client, Intents } from "discord.js";
+import { Client, Intents, VoiceState } from "discord.js";
 import * as dotenv from "dotenv";
-import { TypeGuards } from "./utils";
+import { TypeGuards, VCC } from "./utils";
 import { CommandList } from "./commands";
 
 dotenv.config();
@@ -49,6 +49,30 @@ client.on("interactionCreate", async (interaction) => {
                 await command.callback(interaction);
             }
         }
+    }
+});
+
+client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
+    if (oldState.member?.id == client.user?.id || newState.member?.id == client.user?.id) {
+        return;
+    }
+    if (VCC.isLeavedVC(oldState, newState)) {
+        const vcc = new VCC(oldState);
+        await vcc.leave(oldState.member!);
+    } else if (VCC.isConnectedVC(oldState, newState)) {
+        const vcc = new VCC(newState);
+        if (!vcc.channel) {
+            await vcc.create();
+        }
+        await vcc.join(newState.member!);
+    } else if (VCC.isSwitchedVC(oldState, newState)) {
+        const oldVCC = new VCC(oldState);
+        const newVCC = new VCC(newState);
+        await oldVCC.leave(oldState.member!);
+        if (!newVCC.channel) {
+            await newVCC.create();
+        }
+        await newVCC.join(newState.member!);
     }
 });
 
