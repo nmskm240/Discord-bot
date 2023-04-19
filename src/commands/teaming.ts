@@ -7,7 +7,7 @@ export class Teaming implements Command {
     description: string;
 
     constructor() {
-        this.name = "teaming"
+        this.name = "team"
         this.description = "チーム分け";
     }
 
