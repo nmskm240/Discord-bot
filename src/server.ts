@@ -1,9 +1,8 @@
 import express from "express";
-import { Client, Intents } from "discord.js";
+import { Client, Intents, VoiceState } from "discord.js";
 import * as dotenv from "dotenv";
-import { TypeGuards } from "./utils";
+import { TypeGuards, VCC } from "./utils";
 import { CommandList } from "./commands";
-import { AccessPoint, Discord, Member, Network, NoneResponse } from "./networks";
 
 dotenv.config();
 const options = {
@@ -53,18 +52,27 @@ client.on("interactionCreate", async (interaction) => {
     }
 });
 
-client.on("messageCreate", async (message) => {
-    if (message.author.id == client.user?.id || message.author.bot) {
+client.on("voiceStateUpdate", async (oldState: VoiceState, newState: VoiceState) => {
+    if (oldState.member?.id == client.user?.id || newState.member?.id == client.user?.id) {
         return;
     }
-    if (message.channel.id == process.env.INTRODUCTION_CHANNEL_ID) {
-        const role = message.guild?.roles.cache.find((r) => r.id == process.env.ACTIVE_MEMBER_ROLE_ID!);
-        if (role && message.member && !message.member.roles.cache.has(role.id)) {
-            message.member.roles.add(role);
-            const discord = new Discord(message.member.id, message.member.displayName);
-            const member = new Member(-1, "", discord, []);
-            await Network.post<Member, NoneResponse>(AccessPoint.MEMBER_REGISTER, member);
+    if (VCC.isLeavedVC(oldState, newState)) {
+        const vcc = new VCC(oldState);
+        await vcc.leave(oldState.member!);
+    } else if (VCC.isConnectedVC(oldState, newState)) {
+        const vcc = new VCC(newState);
+        if (!vcc.channel) {
+            await vcc.create();
         }
+        await vcc.join(newState.member!);
+    } else if (VCC.isSwitchedVC(oldState, newState)) {
+        const oldVCC = new VCC(oldState);
+        const newVCC = new VCC(newState);
+        await oldVCC.leave(oldState.member!);
+        if (!newVCC.channel) {
+            await newVCC.create();
+        }
+        await newVCC.join(newState.member!);
     }
 });
 
